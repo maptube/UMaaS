@@ -1,16 +1,21 @@
+import numpy as np
+from math import exp, fabs
+from sys import float_info
+
 """
 Single destination constrained gravity model
 """
 class SingleDest:
-    self.NumModes=3 #const???
+    #self.NumModes=3 #const???
     
 ###############################################################################
 
-    def __init__(self, i_var):
-        self.TObs=[] #Data input to model
-        self.cost=[] #cost matrix for zones in TObs
+    def __init__(self):
+        self.numModes=3
+        self.TObs=[] #Data input to model list of NDArray
+        self.cij=[] #cost matrix for zones in TObs
 
-        self.isUsingConstraints = false
+        self.isUsingConstraints = False
         self.constraints = [] #1 or 0 to indicate constraints for zones matching TObs - this applies to all modes
 
         self.TPred=[] #this is the output
@@ -18,162 +23,124 @@ class SingleDest:
         self.Beta=[] #Beta values for three modes - this is also output
 
 
-"""
+    """
     calculateCBar
     Mean trips calculation
     @param name="Tij" NDArray
-    @param name="cost" NDArray
+    @param name="cij" NDArray
     @returns float
-"""
-    def calculateCBar(self,Tij,cost):
+    """
+    def calculateCBar(self,Tij,cij):
         (M, N) = np.shape(Tij)
         CNumerator = 0.0
         CDenominator = 0.0
         for i in range(0,N):
             for j in range(0,N):
-                CNumerator += Tij[i, j] * cost[i, j]
+                CNumerator += Tij[i, j] * cij[i, j]
                 CDenominator += Tij[i, j]
-        float CBar = CNumerator / CDenominator
+        CBar = CNumerator / CDenominator
 
         return CBar
 
 ###############################################################################
-"""
+    """
     run
     Not sure what this was - early run function?
     @returns nothing
-"""
-    def run():
-        (M, N) = np.shape(TObs)
+    """
+    def run(self):
+        (M, N) = np.shape(self.TObs[0])
         
         #set up Beta for modes 0, 1 and 2 to 1.0f
-        Beta = [1.0 for k in range(0,self.NumModes)]
+        Beta = [1.0 for k in range(0,self.numModes)]
 
         #work out Dobs and Tobs from rows and columns of TObs matrix
         #These don't ever change so they need to be outside the convergence loop
         DjObs = np.arange(N)
-        OiObs = np.arrange(N)
+        OiObs = np.arange(N)
         Sum=0.0
 
         #OiObs
         for i in range(0,N):
             Sum = 0.0
             for j in range(0,N):
-                for k in range(0, self.NumModes):
-                    Sum += TObs[k]._M[i, j];
+                for k in range(0, self.numModes):
+                    Sum += self.TObs[k][i, j]
             OiObs[i] = Sum
 
         #DjObs
         for j in range(0,N):
             Sum = 0.0
             for i in range(0,N):
-                for k in range(0,self.NumModes):
-                    Sum += TObs[k]._M[i, j];
+                for k in range(0,self.numModes):
+                    Sum += self.TObs[k][i, j]
             DjObs[j] = Sum
 
         #constraints initialisation
-        B = new float[N];
-        for (int i = 0; i < N; i++) B[i] = 1.0f; //hack
-        float[] Z = new float[N];
-        for (int j = 0; j < N; j++)
-        {
-            Z[j] = float.MaxValue;
-            if (IsUsingConstraints)
-            {
-                if (Constraints[j] >= 1.0f) //constraints array taking place of Gj (Green Belt) in documentation
-                {
+        B = [1.0 for i in range(0,N)] #hack
+        Z = [0.0 for i in range(0,N)]
+        for j in range(0,N):
+            Z[j] = float_info.max
+            if self.isUsingConstraints:
+                if self.constraints[j] >= 1.0: #constraints array taking place of Gj (Green Belt) in documentation
                     #Gj=1 means 0.8 of MSOA land is green belt, so can't be built on
                     #set constraint to original Dj
-                    Z[j] = DjObs[j];
-                }
-            }
-        }
+                    Z[j] = DjObs[j]
         #end of constraints initialisation - have now set B[] and Z[] based on IsUsingConstraints, Constraints[] and DObs[]
 
-        #Instrumentation block - mainly to start off the graph so you have something to look at while the next bit happens
-        for (int k=0; k<NumModes; k++)
-            InstrumentSetVariable("Beta"+k, Beta[k]);
-        InstrumentSetVariable("delta", 0);
-        InstrumentTimeInterval();
-        #end of Instrumentation block
 
-        FMatrix[] Tij = null;
-        bool Converged = false;
-        while (!Converged)
-        {
-            #Instrumentation block
-            for (int k = 0; k < NumModes; k++)
-            {
-                InstrumentSetVariable("Beta" + k, Beta[k]);
-                InstrumentSetVariable("delta" + k, 100);
-                InstrumentSetVariable("delta", 100);
-            }
-            #end of instrumentation block
-                
-
-            bool ConstraintsMet = false;
-            do
-            {
+        Tij = [np.arange(N*N).reshape(N, N) for k in range(0,self.numModes) ] #array of matrix over each mode(k) - need declaration outside loop
+        converged = False
+        while not converged:      
+            constraintsMet = False
+            while not constraintsMet:
                 #residential constraints
-                ConstraintsMet = true; //unless violated one or more times below
-                int FailedConstraintsCount = 0;
+                constraintsMet = True #unless violated one or more times below
+                failedConstraintsCount = 0
 
                 #model run
-                Tij = new FMatrix[NumModes];
-                for (int k = 0; k < NumModes; k++) //mode loop
-                {
-                    InstrumentStatusText = "Running model for mode "+k;
-                    Tij[k] = new FMatrix(N, N);
+                Tij = [np.arange(N*N).reshape(N, N) for k in range(0,self.numModes) ]
+                for k in range(0,self.numModes): #mode loop
+                    print("Running model for mode ",k)
+                    Tij[k] = np.arange(N*N).reshape(N, N)
 
-                    Parallel.For(0, N, i =>
-                    #for (int i = 0; i < N; i++)
-                    {
+                    for i in range(0,N):
                         #denominator calculation which is sum of all modes
-                        double denom = 0;
-                        for (int kk = 0; kk < NumModes; kk++) //second mode loop
-                        {
-                            for (int j = 0; j < N; j++)
-                            {
-                                denom += DjObs[j] * Math.Exp(-Beta[kk] * dis[kk]._M[i, j]);
-                            }
-                        }
+                        denom = 0.0;  #double
+                        for kk in range(0,self.numModes): #second mode loop
+                            for j in range(0,N):
+                                denom += DjObs[j] * exp(-Beta[kk] * self.cij[kk][i, j])
+                            #end for j
+                        #end for kk
 
                         #numerator calculation for this mode (k)
-                        for (int j = 0; j < N; j++)
-                        {
-                            Tij[k]._M[i, j] = (float)(B[j] * OiObs[i] * DjObs[j] * Math.Exp(-Beta[k] * dis[k]._M[i, j]) / denom);
-                        }
-                    }
-                    );
-                }
+                        for j in range(0,N):
+                            Tij[k][i, j] = B[j] * OiObs[i] * DjObs[j] * exp(-Beta[k] * self.cij[k][i, j]) / denom
+                    #end for i
+                #end for k
 
                 #constraints check
-                if (IsUsingConstraints)
-                {
-                    System.Diagnostics.Debug.WriteLine("Constraints test");
-                    InstrumentStatusText = "Constraints test";
+                if self.isUsingConstraints:
+                    print("Constraints test")
 
-                    for (int j = 0; j < N; j++)
-                    {
-                        float Dj = 0;
-                        for (int i = 0; i < N; i++) Dj += Tij[0]._M[i, j]+Tij[1]._M[i,j]+Tij[2]._M[i,j];
-                        if (Constraints[j] >= 1.0f) //Constraints is taking the place of Gj in the documentation
-                        {
-                            if ((Dj - Z[j]) >= 0.5) //was >1.0
-                            {
-                                B[j] = B[j] * Z[j] / Dj;
-                                ConstraintsMet = false;
-                                ++FailedConstraintsCount;
-                                InstrumentStatusText = "Constraints violated on " + FailedConstraintsCount + " MSOA zones";
-                                System.Diagnostics.Debug.WriteLine("Dj=" + Dj + " Zj=" + Z[j] + " Bj=" + B[j]);
-                            }
-                        }
-                    }
+                    for j in range(0,N):
+                        Dj = 0.0
+                        for i in range(0,N): Dj += Tij[0]._M[i, j]+Tij[1]._M[i,j]+Tij[2]._M[i,j]
+                        if self.constraints[j] >= 1.0: #Constraints is taking the place of Gj in the documentation
+                            if (Dj - Z[j]) >= 0.5: #was >1.0
+                                B[j] = B[j] * Z[j] / Dj
+                                constraintsMet = False
+                                failedConstraintsCount+=1
+                                print("Constraints violated on " + failedConstraintsCount + " MSOA zones")
+                                print("Dj=", Dj, " Zj=", Z[j], " Bj=", B[j])
+                            #end if (Dj-Z[j])>=0.5
+                        #end if Constraints[j]>=1.0
+                    #end for j
                          
                     #copy B2 into B ready for the next round
                     #for (int j = 0; j < N; j++) B[j] = B2[j];
-                }
-                System.Diagnostics.Debug.WriteLine("FailedConstraintsCount=" + FailedConstraintsCount);
+                #end if self.isUsingConstraints
+                print("FailedConstraintsCount=", failedConstraintsCount)
 
                 #Instrumentation block
                 #for (int k = 0; k < NumModes; k++)
@@ -182,246 +149,201 @@ class SingleDest:
                 #InstrumentTimeInterval();
                 #end of instrumentation block
 
-            } while (!ConstraintsMet);
+            #end while not ConstraintsMet
 
             #calculate mean predicted trips and mean observed trips (this is CBar)
-            float[] CBarPred = new float[NumModes];
-            float[] CBarObs = new float[NumModes];
-            float[] delta = new float[NumModes];
-            for (int k = 0; k < NumModes; k++)
-            {
-                CBarPred[k] = CalculateCBar(ref Tij[k], ref dis[k]);
-                CBarObs[k] = CalculateCBar(ref TObs[k], ref dis[k]);
-                delta[k] = Math.Abs(CBarPred[k] - CBarObs[k]); //the aim is to minimise delta[0]+delta[1]+...
-            }
+            CBarPred = [0.0 for k in range(0,self.numModes)]
+            CBarObs = [0.0 for k in range(0,self.numModes)]
+            delta = [0.0 for k in range(0,self.numModes)]
+            for k in range(0,self.numModes):
+                CBarPred[k] = self.calculateCBar(Tij[k], self.cij[k])
+                CBarObs[k] = self.calculateCBar(self.TObs[k], self.cij[k])
+                delta[k] = fabs(CBarPred[k] - CBarObs[k]) #the aim is to minimise delta[0]+delta[1]+...
+            #end for k
 
             #delta check on all betas (Beta0, Beta1, Beta2) stopping condition for convergence
             #double gradient descent search on Beta0 and Beta1 and Beta2
-            Converged = true;
-            for (int k = 0; k < NumModes; k++)
-            {
-                if (delta[k] / CBarObs[k] > 0.001)
-                {
-                    Beta[k] = Beta[k] * CBarPred[k] / CBarObs[k];
-                    Converged = false;
-                }
-            }
-            #Instrumentation block
-            for (int k = 0; k < NumModes; k++)
-            {
-                InstrumentSetVariable("Beta" + k, Beta[k]);
-                InstrumentSetVariable("delta" + k, delta[k]);
-            }
-            InstrumentSetVariable("delta", delta[0] + delta[1] + delta[2]); //should be a k loop
-            InstrumentTimeInterval();
-            #end of instrumentation block
-        }
+            converged = True
+            for k in range(0,self.numModes):
+                if delta[k] / CBarObs[k] > 0.001:
+                    Beta[k] = Beta[k] * CBarPred[k] / CBarObs[k]
+                    converged = False
+            #end for k
+            #Debug block
+            for k in range(0,self.numModes):
+                print("Beta", k, "=", Beta[k])
+                print("delta", k, "=", delta[k])
+            #end for k
+            print("delta", delta[0], delta[1], delta[2]) #should be a k loop
+            #end of debug block
+        #end while not Converged
 
         #Set the output, TPred[]
-        for (int k = 0; k < NumModes; k++) TPred[k] = Tij[k];
+        for k in range(0,self.numModes):
+            self.TPred[k] = Tij[k]
 
         #debugging:
         #for (int i = 0; i < N; i++)
         #    System.Diagnostics.Debug.WriteLine("Quant3Model::Run::ConstraintsB," + i + "," + B[i]);
 
-    }
-
 ###############################################################################
 
-        /// <summary>
-        /// NOTE: this was copied directly from the Quant 1 model
-        /// Run the quant model with different values for the Oi and Dj zones.
-        /// Uses a guid to store the user defined model run data
-        /// PRE: needs TObs, dis and beta
-        /// TODO: need to instrument this
-        /// TODO: writes out one file, which is the sum of the three predicted matrices produced
-        /// </summary>
-        /// <param name="OiDjHash">Hashmap of zonei index and Oi, Dj values for that area. A value of -1 for Oi or Dj means no change.</param>
-        /// <param name="hasConstraints">Run with random values added to the Dj values.</param>
-        /// <param name="OutFilename">Filename of where to store the resulting matrix, probably includes the GUID of the user directory to store the results</param>
-        public void RunWithChanges(Dictionary<int, float[]> OiDjHash, bool hasConstraints, string OutFilename)
-        {
-            Stopwatch timer = Stopwatch.StartNew();
+    """
+    RunWithChanges
+    NOTE: this was copied directly from the Quant 1 model
+    Run the quant model with different values for the Oi and Dj zones.
+    PRE: needs TObs, cij and beta
+    TODO: need to instrument this
+    TODO: writes out one file, which is the sum of the three predicted matrices produced
+    @param name="OiDjHash" Hashmap of zonei index and Oi, Dj values for that area. A value of -1 for Oi or Dj means no change.
+    @param name="hasConstraints">Run with random values added to the Dj values.
+    """
+    def runWithChanges(self, OiDjHash, hasConstraints):
 
-            int N = TObs[0].N;
+        (M, N) = np.shape(self.TObs[0])
 
-            float[] DjObs = new float[N];
-            float[] OiObs = new float[N];
-            float Sum;
+        DjObs = [0.0 for i in range(0,N)]
+        OiObs = [0.0 for i in range(0,N)]
+        Sum=0.0
 
-            //OiObs
-            for (int i = 0; i < N; i++)
-            {
-                Sum = 0;
-                for (int j = 0; j < N; j++)
-                {
-                    for (int k = 0; k < NumModes; k++) Sum += TObs[k]._M[i, j];
-                }
-                OiObs[i] = Sum;
-            }
+        #OiObs
+        for i in range(0,N):
+            sum = 0.0
+            for j in range(0,N):
+                for k in range(0,self.numModes): sum += self.TObs[k][i, j]
+            #end for j
+            OiObs[i] = sum
+        #end for i
 
-            //DjObs
-            for (int j = 0; j < N; j++)
-            {
-                Sum = 0;
-                for (int i = 0; i < N; i++)
-                {
-                    for (int k = 0; k < NumModes; k++) Sum += TObs[k]._M[i, j];
-                }
-                DjObs[j] = Sum;
-            }
+        #DjObs
+        for j in range(0,N):
+            sum = 0.0
+            for i in range(0,N):
+                for k in range(0,self.numModes): sum += self.TObs[k][i, j]
+            #end for i
+            DjObs[j] = sum
+        #end for j
 
-            //this is a complete hack - generate a TPred matrix that we can get Dj constraints from
-            FMatrix[] TPredCons = new FMatrix[NumModes];
-            for (int k = 0; k < NumModes; k++) //mode loop
-            {
-                TPredCons[k] = new FMatrix(N, N);
+        #this is a complete hack - generate a TPred matrix that we can get Dj constraints from
+        TPredCons = [np.arange(N*N).reshape(N, N) for k in range(0,self.numModes) ]
+        for k in range(0,self.numModes): #mode loop
+            TPredCons[k] = np.arange(N*N).reshape(N,N)
 
-                for (int i = 0; i < N; i++)
-                {
-                    //denominator calculation which is sum of all modes
-                    double denom = 0;
-                    for (int kk = 0; kk < NumModes; kk++) //second mode loop
-                    {
-                        for (int j = 0; j < N; j++)
-                        {
-                            denom += DjObs[j] * Math.Exp(-Beta[kk] * dis[kk]._M[i, j]);
-                        }
-                    }
+            for i in range(0,N):
+                #denominator calculation which is sum of all modes
+                denom = 0.0
+                for kk in range(0,self.numModes): #second mode loop
+                    for j in range(0,N):
+                        denom += DjObs[j] * exp(-self.Beta[kk] * self.cij[kk][i, j])
+                    #end for j
+                #end for kk
 
-                    //numerator calculation for this mode (k)
-                    for (int j = 0; j < N; j++)
-                    {
-                        TPredCons[k]._M[i, j] = (float)(B[j] * OiObs[i] * DjObs[j] * Math.Exp(-Beta[k] * dis[k]._M[i, j]) / denom);
-                    }
-                }
-            }
-            //now the DjCons - you could just set Zj here?
-            float[] DjCons = new float[N];
-            for (int j = 0; j < N; j++)
-            {
-                Sum = 0;
-                for (int i = 0; i < N; i++)
-                {
-                    for (int k = 0; k < NumModes; k++) Sum += TPredCons[k]._M[i, j];
-                }
-                DjCons[j] = Sum;
-            }
+                #numerator calculation for this mode (k)
+                for j in range(0,N):
+                    TPredCons[k][i, j] = self.B[j] * OiObs[i] * DjObs[j] * exp(-self.Beta[k] * self.cij[k][i, j]) / denom
+                #end for j
+            #end for i
+        #end for k
+        #now the DjCons - you could just set Zj here?
+        DjCons = [0.0 for j in range(0,N)]
+        for j in range(0,N):
+            sum = 0.0
+            for i in range(0,N):
+                for k in range(0,self.numModes): sum += TPredCons[k][i, j]
+            #end for i
+            DjCons[j] = sum
+        #end for j
 
             
-            //
-            //
-            //TODO: Question - do the constraints take place before or after the Oi Dj changes? If before, then it's impossible to increase jobs in greenbelt zones. If after, then changes override the green belt.
+        #
+        #
+        #TODO: Question - do the constraints take place before or after the Oi Dj changes? If before, then it's impossible to increase jobs in greenbelt zones. If after, then changes override the green belt.
 
-            //constraints initialisation - this is the same as the calibration, except that the B[j] values are initially taken from the calibration, while Z[j] is initialised from Dj[j] as before.
-            float[] Z = new float[N];
-            for (int j = 0; j < N; j++)
-            {
-                Z[j] = float.MaxValue;
-                if (IsUsingConstraints)
-                {
-                    if (Constraints[j] >= 1.0f) //constraints array taking place of Gj (Green Belt) in documentation
-                    {
-                        //Gj=1 means a high enough percentage of MSOA land is green belt, so can't be built on
-                        //set constraint to original Dj
-                        //Z[j] = DjObs[j];
-                        Z[j] = DjCons[j];
-                    }
-                }
-            }
-            //end of constraints initialisation - have now set B[] and Z[] based on IsUsingConstraints, Constraints[] and DObs[]
+        #constraints initialisation - this is the same as the calibration, except that the B[j] values are initially taken from the calibration, while Z[j] is initialised from Dj[j] as before.
+        Z = [0.0 for j in range(0,N)]
+        for j in range(0,N):
+            Z[j] = float_info.max
+            if self.isUsingConstraints:
+                if self.constraints[j] >= 1.0: #constraints array taking place of Gj (Green Belt) in documentation
+                    #Gj=1 means a high enough percentage of MSOA land is green belt, so can't be built on
+                    #set constraint to original Dj
+                    #Z[j] = DjObs[j];
+                    Z[j] = DjCons[j]
+                #end if constraints[j]
+            #end if self.isUsingConstraints
+        #end for j
+        #end of constraints initialisation - have now set B[] and Z[] based on IsUsingConstraints, Constraints[] and DObs[]
 
-            //apply changes here from the hashmap
-            foreach (KeyValuePair<int, float[]> KVP in OiDjHash)
-            {
-                int i = KVP.Key;
-                if (KVP.Value[0] >= 0) OiObs[i] = KVP.Value[0];
-                if (KVP.Value[1] >= 0) DjObs[i] = KVP.Value[1];
-            }
+        #apply changes here from the hashmap
+        for key in OiDjHash:
+            i = int(key)
+            value = OiDjHash[i]
+            if value[0] >= 0: OiObs[i] = value[0]
+            if value[1] >= 0: DjObs[i] = value[1]
+        #end for key
 
 
-            bool ConstraintsMet = false;
-            do
-            {
-                //residential constraints
-                ConstraintsMet = true; //unless violated one or more times below
-                int FailedConstraintsCount = 0;
+        constraintsMet = False
+        while not constraintsMet:
+            #residential constraints
+            constraintsMet = True #unless violated one or more times below
+            failedConstraintsCount = 0
 
-                //run 3 model
-                System.Diagnostics.Debug.WriteLine("Run 3 model");
-                for (int k = 0; k < NumModes; k++) //mode loop
-                {
-                    TPred[k] = new FMatrix(N, N);
+            #run 3 model
+            print("Run 3 model")
+            for k in range(0,self.numModes): #mode loop
+                self.TPred[k] = np.arange(N*N).reshape(N,N)
 
-                    Parallel.For(0, N, i =>
-                    //for (int i = 0; i < N; i++)
-                    {
-                        //denominator calculation which is sum of all modes
-                        double denom = 0;
-                        for (int kk = 0; kk < NumModes; kk++) //second mode loop
-                        {
-                            for (int j = 0; j < N; j++)
-                            {
-                                denom += B[j]*DjObs[j] * Math.Exp(-Beta[kk] * dis[kk]._M[i, j]);
-                            }
-                        }
+                for i in range(0,N):
+                    #denominator calculation which is sum of all modes
+                    denom = 0.0
+                    for kk in range(0,self.numModes): #second mode loop
+                        for j in range(0,N):
+                            denom += self.B[j]*DjObs[j] * exp(-self.Beta[kk] * self.cij[kk][i, j])
+                    #end for kk
 
-                        //numerator calculation for this mode (k)
-                        for (int j = 0; j < N; j++)
-                        {
-                            TPred[k]._M[i, j] = (float)(B[j] * OiObs[i] * DjObs[j] * Math.Exp(-Beta[k] * dis[k]._M[i, j]) / denom);
-                        }
-                    }
-                    );
-                }
+                    #numerator calculation for this mode (k)
+                    for j in range(0,N):
+                        self.TPred[k][i, j] = self.B[j] * OiObs[i] * DjObs[j] * exp(-self.Beta[k] * self.cij[k][i, j]) / denom
+                #end for i
+            #end for k
 
-                //constraints check
-                if (IsUsingConstraints)
-                {
-                    System.Diagnostics.Debug.WriteLine("Constraints test");
+            #constraints check
+            if self.isUsingConstraints:
+                print("Constraints test")
 
-                    for (int j = 0; j < N; j++)
-                    {
-                        float Dj = 0;
-                        for (int i = 0; i < N; i++) Dj += TPred[0]._M[i, j] + TPred[1]._M[i, j] + TPred[2]._M[i, j];
-                        if (Constraints[j] >= 1.0f) //Constraints is taking the place of Gj in the documentation
-                        {
-                            //System.Diagnostics.Debug.WriteLine("Test: " + Dj + ", " + Z[j] + "," + B[j]);
-                            if ((Dj - Z[j]) >= 0.5) //was >1.0 threshold
-                            {
-                                B[j] = B[j] * Z[j] / Dj;
-                                ConstraintsMet = false;
-                                ++FailedConstraintsCount;
-//                                System.Diagnostics.Debug.WriteLine("Constraints violated on " + FailedConstraintsCount + " MSOA zones");
-//                                System.Diagnostics.Debug.WriteLine("Dj=" + Dj + " Zj=" + Z[j] + " Bj=" + B[j]);
-                            }
-                        }
-                    }
-                }
-            } while (!ConstraintsMet);
+                for j in range(0,N):
+                    Dj = 0.0
+                    for i in range(0,N): Dj += self.TPred[0][i, j] + self.TPred[1][i, j] + self.TPred[2][i, j]
+                    if self.constraints[j] >= 1.0: #Constraints is taking the place of Gj in the documentation
+                        #System.Diagnostics.Debug.WriteLine("Test: " + Dj + ", " + Z[j] + "," + B[j]);
+                        if (Dj - Z[j]) >= 0.5: #was >1.0 threshold
+                            self.B[j] = self.B[j] * Z[j] / Dj
+                            constraintsMet = False
+                            failedConstraintsCount+=1
+#                                System.Diagnostics.Debug.WriteLine("Constraints violated on " + FailedConstraintsCount + " MSOA zones");
+#                                System.Diagnostics.Debug.WriteLine("Dj=" + Dj + " Zj=" + Z[j] + " Bj=" + B[j]);
+                        #end if (D[j]-Z[j])>=0.5
+                    #end if Constraints[j]>=1.0
+                #end for j
+            #end if self.isUsingConstraints
+        #end while not constraintsMet
 
-            //add all three TPred together
-            FMatrix TPredAll = new FMatrix(N, N);
-            //Parallel.For(0, N, i =>
-            for (int i = 0; i < N; i++)
-            {
-                for (int j = 0; j < N; j++)
-                {
-                    Sum = 0;
-                    for (int k = 0; k < NumModes; k++)
-                    {
-                        Sum += TPred[k]._M[i, j];
-                    }
-                    TPredAll._M[i, j] = Sum;
-                }
-            }
-            //);
+        #add all three TPred together
+        TPredAll = np.arange(N*N).reshape(N,N)
+        for i in range(0,N):
+            for j in range(0,N):
+                Sum = 0.0
+                for k in range(0,self.numModes):
+                    Sum += self.TPred[k][i, j]
+                #end for k
+                TPredAll[i, j] = Sum
+            #end for j
+        #end for i
             
-            //and store the result somewhere
-            TPredAll.DirtySerialise(OutFilename);
-
-            System.Diagnostics.Debug.WriteLine("QUANT3Model::RunWithChanges: " + timer.ElapsedMilliseconds + " ms");
-        }
+        #and store the result somewhere
+        #TPredAll.DirtySerialise(OutFilename);
+        return TPredAll
 
 
 ###############################################################################
