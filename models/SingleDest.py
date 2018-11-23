@@ -2,247 +2,231 @@
 Single destination constrained gravity model
 """
 class SingleDest:
-    public const int NumModes = 3;
-
-        public FMatrix[] TObs = new FMatrix[NumModes]; //Data input to model.
-        public FMatrix[] dis = new FMatrix[NumModes]; //distance matrix for zones in TObs
-        //public int N; //Number of zones i.e. used for dimensioning all arrays
-
-        public bool IsUsingConstraints = false;
-        public float[] Constraints; //1 or 0 to indicate constraints for zones matching TObs - this applies to all modes
-
-        public FMatrix[] TPred = new FMatrix[NumModes]; //this is the output
-        public float[] B; //this is the constraints output vector - this applies to all modes
-        public float[] Beta; //Beta values for three modes - this is also output
+    self.NumModes=3 #const???
     
+###############################################################################
 
-/// <summary>
-        /// Mean trips calculation
-        /// </summary>
-        /// <param name="Tij"></param>
-        /// <param name="dis"></param>
-        /// <returns></returns>
-        public float CalculateCBar(ref FMatrix Tij, ref FMatrix dis)
+    def __init__(self, i_var):
+        self.TObs=[] #Data input to model
+        self.cost=[] #cost matrix for zones in TObs
+
+        self.isUsingConstraints = false
+        self.constraints = [] #1 or 0 to indicate constraints for zones matching TObs - this applies to all modes
+
+        self.TPred=[] #this is the output
+        self.B=[] #this is the constraints output vector - this applies to all modes
+        self.Beta=[] #Beta values for three modes - this is also output
+
+
+"""
+    calculateCBar
+    Mean trips calculation
+    @param name="Tij" NDArray
+    @param name="cost" NDArray
+    @returns float
+"""
+    def calculateCBar(self,Tij,cost):
+        (M, N) = np.shape(Tij)
+        CNumerator = 0.0
+        CDenominator = 0.0
+        for i in range(0,N):
+            for j in range(0,N):
+                CNumerator += Tij[i, j] * cost[i, j]
+                CDenominator += Tij[i, j]
+        float CBar = CNumerator / CDenominator
+
+        return CBar
+
+###############################################################################
+"""
+    run
+    Not sure what this was - early run function?
+    @returns nothing
+"""
+    def run():
+        (M, N) = np.shape(TObs)
+        
+        #set up Beta for modes 0, 1 and 2 to 1.0f
+        Beta = [1.0 for k in range(0,self.NumModes)]
+
+        #work out Dobs and Tobs from rows and columns of TObs matrix
+        #These don't ever change so they need to be outside the convergence loop
+        DjObs = np.arange(N)
+        OiObs = np.arrange(N)
+        Sum=0.0
+
+        #OiObs
+        for i in range(0,N):
+            Sum = 0.0
+            for j in range(0,N):
+                for k in range(0, self.NumModes):
+                    Sum += TObs[k]._M[i, j];
+            OiObs[i] = Sum
+
+        #DjObs
+        for j in range(0,N):
+            Sum = 0.0
+            for i in range(0,N):
+                for k in range(0,self.NumModes):
+                    Sum += TObs[k]._M[i, j];
+            DjObs[j] = Sum
+
+        #constraints initialisation
+        B = new float[N];
+        for (int i = 0; i < N; i++) B[i] = 1.0f; //hack
+        float[] Z = new float[N];
+        for (int j = 0; j < N; j++)
         {
-            int N = Tij.N;
-            float CNumerator = 0, CDenominator = 0;
-            for (int i = 0; i < N; i++)
+            Z[j] = float.MaxValue;
+            if (IsUsingConstraints)
             {
-                for (int j = 0; j < N; j++)
+                if (Constraints[j] >= 1.0f) //constraints array taking place of Gj (Green Belt) in documentation
                 {
-                    CNumerator += Tij._M[i, j] * dis._M[i, j];
-                    CDenominator += Tij._M[i, j];
-                    //if (float.IsNaN(Tij._M[i, j]))
-                    //{
-                    //    System.Diagnostics.Debug.WriteLine("NaN " + i + " " + j);
-                    //}
-                    //if (float.IsNaN(dis._M[i, j]))
-                    //{
-                    //    System.Diagnostics.Debug.WriteLine("NaN dis " + i + " " + j);
-                    //}
-                    //if (dis._M[i, j] <= 0)
-                    //{
-                    //    System.Diagnostics.Debug.WriteLine("Zero dis " + i + " " + j);
-                    //}
+                    #Gj=1 means 0.8 of MSOA land is green belt, so can't be built on
+                    #set constraint to original Dj
+                    Z[j] = DjObs[j];
                 }
             }
-            float CBar = CNumerator / CDenominator;
-
-            return CBar;
         }
+        #end of constraints initialisation - have now set B[] and Z[] based on IsUsingConstraints, Constraints[] and DObs[]
 
+        #Instrumentation block - mainly to start off the graph so you have something to look at while the next bit happens
+        for (int k=0; k<NumModes; k++)
+            InstrumentSetVariable("Beta"+k, Beta[k]);
+        InstrumentSetVariable("delta", 0);
+        InstrumentTimeInterval();
+        #end of Instrumentation block
 
-        public void Run()
-        {       
-            int N = TObs[0].M; //hopefully [0] and [1] and [2] are the same
-
-            //set up Beta for modes 0, 1 and 2 to 1.0f
-            Beta = new float[NumModes];
-            for (int k = 0; k < NumModes; k++ ) Beta[k]=1.0f;
-
-            //work out Dobs and Tobs from rows and columns of TObs matrix
-            //These don't ever change so they need to be outside the convergence loop
-            float[] DjObs = new float[N];
-            float[] OiObs = new float[N];
-            float Sum;
-
-            //OiObs
-            for (int i = 0; i < N; i++)
+        FMatrix[] Tij = null;
+        bool Converged = false;
+        while (!Converged)
+        {
+            #Instrumentation block
+            for (int k = 0; k < NumModes; k++)
             {
-                Sum = 0;
-                for (int j = 0; j < N; j++)
-                {
-                    for (int k = 0; k < NumModes; k++) Sum += TObs[k]._M[i, j];
-                }
-                OiObs[i] = Sum;
+                InstrumentSetVariable("Beta" + k, Beta[k]);
+                InstrumentSetVariable("delta" + k, 100);
+                InstrumentSetVariable("delta", 100);
             }
-
-            //DjObs
-            for (int j = 0; j < N; j++)
-            {
-                Sum = 0;
-                for (int i = 0; i < N; i++)
-                {
-                    for (int k = 0; k < NumModes; k++) Sum += TObs[k]._M[i, j];
-                }
-                DjObs[j] = Sum;
-            }
-
-            //constraints initialisation
-            B = new float[N];
-            for (int i = 0; i < N; i++) B[i] = 1.0f; //hack
-            float[] Z = new float[N];
-            for (int j = 0; j < N; j++)
-            {
-                Z[j] = float.MaxValue;
-                if (IsUsingConstraints)
-                {
-                    if (Constraints[j] >= 1.0f) //constraints array taking place of Gj (Green Belt) in documentation
-                    {
-                        //Gj=1 means 0.8 of MSOA land is green belt, so can't be built on
-                        //set constraint to original Dj
-                        Z[j] = DjObs[j];
-                    }
-                }
-            }
-            //end of constraints initialisation - have now set B[] and Z[] based on IsUsingConstraints, Constraints[] and DObs[]
-
-            //Instrumentation block - mainly to start off the graph so you have something to look at while the next bit happens
-            for (int k=0; k<NumModes; k++)
-                InstrumentSetVariable("Beta"+k, Beta[k]);
-            InstrumentSetVariable("delta", 0);
-            InstrumentTimeInterval();
-            //end of Instrumentation block
-
-            FMatrix[] Tij = null;
-            bool Converged = false;
-            while (!Converged)
-            {
-                //Instrumentation block
-                for (int k = 0; k < NumModes; k++)
-                {
-                    InstrumentSetVariable("Beta" + k, Beta[k]);
-                    InstrumentSetVariable("delta" + k, 100);
-                    InstrumentSetVariable("delta", 100);
-                }
-                //end of instrumentation block
+            #end of instrumentation block
                 
 
-                bool ConstraintsMet = false;
-                do
+            bool ConstraintsMet = false;
+            do
+            {
+                #residential constraints
+                ConstraintsMet = true; //unless violated one or more times below
+                int FailedConstraintsCount = 0;
+
+                #model run
+                Tij = new FMatrix[NumModes];
+                for (int k = 0; k < NumModes; k++) //mode loop
                 {
-                    //residential constraints
-                    ConstraintsMet = true; //unless violated one or more times below
-                    int FailedConstraintsCount = 0;
+                    InstrumentStatusText = "Running model for mode "+k;
+                    Tij[k] = new FMatrix(N, N);
 
-                    //model run
-                    Tij = new FMatrix[NumModes];
-                    for (int k = 0; k < NumModes; k++) //mode loop
+                    Parallel.For(0, N, i =>
+                    #for (int i = 0; i < N; i++)
                     {
-                        InstrumentStatusText = "Running model for mode "+k;
-                        Tij[k] = new FMatrix(N, N);
-
-                        Parallel.For(0, N, i =>
-                        //for (int i = 0; i < N; i++)
+                        #denominator calculation which is sum of all modes
+                        double denom = 0;
+                        for (int kk = 0; kk < NumModes; kk++) //second mode loop
                         {
-                            //denominator calculation which is sum of all modes
-                            double denom = 0;
-                            for (int kk = 0; kk < NumModes; kk++) //second mode loop
-                            {
-                                for (int j = 0; j < N; j++)
-                                {
-                                    denom += DjObs[j] * Math.Exp(-Beta[kk] * dis[kk]._M[i, j]);
-                                }
-                            }
-
-                            //numerator calculation for this mode (k)
                             for (int j = 0; j < N; j++)
                             {
-                                Tij[k]._M[i, j] = (float)(B[j] * OiObs[i] * DjObs[j] * Math.Exp(-Beta[k] * dis[k]._M[i, j]) / denom);
+                                denom += DjObs[j] * Math.Exp(-Beta[kk] * dis[kk]._M[i, j]);
                             }
                         }
-                        );
-                    }
 
-                    //constraints check
-                    if (IsUsingConstraints)
-                    {
-                        System.Diagnostics.Debug.WriteLine("Constraints test");
-                        InstrumentStatusText = "Constraints test";
-
+                        #numerator calculation for this mode (k)
                         for (int j = 0; j < N; j++)
                         {
-                            float Dj = 0;
-                            for (int i = 0; i < N; i++) Dj += Tij[0]._M[i, j]+Tij[1]._M[i,j]+Tij[2]._M[i,j];
-                            if (Constraints[j] >= 1.0f) //Constraints is taking the place of Gj in the documentation
+                            Tij[k]._M[i, j] = (float)(B[j] * OiObs[i] * DjObs[j] * Math.Exp(-Beta[k] * dis[k]._M[i, j]) / denom);
+                        }
+                    }
+                    );
+                }
+
+                #constraints check
+                if (IsUsingConstraints)
+                {
+                    System.Diagnostics.Debug.WriteLine("Constraints test");
+                    InstrumentStatusText = "Constraints test";
+
+                    for (int j = 0; j < N; j++)
+                    {
+                        float Dj = 0;
+                        for (int i = 0; i < N; i++) Dj += Tij[0]._M[i, j]+Tij[1]._M[i,j]+Tij[2]._M[i,j];
+                        if (Constraints[j] >= 1.0f) //Constraints is taking the place of Gj in the documentation
+                        {
+                            if ((Dj - Z[j]) >= 0.5) //was >1.0
                             {
-                                if ((Dj - Z[j]) >= 0.5) //was >1.0
-                                {
-                                    B[j] = B[j] * Z[j] / Dj;
-                                    ConstraintsMet = false;
-                                    ++FailedConstraintsCount;
-                                    InstrumentStatusText = "Constraints violated on " + FailedConstraintsCount + " MSOA zones";
-                                    System.Diagnostics.Debug.WriteLine("Dj=" + Dj + " Zj=" + Z[j] + " Bj=" + B[j]);
-                                }
+                                B[j] = B[j] * Z[j] / Dj;
+                                ConstraintsMet = false;
+                                ++FailedConstraintsCount;
+                                InstrumentStatusText = "Constraints violated on " + FailedConstraintsCount + " MSOA zones";
+                                System.Diagnostics.Debug.WriteLine("Dj=" + Dj + " Zj=" + Z[j] + " Bj=" + B[j]);
                             }
                         }
+                    }
                          
-                        //copy B2 into B ready for the next round
-                        //for (int j = 0; j < N; j++) B[j] = B2[j];
-                    }
-                    System.Diagnostics.Debug.WriteLine("FailedConstraintsCount=" + FailedConstraintsCount);
-
-                    //Instrumentation block
-                    //for (int k = 0; k < NumModes; k++)
-                    //    InstrumentSetVariable("Beta" + k, Beta[k]);
-                    //InstrumentSetVariable("delta", FailedConstraintsCount); //not technically delta, but I want to see it for testing
-                    //InstrumentTimeInterval();
-                    //end of instrumentation block
-
-                } while (!ConstraintsMet);
-
-                //calculate mean predicted trips and mean observed trips (this is CBar)
-                float[] CBarPred = new float[NumModes];
-                float[] CBarObs = new float[NumModes];
-                float[] delta = new float[NumModes];
-                for (int k = 0; k < NumModes; k++)
-                {
-                    CBarPred[k] = CalculateCBar(ref Tij[k], ref dis[k]);
-                    CBarObs[k] = CalculateCBar(ref TObs[k], ref dis[k]);
-                    delta[k] = Math.Abs(CBarPred[k] - CBarObs[k]); //the aim is to minimise delta[0]+delta[1]+...
+                    #copy B2 into B ready for the next round
+                    #for (int j = 0; j < N; j++) B[j] = B2[j];
                 }
+                System.Diagnostics.Debug.WriteLine("FailedConstraintsCount=" + FailedConstraintsCount);
 
-                //delta check on all betas (Beta0, Beta1, Beta2) stopping condition for convergence
-                //double gradient descent search on Beta0 and Beta1 and Beta2
-                Converged = true;
-                for (int k = 0; k < NumModes; k++)
-                {
-                    if (delta[k] / CBarObs[k] > 0.001)
-                    {
-                        Beta[k] = Beta[k] * CBarPred[k] / CBarObs[k];
-                        Converged = false;
-                    }
-                }
-                //Instrumentation block
-                for (int k = 0; k < NumModes; k++)
-                {
-                    InstrumentSetVariable("Beta" + k, Beta[k]);
-                    InstrumentSetVariable("delta" + k, delta[k]);
-                }
-                InstrumentSetVariable("delta", delta[0] + delta[1] + delta[2]); //should be a k loop
-                InstrumentTimeInterval();
-                //end of instrumentation block
+                #Instrumentation block
+                #for (int k = 0; k < NumModes; k++)
+                #    InstrumentSetVariable("Beta" + k, Beta[k]);
+                #InstrumentSetVariable("delta", FailedConstraintsCount); //not technically delta, but I want to see it for testing
+                #InstrumentTimeInterval();
+                #end of instrumentation block
+
+            } while (!ConstraintsMet);
+
+            #calculate mean predicted trips and mean observed trips (this is CBar)
+            float[] CBarPred = new float[NumModes];
+            float[] CBarObs = new float[NumModes];
+            float[] delta = new float[NumModes];
+            for (int k = 0; k < NumModes; k++)
+            {
+                CBarPred[k] = CalculateCBar(ref Tij[k], ref dis[k]);
+                CBarObs[k] = CalculateCBar(ref TObs[k], ref dis[k]);
+                delta[k] = Math.Abs(CBarPred[k] - CBarObs[k]); //the aim is to minimise delta[0]+delta[1]+...
             }
 
-            //Set the output, TPred[]
-            for (int k = 0; k < NumModes; k++) TPred[k] = Tij[k];
-
-            //debugging:
-            //for (int i = 0; i < N; i++)
-            //    System.Diagnostics.Debug.WriteLine("Quant3Model::Run::ConstraintsB," + i + "," + B[i]);
-
+            #delta check on all betas (Beta0, Beta1, Beta2) stopping condition for convergence
+            #double gradient descent search on Beta0 and Beta1 and Beta2
+            Converged = true;
+            for (int k = 0; k < NumModes; k++)
+            {
+                if (delta[k] / CBarObs[k] > 0.001)
+                {
+                    Beta[k] = Beta[k] * CBarPred[k] / CBarObs[k];
+                    Converged = false;
+                }
+            }
+            #Instrumentation block
+            for (int k = 0; k < NumModes; k++)
+            {
+                InstrumentSetVariable("Beta" + k, Beta[k]);
+                InstrumentSetVariable("delta" + k, delta[k]);
+            }
+            InstrumentSetVariable("delta", delta[0] + delta[1] + delta[2]); //should be a k loop
+            InstrumentTimeInterval();
+            #end of instrumentation block
         }
 
+        #Set the output, TPred[]
+        for (int k = 0; k < NumModes; k++) TPred[k] = Tij[k];
+
+        #debugging:
+        #for (int i = 0; i < N; i++)
+        #    System.Diagnostics.Debug.WriteLine("Quant3Model::Run::ConstraintsB," + i + "," + B[i]);
+
+    }
+
+###############################################################################
 
         /// <summary>
         /// NOTE: this was copied directly from the Quant 1 model
@@ -438,3 +422,6 @@ class SingleDest:
 
             System.Diagnostics.Debug.WriteLine("QUANT3Model::RunWithChanges: " + timer.ElapsedMilliseconds + " ms");
         }
+
+
+###############################################################################
