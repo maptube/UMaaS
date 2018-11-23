@@ -13,7 +13,7 @@ class SingleDest:
     def __init__(self):
         self.numModes=3
         self.TObs=[] #Data input to model list of NDArray
-        self.cij=[] #cost matrix for zones in TObs
+        self.Cij=[] #cost matrix for zones in TObs
 
         self.isUsingConstraints = False
         self.constraints = [] #1 or 0 to indicate constraints for zones matching TObs - this applies to all modes
@@ -56,25 +56,43 @@ class SingleDest:
 
         #work out Dobs and Tobs from rows and columns of TObs matrix
         #These don't ever change so they need to be outside the convergence loop
-        DjObs = np.arange(N)
-        OiObs = np.arange(N)
-        Sum=0.0
+        DjObs = np.zeros(N) #np.arange(N)
+        OiObs = np.zeros(N) #np.arange(N)
+        #sum=0.0
 
         #OiObs
-        for i in range(0,N):
-            Sum = 0.0
-            for j in range(0,N):
-                for k in range(0, self.numModes):
-                    Sum += self.TObs[k][i, j]
-            OiObs[i] = Sum
+        #for i in range(0,N):
+        #    sum = 0.0
+        #    for j in range(0,N):
+        #        for k in range(0, self.numModes):
+        #            sum += self.TObs[k][i, j]
+        #    OiObs[i] = sum
+        #MUCH FASTER!
+        ksum=np.array([np.zeros(N),np.zeros(N),np.zeros(N)])
+        for k in range(0,self.numModes):
+            ksum[k]=self.TObs[k].sum(axis=1)
+        OiObs = ksum.sum(axis=0)
+        #print("check 1: ",OiObs[0],ksum[0][0]+ksum[1][0]+ksum[2][0])
+        #print("check 1: ",OiObs2[0])
+        #for i in range(0,N):
+        #    print(OiObs[i],OiObs2[i])
 
         #DjObs
-        for j in range(0,N):
-            Sum = 0.0
-            for i in range(0,N):
-                for k in range(0,self.numModes):
-                    Sum += self.TObs[k][i, j]
-            DjObs[j] = Sum
+        #for j in range(0,N):
+        #    sum = 0.0
+        #    for i in range(0,N):
+        #        for k in range(0,self.numModes):
+        #            sum += self.TObs[k][i, j]
+        #    DjObs[j] = sum
+        #MUCH FASTER!
+        ksum=np.array([np.zeros(N),np.zeros(N),np.zeros(N)])
+        for k in range(0,self.numModes):
+            ksum[k]=self.TObs[k].sum(axis=0)
+        DjObs = ksum.sum(axis=0)
+        #for i in range(0,N):
+        #    print(DjObs[i],DjObs2[i])
+
+        print("OiObs and DjObs calculated")
 
         #constraints initialisation
         B = [1.0 for i in range(0,N)] #hack
@@ -89,7 +107,7 @@ class SingleDest:
         #end of constraints initialisation - have now set B[] and Z[] based on IsUsingConstraints, Constraints[] and DObs[]
 
 
-        Tij = [np.arange(N*N).reshape(N, N) for k in range(0,self.numModes) ] #array of matrix over each mode(k) - need declaration outside loop
+        Tij = [np.zeros(N*N).reshape(N, N) for k in range(0,self.numModes) ] #array of matrix over each mode(k) - need declaration outside loop
         converged = False
         while not converged:      
             constraintsMet = False
@@ -99,23 +117,23 @@ class SingleDest:
                 failedConstraintsCount = 0
 
                 #model run
-                Tij = [np.arange(N*N).reshape(N, N) for k in range(0,self.numModes) ]
+                Tij = [np.zeros(N*N).reshape(N, N) for k in range(0,self.numModes) ]
                 for k in range(0,self.numModes): #mode loop
                     print("Running model for mode ",k)
-                    Tij[k] = np.arange(N*N).reshape(N, N)
+                    Tij[k] = np.zeros(N*N).reshape(N, N)
 
                     for i in range(0,N):
                         #denominator calculation which is sum of all modes
-                        denom = 0.0;  #double
+                        denom = 0.0  #double
                         for kk in range(0,self.numModes): #second mode loop
                             for j in range(0,N):
-                                denom += DjObs[j] * exp(-Beta[kk] * self.cij[kk][i, j])
+                                denom += DjObs[j] * exp(-Beta[kk] * self.Cij[kk][i, j])
                             #end for j
                         #end for kk
 
                         #numerator calculation for this mode (k)
                         for j in range(0,N):
-                            Tij[k][i, j] = B[j] * OiObs[i] * DjObs[j] * exp(-Beta[k] * self.cij[k][i, j]) / denom
+                            Tij[k][i, j] = B[j] * OiObs[i] * DjObs[j] * exp(-Beta[k] * self.Cij[k][i, j]) / denom
                     #end for i
                 #end for k
 
@@ -125,7 +143,7 @@ class SingleDest:
 
                     for j in range(0,N):
                         Dj = 0.0
-                        for i in range(0,N): Dj += Tij[0]._M[i, j]+Tij[1]._M[i,j]+Tij[2]._M[i,j]
+                        for i in range(0,N): Dj += Tij[0][i,j]+Tij[1][i,j]+Tij[2][i,j]
                         if self.constraints[j] >= 1.0: #Constraints is taking the place of Gj in the documentation
                             if (Dj - Z[j]) >= 0.5: #was >1.0
                                 B[j] = B[j] * Z[j] / Dj
@@ -156,8 +174,8 @@ class SingleDest:
             CBarObs = [0.0 for k in range(0,self.numModes)]
             delta = [0.0 for k in range(0,self.numModes)]
             for k in range(0,self.numModes):
-                CBarPred[k] = self.calculateCBar(Tij[k], self.cij[k])
-                CBarObs[k] = self.calculateCBar(self.TObs[k], self.cij[k])
+                CBarPred[k] = self.calculateCBar(Tij[k], self.Cij[k])
+                CBarObs[k] = self.calculateCBar(self.TObs[k], self.Cij[k])
                 delta[k] = fabs(CBarPred[k] - CBarObs[k]) #the aim is to minimise delta[0]+delta[1]+...
             #end for k
 
@@ -234,13 +252,13 @@ class SingleDest:
                 denom = 0.0
                 for kk in range(0,self.numModes): #second mode loop
                     for j in range(0,N):
-                        denom += DjObs[j] * exp(-self.Beta[kk] * self.cij[kk][i, j])
+                        denom += DjObs[j] * exp(-self.Beta[kk] * self.Cij[kk][i, j])
                     #end for j
                 #end for kk
 
                 #numerator calculation for this mode (k)
                 for j in range(0,N):
-                    TPredCons[k][i, j] = self.B[j] * OiObs[i] * DjObs[j] * exp(-self.Beta[k] * self.cij[k][i, j]) / denom
+                    TPredCons[k][i, j] = self.B[j] * OiObs[i] * DjObs[j] * exp(-self.Beta[k] * self.Cij[k][i, j]) / denom
                 #end for j
             #end for i
         #end for k
@@ -299,12 +317,12 @@ class SingleDest:
                     denom = 0.0
                     for kk in range(0,self.numModes): #second mode loop
                         for j in range(0,N):
-                            denom += self.B[j]*DjObs[j] * exp(-self.Beta[kk] * self.cij[kk][i, j])
+                            denom += self.B[j]*DjObs[j] * exp(-self.Beta[kk] * self.Cij[kk][i, j])
                     #end for kk
 
                     #numerator calculation for this mode (k)
                     for j in range(0,N):
-                        self.TPred[k][i, j] = self.B[j] * OiObs[i] * DjObs[j] * exp(-self.Beta[k] * self.cij[k][i, j]) / denom
+                        self.TPred[k][i, j] = self.B[j] * OiObs[i] * DjObs[j] * exp(-self.Beta[k] * self.Cij[k][i, j]) / denom
                 #end for i
             #end for k
 

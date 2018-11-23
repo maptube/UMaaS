@@ -53,6 +53,9 @@ NOTE: you will get a LOT of warnings from this - as long as they're for ODxxx or
 def generateTripsMatrix(CSVFilename, ZoneLookup, ColumnNames):
     N = len(ZoneLookup)
     TijObs = np.arange(N*N).reshape(N, N) #is this really the best way to create the matrix?
+    for i in range(0,N): #this is basically a hack to absolutely ensure everything is zeroed - above arange sets it to col and row values??????
+        for j in range(0,N):
+            TijObs[i,j]=0.0
     print(ColumnNames,len(ColumnNames))
 
     with open(CSVFilename) as csv_file:
@@ -70,15 +73,15 @@ def generateTripsMatrix(CSVFilename, ZoneLookup, ColumnNames):
         #OK, now on to the data
         #"Area of residence","Area of workplace","All categories: Method of travel to work","Work mainly at or from home","Underground, metro, light rail, tram","Train","Bus, minibus or coach","Taxi","Motorcycle, scooter or moped","Driving a car or van","Passenger in a car or van","Bicycle","On foot","Other method of travel to work"
         #E02000001,E02000001,1506,0,73,41,32,9,1,8,1,33,1304,4
-        LineCount = 1
+        lineCount = 1
         for row in reader:
-            LineCount+=1
+            lineCount+=1
             ZoneR = row[0]
             ZoneW = row[1]
-            Sum = 0
+            sum = 0
             for i in range(len(ColI)):
-                Count = int(row[ColI[i]])
-                Sum += Count
+                count = int(row[ColI[i]])
+                sum += count
             RowR = ZoneLookup.get(ZoneR,'Empty') #could potentially fail if ZoneR or ZoneW didn't exist in the shapefile
             RowW = ZoneLookup.get(ZoneW,'Empty')
             if RowR == 'Empty' or RowW == 'Empty':
@@ -86,9 +89,9 @@ def generateTripsMatrix(CSVFilename, ZoneLookup, ColumnNames):
                 continue
             ZoneR_idx = RowR["zonei"]
             ZoneW_idx = RowW["zonei"]
-            #TijObs[ZoneR_idx, ZoneW_idx] = Sum #this was the original that was apparently the wrong way around
-            TijObs[ZoneW_idx, ZoneR_idx] = Sum #this is the above line with i and j flipped - right way around
-        print('Loaded ', CSVFilename, ' and processed ', LineCount, ' lines of data')
+            #TijObs[ZoneR_idx, ZoneW_idx] = sum #this was the original that was apparently the wrong way around
+            TijObs[ZoneW_idx, ZoneR_idx] = sum #this is the above line with i and j flipped - right way around
+        print('Loaded ', CSVFilename, ' and processed ', lineCount, ' lines of data')
         print('Finished GenerateTripsMatrix')
 
     return TijObs

@@ -10,6 +10,7 @@ import zipfile
 import urllib.request
 import numpy as np
 from shutil import copyfile
+from globals import *
 from utils import loadZoneLookup
 from utils import generateTripsMatrix
 from utils import loadMatrix, saveMatrix, loadQUANTMatrix
@@ -19,24 +20,8 @@ from utils import loadMatrix, saveMatrix, loadQUANTMatrix
 #https://www.nomisweb.co.uk/output/census/2011/wu03ew_msoa.zip
 
 tmpDataDir = 'data'
-modelRunsDir = 'model-runs'
 urlWU03EU = 'https://www.nomisweb.co.uk/output/census/2011/wu03ew_msoa.zip'
-TravelToWorkFilename = 'wu03ew_msoa.csv'
-ZoneCodesFilename = 'ZoneCodesText.csv'
-#matrix filenames
-TObsFilename = 'TObs.bin' #1 mode
-TObs21Filename = 'TObs2_1.bin' #2 mode
-TObs22Filename = 'TObs2_2.bin'
-TObs31Filename = 'TObs3_1.bin' #3 mode
-TObs32Filename = 'TObs3_2.bin'
-TObs33Filename = 'TObs3_3.bin'
-#cost matrix names
-QUANTCijRoadMinFilename = 'dis_roads_min.bin'
-QUANTCijBusMinFilename = 'dis_bus_min.bin'
-QUANTCijRailMinFilename = 'dis_rail_min.bin'
-CijRoadMinFilename = 'Cij_road_min.bin'
-CijBusMinFilename = 'Cij_bus_min.bin'
-CijRailMinFilename = 'Cij_rail_min.bin'
+
 
 
 
