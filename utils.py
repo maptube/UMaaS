@@ -52,7 +52,7 @@ NOTE: you will get a LOT of warnings from this - as long as they're for ODxxx or
 """
 def generateTripsMatrix(CSVFilename, ZoneLookup, ColumnNames):
     N = len(ZoneLookup)
-    TijObs = np.arange(N*N).reshape(N, N) #is this really the best way to create the matrix?
+    TijObs = np.zeros(N*N).reshape(N, N) #is this really the best way to create the matrix?
     for i in range(0,N): #this is basically a hack to absolutely ensure everything is zeroed - above arange sets it to col and row values??????
         for j in range(0,N):
             TijObs[i,j]=0.0

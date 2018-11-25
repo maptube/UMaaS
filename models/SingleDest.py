@@ -31,16 +31,22 @@ class SingleDest:
     @returns float
     """
     def calculateCBar(self,Tij,cij):
-        (M, N) = np.shape(Tij)
-        CNumerator = 0.0
-        CDenominator = 0.0
-        for i in range(0,N):
-            for j in range(0,N):
-                CNumerator += Tij[i, j] * cij[i, j]
-                CDenominator += Tij[i, j]
-        CBar = CNumerator / CDenominator
+        #(M, N) = np.shape(Tij)
+        #CNumerator = 0.0
+        #CDenominator = 0.0
+        #for i in range(0,N):
+        #    for j in range(0,N):
+        #        CNumerator += Tij[i, j] * cij[i, j]
+        #        CDenominator += Tij[i, j]
+        #CBar = CNumerator / CDenominator
+        #print("CBar=",CBar)
+        #faster
+        CNumerator2 = np.sum(Tij*cij)
+        CDenominator2 = np.sum(Tij)
+        CBar2=CNumerator2/CDenominator2
+        print("CBar2=",CBar2)
 
-        return CBar
+        return CBar2
 
 ###############################################################################
     """
@@ -117,23 +123,38 @@ class SingleDest:
                 failedConstraintsCount = 0
 
                 #model run
-                Tij = [np.zeros(N*N).reshape(N, N) for k in range(0,self.numModes) ]
+                #Tij = [np.zeros(N*N).reshape(N, N) for k in range(0,self.numModes) ]
+                #pre-calculate exp(-Beta[k]*self.Cij[k]) for speed
+                expBetaCij = [np.exp(-Beta[k]*self.Cij[k]) for k in range(0,self.numModes)]
                 for k in range(0,self.numModes): #mode loop
                     print("Running model for mode ",k)
-                    Tij[k] = np.zeros(N*N).reshape(N, N)
+                    #Tij[k] = np.zeros(N*N).reshape(N, N)
 
                     for i in range(0,N):
                         #denominator calculation which is sum of all modes
-                        denom = 0.0  #double
-                        for kk in range(0,self.numModes): #second mode loop
-                            for j in range(0,N):
-                                denom += DjObs[j] * exp(-Beta[kk] * self.Cij[kk][i, j])
-                            #end for j
-                        #end for kk
+                        #denom = 0.0  #double
+                        #for kk in range(0,self.numModes): #second mode loop
+                        #    for j in range(0,N):
+                        #        denom += DjObs[j] * exp(-Beta[kk] * self.Cij[kk][i, j])
+                        #    #end for j
+                        ##end for kk
+                        #print("denom=",denom)
+                        #faster...?
+                        denom2=0.0
+                        for kk in range(0,self.numModes):
+                            #expBetaCij=np.exp(-Beta[kk]*self.Cij[kk])
+                            #print("expBetaCij=",expBetaCij)
+                            denom2+=np.sum(DjObs*expBetaCij[kk][i,:])
+                        #print("denom2=",denom2)
 
                         #numerator calculation for this mode (k)
-                        for j in range(0,N):
-                            Tij[k][i, j] = B[j] * OiObs[i] * DjObs[j] * exp(-Beta[k] * self.Cij[k][i, j]) / denom
+                        #for j in range(0,N):
+                        #    Tij[k][i, j] = B[j] * OiObs[i] * DjObs[j] * exp(-Beta[k] * self.Cij[k][i, j]) / denom
+                        #print("Tijk[0,0]=",Tij[k][i,0])
+                        #faster
+                        Tijk2=OiObs[i]*(B*DjObs*expBetaCij[k][i]/denom2)
+                        Tij[k][i,:]=Tijk2 #put answer slice back in return array 
+                        #print("Tijk2[0,0]=",Tijk2[0])
                     #end for i
                 #end for k
 

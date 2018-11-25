@@ -7,12 +7,15 @@ import numpy as np
 from globals import *
 from utils import loadZoneLookup, loadMatrix, saveMatrix
 from models.SingleDest import SingleDest
+from benchmark.run_benchmarks import runBenchmarks
 
 
 ###############################################################################
 
 def main():
     print("python main function")
+
+    runBenchmarks()
 
     print ("test run model")
     #how on earth did I do this?

@@ -19,7 +19,7 @@ from utils import loadMatrix, saveMatrix, loadQUANTMatrix
 #1. download wu03ew_v2.csv if it's not already here
 #https://www.nomisweb.co.uk/output/census/2011/wu03ew_msoa.zip
 
-tmpDataDir = 'data'
+tmpDataDir = 'data' #tmpDataDir contains data that can be deleted after this code has been run
 urlWU03EU = 'https://www.nomisweb.co.uk/output/census/2011/wu03ew_msoa.zip'
 
 
@@ -38,12 +38,12 @@ if not os.path.isfile(os.path.join(tmpDataDir,'wu03ew_msoa.csv')):
     zip_ref = zipfile.ZipFile(os.path.join(tmpDataDir,'wu03ew_msoa.zip'), 'r')
     zip_ref.extractall(tmpDataDir)
     zip_ref.close()
-    copyfile(os.path.join(tmpDataDir,ZoneCodesFilename),os.path.join(modelRunsDir,ZoneCodesFilename)) #copy the tmp data location file to model-runs where everything is
     #and the file it outputs will be called TravelToWorkFilename, defined above, but I can't control this - it's whatever's in the zip
-
-#OK, now we have the data, make it into a suitable matrix
+    copyfile(os.path.join(tmpDataDir,TravelToWorkFilename),os.path.join(modelRunsDir,TravelToWorkFilename)) #copy the tmp data location file to model-runs where everything is
 
 ZoneLookup = loadZoneLookup(os.path.join(modelRunsDir,ZoneCodesFilename))
+
+#OK, now we have the data, make it into a suitable matrix
 
 #This is the data format
 #"Area of residence","Area of workplace","All categories: Method of travel to work","Work mainly at or from home","Underground, metro, light rail, tram","Train","Bus, minibus or coach","Taxi","Motorcycle, scooter or moped","Driving a car or van","Passenger in a car or van","Bicycle","On foot","Other method of travel to work"
@@ -120,21 +120,21 @@ if os.path.isfile(os.path.join(modelRunsDir, CijRoadMinFilename)):
     print("databuilder.py:",CijRoadMinFilename," exists - skipping")
 else:
     print("databuilder.py::Generating ",CijRoadMinFilename)
-    CijRoad = loadQUANTMatrix(os.path.join(modelRunsDir, QUANTCijRoadMinFilename))
+    CijRoad = loadQUANTMatrix(os.path.join(tmpDataDir, QUANTCijRoadMinFilename))
     saveMatrix(CijRoad,os.path.join(modelRunsDir,CijRoadMinFilename))
 
 if os.path.isfile(os.path.join(modelRunsDir, CijBusMinFilename)):
     print("databuilder.py:",CijBusMinFilename," exists - skipping")
 else:
     print("databuilder.py::Generating ",CijBusMinFilename)
-    CijBus = loadQUANTMatrix(os.path.join(modelRunsDir, QUANTCijBusMinFilename))
+    CijBus = loadQUANTMatrix(os.path.join(tmpDataDir, QUANTCijBusMinFilename))
     saveMatrix(CijBus,os.path.join(modelRunsDir,CijBusMinFilename))
 
 if os.path.isfile(os.path.join(modelRunsDir, CijRailMinFilename)):
     print("databuilder.py:",CijRailMinFilename," exists - skipping")
 else:
     print("databuilder.py::Generating ",CijRailMinFilename)
-    CijRail = loadQUANTMatrix(os.path.join(modelRunsDir, QUANTCijRailMinFilename))
+    CijRail = loadQUANTMatrix(os.path.join(tmpDataDir, QUANTCijRailMinFilename))
     saveMatrix(CijRail,os.path.join(modelRunsDir,CijRailMinFilename))
 
 #end of QUANT cost matrix conversions
