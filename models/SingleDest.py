@@ -49,6 +49,53 @@ class SingleDest:
         return CBar2
 
 ###############################################################################
+
+    """
+    Calculate Oi for a trips matrix.
+    Two methods are presented here, one which is simple and very slow and one
+    which uses python vector maths and is much faster. Once 2 is proven equal
+    to 1, then it can be used exclusively. This function is mainly used for
+    testing with the TensorFlow and other implementations.
+    """
+    def calculateOi(self,Tij):
+        (M, N) = np.shape(Tij)
+        #OiObs
+        Oi = np.zeros(N)
+        #Method 1 - slow, but simplest implementation for testing with
+        for i in range(0,N):
+            sum = 0.0
+            for j in range(0,N):
+                sum += Tij[i, j]
+            Oi[i] = sum
+        #Method 2 - MUCH FASTER! But check that it is identical to method 1
+        #Oi=Tij.sum(axis=1)
+        return Oi
+
+###############################################################################
+
+    """
+    Calculate Dj for a trips matrix.
+    Two methods are presented here, one which is simple and very slow and one
+    which uses python vector maths and is much faster. Once 2 is proven equal
+    to 1, then it can be used exclusively. This function is mainly used for
+    testing with the TensorFlow and other implementations.
+    """
+    def calculateDj(self,Tij):
+        (M, N) = np.shape(Tij)
+        #DjObs
+        Dj = np.zeros(N)
+        #Method 1 - slow, but simplest implementation for testing with
+        for j in range(0,N):
+            sum = 0.0
+            for i in range(0,N):
+                sum += Tij[i, j]
+            Dj[j] = sum
+        #Method 2 - MUCH FASTER! But check that it is identical to method 1
+        #Dj=Tij.sum(axis=0)
+        return Dj
+
+###############################################################################
+
     """
     run
     Not sure what this was - early run function?
