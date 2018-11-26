@@ -81,9 +81,10 @@ class TFSingleDest:
     #todo: Build TensorFlow graph to calculate main model equation: B*Oi*Dj*exp(beta*Cij)/sigma etc
     """
     """
-    def buildTFGraphRunModel(self):
+    def buildTFGraphRunModel(self,tfBeta,tfOi,tfDj,tfTij,tfCij):
         #TODO: here!!!!
-        tfDenom = Dj[j] * exp(-Beta * Cij[i, j])
+        #formula: Tij=Oi * Dj * exp(-beta * Cij)/(sumj Dj * exp(-beta * Cij))
+        tfDenom = tf.mat_mul(tfDj[j], tf.exp(-tfBeta * Cij[i, j]))
         tfRunModel = 
         return tfRunModel
 
