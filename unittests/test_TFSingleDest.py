@@ -77,39 +77,39 @@ def testTFSingleDest():
     testTFModel = TFSingleDest()
     
     #CBar Test
-    CBar = testModel.calculateCBar(TObs1,Cij1)
-    TFCBar = testTFModel.calculateCBar(TObs1,Cij1)
-    print(assertEqualFloatsMsg(CBar,TFCBar,'{status} CBar test: CBar={val1} TFCBar={val2} diff={diff}'))
+    #CBar = testModel.calculateCBar(TObs1,Cij1)
+    #TFCBar = testTFModel.calculateCBar(TObs1,Cij1)
+    #print(assertEqualFloatsMsg(CBar,TFCBar,'{status} CBar test: CBar={val1} TFCBar={val2} diff={diff}'))
 
     #Oi Test
-    Oi = testModel.calculateOi(TObs1)
-    TFOi = testTFModel.calculateOi(TObs1)
-    print(assertEqualVectorsMsg(Oi,TFOi,'{status} Oi test: Oi={val1} TFOi={val2} diff={diff}'))
+    #Oi = testModel.calculateOi(TObs1)
+    #TFOi = testTFModel.calculateOi(TObs1)
+    #print(assertEqualVectorsMsg(Oi,TFOi,'{status} Oi test: Oi={val1} TFOi={val2} diff={diff}'))
 
     #Dj Test
-    Dj = testModel.calculateDj(TObs1)
-    TFDj = testTFModel.calculateDj(TObs1)
-    print(assertEqualVectorsMsg(Dj,TFDj,'{status} Dj test: Dj={val1} TFDj={val2} diff={diff}'))
+    #Dj = testModel.calculateDj(TObs1)
+    #TFDj = testTFModel.calculateDj(TObs1)
+    #print(assertEqualVectorsMsg(Dj,TFDj,'{status} Dj test: Dj={val1} TFDj={val2} diff={diff}'))
 
     #Calibrate test - this gives us three predicted matrices and three beta values
-    testModel.TObs=TObs
-    testModel.Cij=Cij
-    testModel.isUsingConstraints=False
-    testModel.run()
-    TPred=testModel.TPred
-    Beta=testModel.Beta
+    #testModel.TObs=TObs
+    #testModel.Cij=Cij
+    #testModel.isUsingConstraints=False
+    #testModel.run()
+    #TPred=testModel.TPred
+    #Beta=testModel.Beta
     #
     testTFModel.TObs=TObs
     testTFModel.Cij=Cij
     testTFModel.isUsingConstraints=False
-    testTFModel.run()
+    testTFModel.runModel(TObs1,Cij1,1.0)
     TFTPred=testTFModel.TPred
     TFBeta=testTFModel.Beta
     #and compare them...
-    print(assertEqualFloatsMsg(Beta[0],TFBeta[0],'{status} Beta test: Beta0={val1} TFBeta0={val2} diff={diff}'))
-    print(assertEqualFloatsMsg(Beta[1],TFBeta[1],'{status} Beta test: Beta1={val1} TFBeta1={val2} diff={diff}'))
-    print(assertEqualFloatsMsg(Beta[2],TFBeta[2],'{status} Beta test: Beta2={val1} TFBeta2={val2} diff={diff}'))
-    print(assertEqualMatricesMsg(TPred,TFTPred,'{status} TPred test: TPred={val1} TFTPred={val2} diff={diff}'))
+    #print(assertEqualFloatsMsg(Beta[0],TFBeta[0],'{status} Beta test: Beta0={val1} TFBeta0={val2} diff={diff}'))
+    #print(assertEqualFloatsMsg(Beta[1],TFBeta[1],'{status} Beta test: Beta1={val1} TFBeta1={val2} diff={diff}'))
+    #print(assertEqualFloatsMsg(Beta[2],TFBeta[2],'{status} Beta test: Beta2={val1} TFBeta2={val2} diff={diff}'))
+    #print(assertEqualMatricesMsg(TPred,TFTPred,'{status} TPred test: TPred={val1} TFTPred={val2} diff={diff}'))
 
 
 

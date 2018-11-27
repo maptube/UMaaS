@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+from math import exp, fabs
 
 """
 Tensorflow implementation of single destination constrained gravity model
@@ -29,8 +30,9 @@ class TFSingleDest:
         #create Dj graph
         self.tfDj = self.buildTFGraphDj()
 
-        #create other operation here...
-        self.tfRunModel = self.buildTFRunModel()
+        #create other operations here...
+        self.tfBeta = tf.Variable(1.0, name='beta')
+        self.tfRunModel = self.buildTFGraphRunModel()
 
     ###############################################################################
 
@@ -81,11 +83,12 @@ class TFSingleDest:
     #todo: Build TensorFlow graph to calculate main model equation: B*Oi*Dj*exp(beta*Cij)/sigma etc
     """
     """
-    def buildTFGraphRunModel(self,tfBeta,tfOi,tfDj,tfTij,tfCij):
+    def buildTFGraphRunModel(self):
         #TODO: here!!!!
+        #[Oi 1 x n] [Dj n x 1]
         #formula: Tij=Oi * Dj * exp(-beta * Cij)/(sumj Dj * exp(-beta * Cij))
-        tfDenom = tf.mat_mul(tfDj[j], tf.exp(-tfBeta * Cij[i, j]))
-        tfRunModel = 
+        tfBalance = tf.reciprocal(tf.matmul(tf.reshape(self.tfDj, shape(7201,1)), tf.exp(tf.negative(self.tfBeta) * self.tfCij)))
+        tfRunModel = tfBalance * tf.matmul(self.tfOi,tf.transpose(self.tfDj) * tf.exp(tf.negative(self.tfBeta) * self.tfCij))
         return tfRunModel
 
     ###############################################################################
@@ -145,12 +148,22 @@ class TFSingleDest:
 
     ###############################################################################
 
+    def runModel(self,Tij,Cij,Beta):
+        #TensorFlow
+        #run Tij = A * Oi * Dj * exp(-Beta * Cij)/sumj Dj*exp(-Beta * Cij)
+        with tf.Session() as sess:
+            sess.run(tf.global_variables_initializer())
+            Tij = sess.run(self.tfRunModel, {self.tfTij: Tij, self.tfCij: Cij, self.tfBeta: Beta})
+        return Tij
+
+    ###############################################################################
+
     """
     Test run of equation Tij=OiDje(-BetaCij)/denom
     This is a slow implementation as a test of correct functionality. This allows
     breaking up of the TensorFlow code for verification.
     """
-    def debugRunModel(self,Oi,Dj,Cij,Beta):
+    def debugRunModel(self,Oi,Dj,Tij,Cij,Beta):
         (M,N) = np.shape(Tij)
 
         for i in range(0,N):
