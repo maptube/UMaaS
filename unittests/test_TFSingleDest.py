@@ -7,6 +7,7 @@ SingleDest.py is taken as the gold standard.
 
 import os.path
 import math
+import numpy as np
 
 from globals import *
 from utils import loadMatrix
@@ -45,18 +46,20 @@ def assertEqualVectorsMsg(v1,v2,msg):
 
 def assertEqualMatricesMsg(mat1,mat2,msg):
     #dimensions must be equal and every v1 value must be equal to its corresponding v2 value withing epsilon
-    (m1,n1) = mat1.size()
-    (m2,n2) = mat2.size()
-    if len(m1)!=len(m2) or (n1)!=(n2):
+    (m1,n1) = np.shape(mat1)
+    (m2,n2) = np.shape(mat2)
+    if m1!=m2 or n1!=n2:
         return msg.format(status="FAILED DIMENSIONS")
+    count=0
     for i in range(0,n1):
         for j in range(0,n1):
+            count+=1
             diff = abs(mat1[i,j]-mat2[i,j])
             if (diff>=epsilon):
                 text = msg.format(status='FAILED i='+str(i)+' j='+str(j),val1=mat1[i,j],val2=mat2[i,j],diff=diff)
                 return text
                 ###########
-    text = msg.format(status='OK',val1=mat1[0,0],val2=mat2[0],diff=abs(mat1[0]-mat2[0])) #what should you return here? OK should be enough
+    text = msg.format(status='OK ('+str(count)+')',val1=mat1[0,0],val2=mat2[0,0],diff=abs(mat1[0,0]-mat2[0,0])) #what should you return here? OK should be enough
     return text
 
 ###############################################################################
@@ -99,6 +102,10 @@ def testTFSingleDest():
     #TPred=testModel.TPred
     #Beta=testModel.Beta
     #
+    Oi = testTFModel.calculateOi(TObs1)
+    Dj = testTFModel.calculateDj(TObs1)
+    TFDebugTPred = testTFModel.debugRunModel(Oi,Dj,TObs1,Cij1,1.0)
+    #
     testTFModel.TObs=TObs
     testTFModel.Cij=Cij
     testTFModel.isUsingConstraints=False
@@ -110,6 +117,7 @@ def testTFSingleDest():
     #print(assertEqualFloatsMsg(Beta[1],TFBeta[1],'{status} Beta test: Beta1={val1} TFBeta1={val2} diff={diff}'))
     #print(assertEqualFloatsMsg(Beta[2],TFBeta[2],'{status} Beta test: Beta2={val1} TFBeta2={val2} diff={diff}'))
     #print(assertEqualMatricesMsg(TPred,TFTPred,'{status} TPred test: TPred={val1} TFTPred={val2} diff={diff}'))
+    print(assertEqualMatricesMsg(TFDebugTPred,TFTPred,'{status} TFDebugTPred test: TPred={val1} TFTPred={val2} diff={diff}'))
 
 
 

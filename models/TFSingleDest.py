@@ -87,8 +87,8 @@ class TFSingleDest:
         #TODO: here!!!!
         #[Oi 1 x n] [Dj n x 1]
         #formula: Tij=Oi * Dj * exp(-beta * Cij)/(sumj Dj * exp(-beta * Cij))
-        tfBalance = tf.reciprocal(tf.matmul(tf.reshape(self.tfDj, shape(7201,1)), tf.exp(tf.negative(self.tfBeta) * self.tfCij)))
-        tfRunModel = tfBalance * tf.matmul(self.tfOi,tf.transpose(self.tfDj) * tf.exp(tf.negative(self.tfBeta) * self.tfCij))
+        tfBalance = tf.reciprocal(tf.matmul(tf.reshape(self.tfDj, shape=(1,7201)), tf.exp(tf.negative(self.tfBeta) * self.tfCij)))
+        tfRunModel = tfBalance * tf.matmul(tf.reshape(self.tfOi, shape=(7201,1)),tf.reshape(self.tfDj,shape=(1,7201))) * tf.exp(tf.negative(self.tfBeta) * self.tfCij)
         return tfRunModel
 
     ###############################################################################
@@ -150,7 +150,7 @@ class TFSingleDest:
 
     def runModel(self,Tij,Cij,Beta):
         #TensorFlow
-        #run Tij = A * Oi * Dj * exp(-Beta * Cij)/sumj Dj*exp(-Beta * Cij)
+        #run Tij = Ai * Oi * Dj * exp(-Beta * Cij)   where Ai = 1/sumj Dj*exp(-Beta * Cij)
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
             Tij = sess.run(self.tfRunModel, {self.tfTij: Tij, self.tfCij: Cij, self.tfBeta: Beta})
@@ -172,12 +172,12 @@ class TFSingleDest:
             for j in range(0,N):
                 denom += Dj[j] * exp(-Beta * Cij[i, j])
             #end for j
-            print("denom=",denom)
+            #print("denom=",denom)
 
             #numerator calculation
             for j in range(0,N):
                 Tij[i, j] = Oi[i] * Dj[j] * exp(-Beta * Cij[i, j]) / denom
-            print("Tijk[0,0]=",Tij[i,0])
+            #print("Tijk[0,0]=",Tij[i,0])
         #end for i
 
         return Tij
