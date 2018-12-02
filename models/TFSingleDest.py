@@ -120,7 +120,7 @@ class TFSingleDest:
         #print("CBar2=",CBar2)
 
         #TensorFlow
-        with tf.Session() as sess:
+        with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
             sess.run(tf.global_variables_initializer())
             #print(sess.run(self.tfCBar, {tfTij: Tij, tfCij: Cij}))
             CBar = sess.run(self.tfCBar, {self.tfTij: Tij, self.tfCij: Cij})
@@ -131,7 +131,7 @@ class TFSingleDest:
 
     def calculateOi(self,Tij):
         #TensorFlow
-        with tf.Session() as sess:
+        with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
             sess.run(tf.global_variables_initializer())
             #print(sess.run(self.tfCBar, {tfTij: Tij, tfCij: Cij}))
             Oi = sess.run(self.tfOi, {self.tfTij: Tij})
@@ -142,7 +142,7 @@ class TFSingleDest:
 
     def calculateDj(self,Tij):
         #TensorFlow
-        with tf.Session() as sess:
+        with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
             sess.run(tf.global_variables_initializer())
             #print(sess.run(self.tfCBar, {tfTij: Tij, tfCij: Cij}))
             Dj = sess.run(self.tfDj, {self.tfTij: Tij})
@@ -154,7 +154,7 @@ class TFSingleDest:
     def runModel(self,Tij,Cij,Beta):
         #TensorFlow
         #run Tij = Ai * Oi * Dj * exp(-Beta * Cij)   where Ai = 1/sumj Dj*exp(-Beta * Cij)
-        with tf.Session() as sess:
+        with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
             sess.run(tf.global_variables_initializer())
             Tij = sess.run(self.tfRunModel, {self.tfTij: Tij, self.tfCij: Cij, self.tfBeta: Beta})
         return Tij
