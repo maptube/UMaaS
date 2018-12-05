@@ -89,7 +89,11 @@ class TFSingleDest:
         #formula: Tij=Oi * Dj * exp(-beta * Cij)/(sumj Dj * exp(-beta * Cij))
         tfBalance = tf.reciprocal(tf.matmul(tf.reshape(self.tfDj, shape=(1,7201)), tf.exp(tf.negative(self.tfBeta) * self.tfCij)))
         #this is the real model
-        tfRunModel = tfBalance * tf.matmul(tf.reshape(self.tfOi, shape=(7201,1)),tf.reshape(self.tfDj,shape=(1,7201))) * tf.exp(tf.negative(self.tfBeta) * self.tfCij)
+        tfRunModel = tf.multiply(
+            tfBalance,
+            tf.matmul(tf.reshape(self.tfOi, shape=(7201,1)),tf.reshape(self.tfDj,shape=(1,7201))) * tf.exp(tf.negative(self.tfBeta) * self.tfCij),
+            name='result'
+        )
         #this is testing
         #tfRunModel = tf.matmul(tf.reshape(self.tfOi, shape=(7201,1)),tf.reshape(self.tfDj,shape=(1,7201))) * tf.exp(tf.negative(self.tfBeta) * self.tfCij)
         return tfRunModel

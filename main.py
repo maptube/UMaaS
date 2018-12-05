@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
  main.py
 """
@@ -10,6 +11,7 @@ from models.SingleDest import SingleDest
 from models.TFSingleDest import TFSingleDest
 from benchmark.run_benchmarks import runBenchmarks
 from unittests.test_TFSingleDest import testTFSingleDest
+from unittests.test_Movidius import testMovidius, testBuildMovidiusGraph, testRunMovidiusGraph
 
 
 ###############################################################################
@@ -18,7 +20,10 @@ def main():
     print("python main function")
 
     #runBenchmarks()
-    testTFSingleDest()
+    #testTFSingleDest()
+    #testMovidius()
+    testBuildMovidiusGraph()
+    #testRunMovidiusGraph()
 
 
     #print ("test run model")
