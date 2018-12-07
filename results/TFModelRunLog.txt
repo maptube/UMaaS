@@ -1,0 +1,770 @@
+
+TFSingleDest: runModel  4.813246250152588  ns
+end tf run
+(venv) PS D:\richard\GitHub\UMaaS> python main.py
+python main function
+start tf run
+2018-12-06 10:41:03.366847: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+2018-12-06 10:41:04.089542: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1432] Found device 0 with properties:
+name: GeForce GTX 980 Ti major: 5 minor: 2 memoryClockRate(GHz): 1.076
+pciBusID: 0000:02:00.0
+totalMemory: 6.00GiB freeMemory: 4.88GiB
+2018-12-06 10:41:04.212157: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1432] Found device 1 with properties:
+name: GeForce GTX 980 Ti major: 5 minor: 2 memoryClockRate(GHz): 1.076
+pciBusID: 0000:03:00.0
+totalMemory: 6.00GiB freeMemory: 4.88GiB
+2018-12-06 10:41:04.226319: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1511] Adding visible gpu devices: 0, 1
+2018-12-06 10:41:06.508447: I tensorflow/core/common_runtime/gpu/gpu_device.cc:982] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-12-06 10:41:06.511887: I tensorflow/core/common_runtime/gpu/gpu_device.cc:988]      0 1
+2018-12-06 10:41:06.516460: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 0:   N N
+2018-12-06 10:41:06.519952: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 1:   N N
+2018-12-06 10:41:06.522944: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 4632 MB memory) -> physical GPU (device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2)
+2018-12-06 10:41:06.537475: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:1 with 4632 MB memory) -> physical GPU (device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2)
+Device mapping:
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2
+/job:localhost/replica:0/task:0/device:GPU:1 -> device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2
+2018-12-06 10:41:06.554154: I tensorflow/core/common_runtime/direct_session.cc:307] Device mapping:
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2
+/job:localhost/replica:0/task:0/device:GPU:1 -> device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2
+
+Mul: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.574239: I tensorflow/core/common_runtime/placer.cc:927] Mul: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Sum: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.578208: I tensorflow/core/common_runtime/placer.cc:927] Sum: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_1: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.581633: I tensorflow/core/common_runtime/placer.cc:927] Sum_1: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+truediv: (RealDiv): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.585143: I tensorflow/core/common_runtime/placer.cc:927] truediv: (RealDiv)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_2: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.591711: I tensorflow/core/common_runtime/placer.cc:927] Sum_2: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_3: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.595784: I tensorflow/core/common_runtime/placer.cc:927] Sum_3: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+beta: (VariableV2): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.602307: I tensorflow/core/common_runtime/placer.cc:927] beta: (VariableV2)/job:localhost/replica:0/task:0/device:GPU:0
+beta/Assign: (Assign): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.606486: I tensorflow/core/common_runtime/placer.cc:927] beta/Assign: (Assign)/job:localhost/replica:0/task:0/device:GPU:0
+beta/read: (Identity): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.610259: I tensorflow/core/common_runtime/placer.cc:927] beta/read: (Identity)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.613880: I tensorflow/core/common_runtime/placer.cc:927] Reshape: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+Neg: (Neg): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.622098: I tensorflow/core/common_runtime/placer.cc:927] Neg: (Neg)/job:localhost/replica:0/task:0/device:GPU:0
+mul_1: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.625751: I tensorflow/core/common_runtime/placer.cc:927] mul_1: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Exp: (Exp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.629949: I tensorflow/core/common_runtime/placer.cc:927] Exp: (Exp)/job:localhost/replica:0/task:0/device:GPU:0
+MatMul: (MatMul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.633248: I tensorflow/core/common_runtime/placer.cc:927] MatMul: (MatMul)/job:localhost/replica:0/task:0/device:GPU:0
+Reciprocal: (Reciprocal): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.636852: I tensorflow/core/common_runtime/placer.cc:927] Reciprocal: (Reciprocal)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_1: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.640208: I tensorflow/core/common_runtime/placer.cc:927] Reshape_1: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_2: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.645340: I tensorflow/core/common_runtime/placer.cc:927] Reshape_2: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+MatMul_1: (MatMul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.652730: I tensorflow/core/common_runtime/placer.cc:927] MatMul_1: (MatMul)/job:localhost/replica:0/task:0/device:GPU:0
+Neg_1: (Neg): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.660391: I tensorflow/core/common_runtime/placer.cc:927] Neg_1: (Neg)/job:localhost/replica:0/task:0/device:GPU:0
+mul_2: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.666178: I tensorflow/core/common_runtime/placer.cc:927] mul_2: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Exp_1: (Exp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.671798: I tensorflow/core/common_runtime/placer.cc:927] Exp_1: (Exp)/job:localhost/replica:0/task:0/device:GPU:0
+mul_3: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.682293: I tensorflow/core/common_runtime/placer.cc:927] mul_3: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+result: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.686238: I tensorflow/core/common_runtime/placer.cc:927] result: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+init: (NoOp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.689947: I tensorflow/core/common_runtime/placer.cc:927] init: (NoOp)/job:localhost/replica:0/task:0/device:GPU:0
+Tij: (Placeholder): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.694351: I tensorflow/core/common_runtime/placer.cc:927] Tij: (Placeholder)/job:localhost/replica:0/task:0/device:GPU:0
+Cij: (Placeholder): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.698673: I tensorflow/core/common_runtime/placer.cc:927] Cij: (Placeholder)/job:localhost/replica:0/task:0/device:GPU:0
+Const: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.703933: I tensorflow/core/common_runtime/placer.cc:927] Const: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Const_1: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.707974: I tensorflow/core/common_runtime/placer.cc:927] Const_1: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_2/reduction_indices: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.713427: I tensorflow/core/common_runtime/placer.cc:927] Sum_2/reduction_indices: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_3/reduction_indices: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.723103: I tensorflow/core/common_runtime/placer.cc:927] Sum_3/reduction_indices: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+beta/initial_value: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.727508: I tensorflow/core/common_runtime/placer.cc:927] beta/initial_value: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.731193: I tensorflow/core/common_runtime/placer.cc:927] Reshape/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_1/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.735073: I tensorflow/core/common_runtime/placer.cc:927] Reshape_1/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_2/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:41:06.738492: I tensorflow/core/common_runtime/placer.cc:927] Reshape_2/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+TFSingleDest: runModel  4.820423364639282  seconds
+end tf run
+(venv) PS D:\richard\GitHub\UMaaS> python main.py
+python main function
+start tf run
+2018-12-06 10:42:09.772911: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+2018-12-06 10:42:10.496912: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1432] Found device 0 with properties:
+name: GeForce GTX 980 Ti major: 5 minor: 2 memoryClockRate(GHz): 1.076
+pciBusID: 0000:02:00.0
+totalMemory: 6.00GiB freeMemory: 4.88GiB
+2018-12-06 10:42:10.626365: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1432] Found device 1 with properties:
+name: GeForce GTX 980 Ti major: 5 minor: 2 memoryClockRate(GHz): 1.076
+pciBusID: 0000:03:00.0
+totalMemory: 6.00GiB freeMemory: 4.88GiB
+2018-12-06 10:42:10.638130: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1511] Adding visible gpu devices: 0, 1
+2018-12-06 10:42:12.859887: I tensorflow/core/common_runtime/gpu/gpu_device.cc:982] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-12-06 10:42:12.866409: I tensorflow/core/common_runtime/gpu/gpu_device.cc:988]      0 1
+2018-12-06 10:42:12.870445: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 0:   N N
+2018-12-06 10:42:12.879396: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 1:   N N
+2018-12-06 10:42:12.884371: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 4632 MB memory) -> physical GPU (device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2)
+2018-12-06 10:42:12.898900: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:1 with 4632 MB memory) -> physical GPU (device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2)
+Device mapping:
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2
+/job:localhost/replica:0/task:0/device:GPU:1 -> device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2
+2018-12-06 10:42:12.918040: I tensorflow/core/common_runtime/direct_session.cc:307] Device mapping:
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2
+/job:localhost/replica:0/task:0/device:GPU:1 -> device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2
+
+Mul: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:12.932115: I tensorflow/core/common_runtime/placer.cc:927] Mul: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Sum: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:12.938866: I tensorflow/core/common_runtime/placer.cc:927] Sum: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_1: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:12.942438: I tensorflow/core/common_runtime/placer.cc:927] Sum_1: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+truediv: (RealDiv): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:12.946127: I tensorflow/core/common_runtime/placer.cc:927] truediv: (RealDiv)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_2: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:12.949692: I tensorflow/core/common_runtime/placer.cc:927] Sum_2: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_3: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:12.953178: I tensorflow/core/common_runtime/placer.cc:927] Sum_3: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+beta: (VariableV2): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:12.956791: I tensorflow/core/common_runtime/placer.cc:927] beta: (VariableV2)/job:localhost/replica:0/task:0/device:GPU:0
+beta/Assign: (Assign): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:12.961122: I tensorflow/core/common_runtime/placer.cc:927] beta/Assign: (Assign)/job:localhost/replica:0/task:0/device:GPU:0
+beta/read: (Identity): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:12.968528: I tensorflow/core/common_runtime/placer.cc:927] beta/read: (Identity)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:12.972324: I tensorflow/core/common_runtime/placer.cc:927] Reshape: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+Neg: (Neg): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:12.976211: I tensorflow/core/common_runtime/placer.cc:927] Neg: (Neg)/job:localhost/replica:0/task:0/device:GPU:0
+mul_1: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:12.979975: I tensorflow/core/common_runtime/placer.cc:927] mul_1: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Exp: (Exp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:12.983551: I tensorflow/core/common_runtime/placer.cc:927] Exp: (Exp)/job:localhost/replica:0/task:0/device:GPU:0
+MatMul: (MatMul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:12.987050: I tensorflow/core/common_runtime/placer.cc:927] MatMul: (MatMul)/job:localhost/replica:0/task:0/device:GPU:0
+Reciprocal: (Reciprocal): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:12.993647: I tensorflow/core/common_runtime/placer.cc:927] Reciprocal: (Reciprocal)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_1: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:12.997263: I tensorflow/core/common_runtime/placer.cc:927] Reshape_1: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_2: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:13.001199: I tensorflow/core/common_runtime/placer.cc:927] Reshape_2: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+MatMul_1: (MatMul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:13.005525: I tensorflow/core/common_runtime/placer.cc:927] MatMul_1: (MatMul)/job:localhost/replica:0/task:0/device:GPU:0
+Neg_1: (Neg): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:13.009364: I tensorflow/core/common_runtime/placer.cc:927] Neg_1: (Neg)/job:localhost/replica:0/task:0/device:GPU:0
+mul_2: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:13.013233: I tensorflow/core/common_runtime/placer.cc:927] mul_2: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Exp_1: (Exp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:13.016583: I tensorflow/core/common_runtime/placer.cc:927] Exp_1: (Exp)/job:localhost/replica:0/task:0/device:GPU:0
+mul_3: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:13.020566: I tensorflow/core/common_runtime/placer.cc:927] mul_3: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+result: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:13.023968: I tensorflow/core/common_runtime/placer.cc:927] result: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+init: (NoOp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:13.027570: I tensorflow/core/common_runtime/placer.cc:927] init: (NoOp)/job:localhost/replica:0/task:0/device:GPU:0
+Tij: (Placeholder): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:13.036352: I tensorflow/core/common_runtime/placer.cc:927] Tij: (Placeholder)/job:localhost/replica:0/task:0/device:GPU:0
+Cij: (Placeholder): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:13.040337: I tensorflow/core/common_runtime/placer.cc:927] Cij: (Placeholder)/job:localhost/replica:0/task:0/device:GPU:0
+Const: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:13.044851: I tensorflow/core/common_runtime/placer.cc:927] Const: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Const_1: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:13.049541: I tensorflow/core/common_runtime/placer.cc:927] Const_1: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_2/reduction_indices: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:13.053337: I tensorflow/core/common_runtime/placer.cc:927] Sum_2/reduction_indices: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_3/reduction_indices: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:13.057259: I tensorflow/core/common_runtime/placer.cc:927] Sum_3/reduction_indices: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+beta/initial_value: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:13.066219: I tensorflow/core/common_runtime/placer.cc:927] beta/initial_value: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:13.070335: I tensorflow/core/common_runtime/placer.cc:927] Reshape/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_1/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:13.074176: I tensorflow/core/common_runtime/placer.cc:927] Reshape_1/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_2/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:42:13.077679: I tensorflow/core/common_runtime/placer.cc:927] Reshape_2/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+TFSingleDest: runModel  4.721381425857544  seconds
+end tf run
+(venv) PS D:\richard\GitHub\UMaaS> python main.py
+python main function
+start tf run
+2018-12-06 10:43:41.215319: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+2018-12-06 10:43:41.979591: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1432] Found device 0 with properties:
+name: GeForce GTX 980 Ti major: 5 minor: 2 memoryClockRate(GHz): 1.076
+pciBusID: 0000:02:00.0
+totalMemory: 6.00GiB freeMemory: 4.88GiB
+2018-12-06 10:43:42.087699: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1432] Found device 1 with properties:
+name: GeForce GTX 980 Ti major: 5 minor: 2 memoryClockRate(GHz): 1.076
+pciBusID: 0000:03:00.0
+totalMemory: 6.00GiB freeMemory: 4.88GiB
+2018-12-06 10:43:42.096058: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1511] Adding visible gpu devices: 0, 1
+2018-12-06 10:43:44.344284: I tensorflow/core/common_runtime/gpu/gpu_device.cc:982] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-12-06 10:43:44.347590: I tensorflow/core/common_runtime/gpu/gpu_device.cc:988]      0 1
+2018-12-06 10:43:44.349932: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 0:   N N
+2018-12-06 10:43:44.352288: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 1:   N N
+2018-12-06 10:43:44.356021: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 4632 MB memory) -> physical GPU (device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2)
+2018-12-06 10:43:44.366632: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:1 with 4632 MB memory) -> physical GPU (device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2)
+Device mapping:
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2
+/job:localhost/replica:0/task:0/device:GPU:1 -> device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2
+2018-12-06 10:43:44.383686: I tensorflow/core/common_runtime/direct_session.cc:307] Device mapping:
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2
+/job:localhost/replica:0/task:0/device:GPU:1 -> device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2
+
+Mul: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.396810: I tensorflow/core/common_runtime/placer.cc:927] Mul: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Sum: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.406942: I tensorflow/core/common_runtime/placer.cc:927] Sum: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_1: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.411578: I tensorflow/core/common_runtime/placer.cc:927] Sum_1: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+truediv: (RealDiv): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.415640: I tensorflow/core/common_runtime/placer.cc:927] truediv: (RealDiv)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_2: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.419072: I tensorflow/core/common_runtime/placer.cc:927] Sum_2: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_3: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.422105: I tensorflow/core/common_runtime/placer.cc:927] Sum_3: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+beta: (VariableV2): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.427081: I tensorflow/core/common_runtime/placer.cc:927] beta: (VariableV2)/job:localhost/replica:0/task:0/device:GPU:0
+beta/Assign: (Assign): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.433767: I tensorflow/core/common_runtime/placer.cc:927] beta/Assign: (Assign)/job:localhost/replica:0/task:0/device:GPU:0
+beta/read: (Identity): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.437559: I tensorflow/core/common_runtime/placer.cc:927] beta/read: (Identity)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.440863: I tensorflow/core/common_runtime/placer.cc:927] Reshape: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+Neg: (Neg): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.444172: I tensorflow/core/common_runtime/placer.cc:927] Neg: (Neg)/job:localhost/replica:0/task:0/device:GPU:0
+mul_1: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.447533: I tensorflow/core/common_runtime/placer.cc:927] mul_1: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Exp: (Exp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.451169: I tensorflow/core/common_runtime/placer.cc:927] Exp: (Exp)/job:localhost/replica:0/task:0/device:GPU:0
+MatMul: (MatMul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.455334: I tensorflow/core/common_runtime/placer.cc:927] MatMul: (MatMul)/job:localhost/replica:0/task:0/device:GPU:0
+Reciprocal: (Reciprocal): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.458542: I tensorflow/core/common_runtime/placer.cc:927] Reciprocal: (Reciprocal)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_1: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.462418: I tensorflow/core/common_runtime/placer.cc:927] Reshape_1: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_2: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.466800: I tensorflow/core/common_runtime/placer.cc:927] Reshape_2: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+MatMul_1: (MatMul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.477393: I tensorflow/core/common_runtime/placer.cc:927] MatMul_1: (MatMul)/job:localhost/replica:0/task:0/device:GPU:0
+Neg_1: (Neg): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.483368: I tensorflow/core/common_runtime/placer.cc:927] Neg_1: (Neg)/job:localhost/replica:0/task:0/device:GPU:0
+mul_2: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.488561: I tensorflow/core/common_runtime/placer.cc:927] mul_2: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Exp_1: (Exp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.492119: I tensorflow/core/common_runtime/placer.cc:927] Exp_1: (Exp)/job:localhost/replica:0/task:0/device:GPU:0
+mul_3: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.497295: I tensorflow/core/common_runtime/placer.cc:927] mul_3: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+result: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.502458: I tensorflow/core/common_runtime/placer.cc:927] result: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+init: (NoOp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.506482: I tensorflow/core/common_runtime/placer.cc:927] init: (NoOp)/job:localhost/replica:0/task:0/device:GPU:0
+Tij: (Placeholder): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.515976: I tensorflow/core/common_runtime/placer.cc:927] Tij: (Placeholder)/job:localhost/replica:0/task:0/device:GPU:0
+Cij: (Placeholder): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.519510: I tensorflow/core/common_runtime/placer.cc:927] Cij: (Placeholder)/job:localhost/replica:0/task:0/device:GPU:0
+Const: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.523224: I tensorflow/core/common_runtime/placer.cc:927] Const: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Const_1: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.526554: I tensorflow/core/common_runtime/placer.cc:927] Const_1: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_2/reduction_indices: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.530101: I tensorflow/core/common_runtime/placer.cc:927] Sum_2/reduction_indices: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_3/reduction_indices: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.533501: I tensorflow/core/common_runtime/placer.cc:927] Sum_3/reduction_indices: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+beta/initial_value: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.537013: I tensorflow/core/common_runtime/placer.cc:927] beta/initial_value: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.543238: I tensorflow/core/common_runtime/placer.cc:927] Reshape/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_1/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.547257: I tensorflow/core/common_runtime/placer.cc:927] Reshape_1/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_2/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:43:44.551048: I tensorflow/core/common_runtime/placer.cc:927] Reshape_2/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+TFSingleDest: runModel  1.0133953094482422  seconds
+end tf run
+(venv) PS D:\richard\GitHub\UMaaS> python main.py
+python main function
+start tf run
+2018-12-06 10:44:38.167275: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+2018-12-06 10:44:38.959335: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1432] Found device 0 with properties:
+name: GeForce GTX 980 Ti major: 5 minor: 2 memoryClockRate(GHz): 1.076
+pciBusID: 0000:02:00.0
+totalMemory: 6.00GiB freeMemory: 4.88GiB
+2018-12-06 10:44:39.081194: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1432] Found device 1 with properties:
+name: GeForce GTX 980 Ti major: 5 minor: 2 memoryClockRate(GHz): 1.076
+pciBusID: 0000:03:00.0
+totalMemory: 6.00GiB freeMemory: 4.88GiB
+2018-12-06 10:44:39.090802: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1511] Adding visible gpu devices: 0, 1
+2018-12-06 10:44:41.351939: I tensorflow/core/common_runtime/gpu/gpu_device.cc:982] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-12-06 10:44:41.357567: I tensorflow/core/common_runtime/gpu/gpu_device.cc:988]      0 1
+2018-12-06 10:44:41.359823: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 0:   N N
+2018-12-06 10:44:41.362529: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 1:   N N
+2018-12-06 10:44:41.367353: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 4632 MB memory) -> physical GPU (device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2)
+2018-12-06 10:44:41.380989: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:1 with 4632 MB memory) -> physical GPU (device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2)
+Device mapping:
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2
+/job:localhost/replica:0/task:0/device:GPU:1 -> device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2
+2018-12-06 10:44:41.397387: I tensorflow/core/common_runtime/direct_session.cc:307] Device mapping:
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2
+/job:localhost/replica:0/task:0/device:GPU:1 -> device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2
+
+Mul: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.414222: I tensorflow/core/common_runtime/placer.cc:927] Mul: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Sum: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.417990: I tensorflow/core/common_runtime/placer.cc:927] Sum: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_1: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.426391: I tensorflow/core/common_runtime/placer.cc:927] Sum_1: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+truediv: (RealDiv): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.430354: I tensorflow/core/common_runtime/placer.cc:927] truediv: (RealDiv)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_2: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.434448: I tensorflow/core/common_runtime/placer.cc:927] Sum_2: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_3: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.438847: I tensorflow/core/common_runtime/placer.cc:927] Sum_3: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+beta: (VariableV2): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.443369: I tensorflow/core/common_runtime/placer.cc:927] beta: (VariableV2)/job:localhost/replica:0/task:0/device:GPU:0
+beta/Assign: (Assign): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.447355: I tensorflow/core/common_runtime/placer.cc:927] beta/Assign: (Assign)/job:localhost/replica:0/task:0/device:GPU:0
+beta/read: (Identity): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.454846: I tensorflow/core/common_runtime/placer.cc:927] beta/read: (Identity)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.459173: I tensorflow/core/common_runtime/placer.cc:927] Reshape: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+Neg: (Neg): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.462753: I tensorflow/core/common_runtime/placer.cc:927] Neg: (Neg)/job:localhost/replica:0/task:0/device:GPU:0
+mul_1: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.466196: I tensorflow/core/common_runtime/placer.cc:927] mul_1: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Exp: (Exp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.469341: I tensorflow/core/common_runtime/placer.cc:927] Exp: (Exp)/job:localhost/replica:0/task:0/device:GPU:0
+MatMul: (MatMul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.472984: I tensorflow/core/common_runtime/placer.cc:927] MatMul: (MatMul)/job:localhost/replica:0/task:0/device:GPU:0
+Reciprocal: (Reciprocal): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.483485: I tensorflow/core/common_runtime/placer.cc:927] Reciprocal: (Reciprocal)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_1: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.486967: I tensorflow/core/common_runtime/placer.cc:927] Reshape_1: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_2: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.490966: I tensorflow/core/common_runtime/placer.cc:927] Reshape_2: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+MatMul_1: (MatMul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.495921: I tensorflow/core/common_runtime/placer.cc:927] MatMul_1: (MatMul)/job:localhost/replica:0/task:0/device:GPU:0
+Neg_1: (Neg): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.500706: I tensorflow/core/common_runtime/placer.cc:927] Neg_1: (Neg)/job:localhost/replica:0/task:0/device:GPU:0
+mul_2: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.504186: I tensorflow/core/common_runtime/placer.cc:927] mul_2: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Exp_1: (Exp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.515315: I tensorflow/core/common_runtime/placer.cc:927] Exp_1: (Exp)/job:localhost/replica:0/task:0/device:GPU:0
+mul_3: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.518798: I tensorflow/core/common_runtime/placer.cc:927] mul_3: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+result: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.522888: I tensorflow/core/common_runtime/placer.cc:927] result: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+init: (NoOp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.526773: I tensorflow/core/common_runtime/placer.cc:927] init: (NoOp)/job:localhost/replica:0/task:0/device:GPU:0
+Tij: (Placeholder): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.529971: I tensorflow/core/common_runtime/placer.cc:927] Tij: (Placeholder)/job:localhost/replica:0/task:0/device:GPU:0
+Cij: (Placeholder): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.533281: I tensorflow/core/common_runtime/placer.cc:927] Cij: (Placeholder)/job:localhost/replica:0/task:0/device:GPU:0
+Const: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.536625: I tensorflow/core/common_runtime/placer.cc:927] Const: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Const_1: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.544027: I tensorflow/core/common_runtime/placer.cc:927] Const_1: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_2/reduction_indices: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.548446: I tensorflow/core/common_runtime/placer.cc:927] Sum_2/reduction_indices: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_3/reduction_indices: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.552597: I tensorflow/core/common_runtime/placer.cc:927] Sum_3/reduction_indices: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+beta/initial_value: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.556576: I tensorflow/core/common_runtime/placer.cc:927] beta/initial_value: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.561818: I tensorflow/core/common_runtime/placer.cc:927] Reshape/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_1/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.565576: I tensorflow/core/common_runtime/placer.cc:927] Reshape_1/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_2/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:44:41.576666: I tensorflow/core/common_runtime/placer.cc:927] Reshape_2/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+TFSingleDest: runModel  29.860188007354736  seconds
+end tf run
+(venv) PS D:\richard\GitHub\UMaaS> python main.py
+python main function
+start tf run
+2018-12-06 10:47:52.432810: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+2018-12-06 10:47:53.130783: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1432] Found device 0 with properties:
+name: GeForce GTX 980 Ti major: 5 minor: 2 memoryClockRate(GHz): 1.076
+pciBusID: 0000:02:00.0
+totalMemory: 6.00GiB freeMemory: 4.88GiB
+2018-12-06 10:47:53.251869: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1432] Found device 1 with properties:
+name: GeForce GTX 980 Ti major: 5 minor: 2 memoryClockRate(GHz): 1.076
+pciBusID: 0000:03:00.0
+totalMemory: 6.00GiB freeMemory: 4.88GiB
+2018-12-06 10:47:53.257524: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1511] Adding visible gpu devices: 0, 1
+2018-12-06 10:47:55.434452: I tensorflow/core/common_runtime/gpu/gpu_device.cc:982] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-12-06 10:47:55.438546: I tensorflow/core/common_runtime/gpu/gpu_device.cc:988]      0 1
+2018-12-06 10:47:55.443294: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 0:   N N
+2018-12-06 10:47:55.454064: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 1:   N N
+2018-12-06 10:47:55.458386: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 4632 MB memory) -> physical GPU (device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2)
+2018-12-06 10:47:55.470034: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:1 with 4632 MB memory) -> physical GPU (device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2)
+Device mapping:
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2
+/job:localhost/replica:0/task:0/device:GPU:1 -> device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2
+2018-12-06 10:47:55.490784: I tensorflow/core/common_runtime/direct_session.cc:307] Device mapping:
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2
+/job:localhost/replica:0/task:0/device:GPU:1 -> device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2
+
+Mul: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.505055: I tensorflow/core/common_runtime/placer.cc:927] Mul: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Sum: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.508411: I tensorflow/core/common_runtime/placer.cc:927] Sum: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_1: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.519447: I tensorflow/core/common_runtime/placer.cc:927] Sum_1: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+truediv: (RealDiv): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.523349: I tensorflow/core/common_runtime/placer.cc:927] truediv: (RealDiv)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_2: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.530249: I tensorflow/core/common_runtime/placer.cc:927] Sum_2: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_3: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.537131: I tensorflow/core/common_runtime/placer.cc:927] Sum_3: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+beta: (VariableV2): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.542687: I tensorflow/core/common_runtime/placer.cc:927] beta: (VariableV2)/job:localhost/replica:0/task:0/device:GPU:0
+beta/Assign: (Assign): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.555002: I tensorflow/core/common_runtime/placer.cc:927] beta/Assign: (Assign)/job:localhost/replica:0/task:0/device:GPU:0
+beta/read: (Identity): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.558981: I tensorflow/core/common_runtime/placer.cc:927] beta/read: (Identity)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.564518: I tensorflow/core/common_runtime/placer.cc:927] Reshape: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+Neg: (Neg): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.570680: I tensorflow/core/common_runtime/placer.cc:927] Neg: (Neg)/job:localhost/replica:0/task:0/device:GPU:0
+mul_1: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.574532: I tensorflow/core/common_runtime/placer.cc:927] mul_1: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Exp: (Exp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.582023: I tensorflow/core/common_runtime/placer.cc:927] Exp: (Exp)/job:localhost/replica:0/task:0/device:GPU:0
+MatMul: (MatMul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.585786: I tensorflow/core/common_runtime/placer.cc:927] MatMul: (MatMul)/job:localhost/replica:0/task:0/device:GPU:0
+Reciprocal: (Reciprocal): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.589413: I tensorflow/core/common_runtime/placer.cc:927] Reciprocal: (Reciprocal)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_1: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.593162: I tensorflow/core/common_runtime/placer.cc:927] Reshape_1: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_2: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.597442: I tensorflow/core/common_runtime/placer.cc:927] Reshape_2: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+MatMul_1: (MatMul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.601248: I tensorflow/core/common_runtime/placer.cc:927] MatMul_1: (MatMul)/job:localhost/replica:0/task:0/device:GPU:0
+Neg_1: (Neg): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.605426: I tensorflow/core/common_runtime/placer.cc:927] Neg_1: (Neg)/job:localhost/replica:0/task:0/device:GPU:0
+mul_2: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.612402: I tensorflow/core/common_runtime/placer.cc:927] mul_2: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Exp_1: (Exp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.616070: I tensorflow/core/common_runtime/placer.cc:927] Exp_1: (Exp)/job:localhost/replica:0/task:0/device:GPU:0
+mul_3: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.619779: I tensorflow/core/common_runtime/placer.cc:927] mul_3: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+result: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.623829: I tensorflow/core/common_runtime/placer.cc:927] result: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+init: (NoOp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.627153: I tensorflow/core/common_runtime/placer.cc:927] init: (NoOp)/job:localhost/replica:0/task:0/device:GPU:0
+Tij: (Placeholder): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.630739: I tensorflow/core/common_runtime/placer.cc:927] Tij: (Placeholder)/job:localhost/replica:0/task:0/device:GPU:0
+Cij: (Placeholder): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.634145: I tensorflow/core/common_runtime/placer.cc:927] Cij: (Placeholder)/job:localhost/replica:0/task:0/device:GPU:0
+Const: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.642437: I tensorflow/core/common_runtime/placer.cc:927] Const: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Const_1: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.647239: I tensorflow/core/common_runtime/placer.cc:927] Const_1: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_2/reduction_indices: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.653027: I tensorflow/core/common_runtime/placer.cc:927] Sum_2/reduction_indices: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_3/reduction_indices: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.657084: I tensorflow/core/common_runtime/placer.cc:927] Sum_3/reduction_indices: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+beta/initial_value: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.663063: I tensorflow/core/common_runtime/placer.cc:927] beta/initial_value: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.670216: I tensorflow/core/common_runtime/placer.cc:927] Reshape/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_1/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.673608: I tensorflow/core/common_runtime/placer.cc:927] Reshape_1/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_2/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:47:55.677052: I tensorflow/core/common_runtime/placer.cc:927] Reshape_2/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+TFSingleDest: runModel  281.8427541255951  seconds
+end tf run
+(venv) PS D:\richard\GitHub\UMaaS> python main.py
+python main function
+start tf run
+2018-12-06 10:54:10.733434: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+2018-12-06 10:54:11.469861: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1432] Found device 0 with properties:
+name: GeForce GTX 980 Ti major: 5 minor: 2 memoryClockRate(GHz): 1.076
+pciBusID: 0000:02:00.0
+totalMemory: 6.00GiB freeMemory: 4.88GiB
+2018-12-06 10:54:11.593963: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1432] Found device 1 with properties:
+name: GeForce GTX 980 Ti major: 5 minor: 2 memoryClockRate(GHz): 1.076
+pciBusID: 0000:03:00.0
+totalMemory: 6.00GiB freeMemory: 4.88GiB
+2018-12-06 10:54:11.611718: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1511] Adding visible gpu devices: 0, 1
+2018-12-06 10:54:13.807861: I tensorflow/core/common_runtime/gpu/gpu_device.cc:982] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-12-06 10:54:13.814169: I tensorflow/core/common_runtime/gpu/gpu_device.cc:988]      0 1
+2018-12-06 10:54:13.825577: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 0:   N N
+2018-12-06 10:54:13.828110: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 1:   N N
+2018-12-06 10:54:13.830703: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 4632 MB memory) -> physical GPU (device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2)
+2018-12-06 10:54:13.839167: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:1 with 4632 MB memory) -> physical GPU (device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2)
+Device mapping:
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2
+/job:localhost/replica:0/task:0/device:GPU:1 -> device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2
+2018-12-06 10:54:13.850128: I tensorflow/core/common_runtime/direct_session.cc:307] Device mapping:
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2
+/job:localhost/replica:0/task:0/device:GPU:1 -> device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2
+
+Mul: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.871361: I tensorflow/core/common_runtime/placer.cc:927] Mul: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Sum: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.874579: I tensorflow/core/common_runtime/placer.cc:927] Sum: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_1: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.878497: I tensorflow/core/common_runtime/placer.cc:927] Sum_1: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+truediv: (RealDiv): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.882998: I tensorflow/core/common_runtime/placer.cc:927] truediv: (RealDiv)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_2: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.891114: I tensorflow/core/common_runtime/placer.cc:927] Sum_2: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_3: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.895105: I tensorflow/core/common_runtime/placer.cc:927] Sum_3: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+beta: (VariableV2): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.901751: I tensorflow/core/common_runtime/placer.cc:927] beta: (VariableV2)/job:localhost/replica:0/task:0/device:GPU:0
+beta/Assign: (Assign): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.910200: I tensorflow/core/common_runtime/placer.cc:927] beta/Assign: (Assign)/job:localhost/replica:0/task:0/device:GPU:0
+beta/read: (Identity): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.920961: I tensorflow/core/common_runtime/placer.cc:927] beta/read: (Identity)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.925355: I tensorflow/core/common_runtime/placer.cc:927] Reshape: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+Neg: (Neg): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.928909: I tensorflow/core/common_runtime/placer.cc:927] Neg: (Neg)/job:localhost/replica:0/task:0/device:GPU:0
+mul_1: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.932271: I tensorflow/core/common_runtime/placer.cc:927] mul_1: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Exp: (Exp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.936127: I tensorflow/core/common_runtime/placer.cc:927] Exp: (Exp)/job:localhost/replica:0/task:0/device:GPU:0
+MatMul: (MatMul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.942420: I tensorflow/core/common_runtime/placer.cc:927] MatMul: (MatMul)/job:localhost/replica:0/task:0/device:GPU:0
+Reciprocal: (Reciprocal): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.954003: I tensorflow/core/common_runtime/placer.cc:927] Reciprocal: (Reciprocal)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_1: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.958004: I tensorflow/core/common_runtime/placer.cc:927] Reshape_1: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_2: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.962099: I tensorflow/core/common_runtime/placer.cc:927] Reshape_2: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+MatMul_1: (MatMul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.965923: I tensorflow/core/common_runtime/placer.cc:927] MatMul_1: (MatMul)/job:localhost/replica:0/task:0/device:GPU:0
+Neg_1: (Neg): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.969505: I tensorflow/core/common_runtime/placer.cc:927] Neg_1: (Neg)/job:localhost/replica:0/task:0/device:GPU:0
+mul_2: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.973397: I tensorflow/core/common_runtime/placer.cc:927] mul_2: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Exp_1: (Exp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.981022: I tensorflow/core/common_runtime/placer.cc:927] Exp_1: (Exp)/job:localhost/replica:0/task:0/device:GPU:0
+mul_3: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.984276: I tensorflow/core/common_runtime/placer.cc:927] mul_3: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+result: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.987901: I tensorflow/core/common_runtime/placer.cc:927] result: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+init: (NoOp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.991049: I tensorflow/core/common_runtime/placer.cc:927] init: (NoOp)/job:localhost/replica:0/task:0/device:GPU:0
+Tij: (Placeholder): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.994846: I tensorflow/core/common_runtime/placer.cc:927] Tij: (Placeholder)/job:localhost/replica:0/task:0/device:GPU:0
+Cij: (Placeholder): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:13.998994: I tensorflow/core/common_runtime/placer.cc:927] Cij: (Placeholder)/job:localhost/replica:0/task:0/device:GPU:0
+Const: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:14.002511: I tensorflow/core/common_runtime/placer.cc:927] Const: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Const_1: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:14.006438: I tensorflow/core/common_runtime/placer.cc:927] Const_1: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_2/reduction_indices: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:14.013802: I tensorflow/core/common_runtime/placer.cc:927] Sum_2/reduction_indices: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_3/reduction_indices: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:14.017321: I tensorflow/core/common_runtime/placer.cc:927] Sum_3/reduction_indices: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+beta/initial_value: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:14.021410: I tensorflow/core/common_runtime/placer.cc:927] beta/initial_value: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:14.026014: I tensorflow/core/common_runtime/placer.cc:927] Reshape/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_1/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:14.030825: I tensorflow/core/common_runtime/placer.cc:927] Reshape_1/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_2/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 10:54:14.035041: I tensorflow/core/common_runtime/placer.cc:927] Reshape_2/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+TFSingleDest: runModel  550.0674777030945  seconds
+end tf run
+(venv) PS D:\richard\GitHub\UMaaS> python main.py
+python main function
+start tf run
+2018-12-06 11:31:32.327373: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+2018-12-06 11:31:32.963249: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1432] Found device 0 with properties:
+name: GeForce GTX 980 Ti major: 5 minor: 2 memoryClockRate(GHz): 1.076
+pciBusID: 0000:02:00.0
+totalMemory: 6.00GiB freeMemory: 4.88GiB
+2018-12-06 11:31:33.087369: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1432] Found device 1 with properties:
+name: GeForce GTX 980 Ti major: 5 minor: 2 memoryClockRate(GHz): 1.076
+pciBusID: 0000:03:00.0
+totalMemory: 6.00GiB freeMemory: 4.88GiB
+2018-12-06 11:31:33.099217: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1511] Adding visible gpu devices: 0, 1
+2018-12-06 11:31:35.395736: I tensorflow/core/common_runtime/gpu/gpu_device.cc:982] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-12-06 11:31:35.401766: I tensorflow/core/common_runtime/gpu/gpu_device.cc:988]      0 1
+2018-12-06 11:31:35.405283: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 0:   N N
+2018-12-06 11:31:35.409700: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 1:   N N
+2018-12-06 11:31:35.412599: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 4632 MB memory) -> physical GPU (device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2)
+2018-12-06 11:31:35.432539: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:1 with 4632 MB memory) -> physical GPU (device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2)
+Device mapping:
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2
+/job:localhost/replica:0/task:0/device:GPU:1 -> device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2
+2018-12-06 11:31:35.452080: I tensorflow/core/common_runtime/direct_session.cc:307] Device mapping:
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2
+/job:localhost/replica:0/task:0/device:GPU:1 -> device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2
+
+Mul: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.466124: I tensorflow/core/common_runtime/placer.cc:927] Mul: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Sum: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.470226: I tensorflow/core/common_runtime/placer.cc:927] Sum: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_1: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.476151: I tensorflow/core/common_runtime/placer.cc:927] Sum_1: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+truediv: (RealDiv): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.484134: I tensorflow/core/common_runtime/placer.cc:927] truediv: (RealDiv)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_2: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.487489: I tensorflow/core/common_runtime/placer.cc:927] Sum_2: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_3: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.490528: I tensorflow/core/common_runtime/placer.cc:927] Sum_3: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+beta: (VariableV2): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.494308: I tensorflow/core/common_runtime/placer.cc:927] beta: (VariableV2)/job:localhost/replica:0/task:0/device:GPU:0
+beta/Assign: (Assign): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.497574: I tensorflow/core/common_runtime/placer.cc:927] beta/Assign: (Assign)/job:localhost/replica:0/task:0/device:GPU:0
+beta/read: (Identity): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.500872: I tensorflow/core/common_runtime/placer.cc:927] beta/read: (Identity)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.504459: I tensorflow/core/common_runtime/placer.cc:927] Reshape: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+Neg: (Neg): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.512937: I tensorflow/core/common_runtime/placer.cc:927] Neg: (Neg)/job:localhost/replica:0/task:0/device:GPU:0
+mul_1: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.516207: I tensorflow/core/common_runtime/placer.cc:927] mul_1: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Exp: (Exp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.519555: I tensorflow/core/common_runtime/placer.cc:927] Exp: (Exp)/job:localhost/replica:0/task:0/device:GPU:0
+MatMul: (MatMul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.522605: I tensorflow/core/common_runtime/placer.cc:927] MatMul: (MatMul)/job:localhost/replica:0/task:0/device:GPU:0
+Reciprocal: (Reciprocal): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.525896: I tensorflow/core/common_runtime/placer.cc:927] Reciprocal: (Reciprocal)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_1: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.530551: I tensorflow/core/common_runtime/placer.cc:927] Reshape_1: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_2: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.534010: I tensorflow/core/common_runtime/placer.cc:927] Reshape_2: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+MatMul_1: (MatMul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.541395: I tensorflow/core/common_runtime/placer.cc:927] MatMul_1: (MatMul)/job:localhost/replica:0/task:0/device:GPU:0
+Neg_1: (Neg): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.544855: I tensorflow/core/common_runtime/placer.cc:927] Neg_1: (Neg)/job:localhost/replica:0/task:0/device:GPU:0
+mul_2: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.548939: I tensorflow/core/common_runtime/placer.cc:927] mul_2: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Exp_1: (Exp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.552324: I tensorflow/core/common_runtime/placer.cc:927] Exp_1: (Exp)/job:localhost/replica:0/task:0/device:GPU:0
+mul_3: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.555423: I tensorflow/core/common_runtime/placer.cc:927] mul_3: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+result: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.558705: I tensorflow/core/common_runtime/placer.cc:927] result: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+init: (NoOp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.562176: I tensorflow/core/common_runtime/placer.cc:927] init: (NoOp)/job:localhost/replica:0/task:0/device:GPU:0
+Tij: (Placeholder): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.565482: I tensorflow/core/common_runtime/placer.cc:927] Tij: (Placeholder)/job:localhost/replica:0/task:0/device:GPU:0
+Cij: (Placeholder): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.568649: I tensorflow/core/common_runtime/placer.cc:927] Cij: (Placeholder)/job:localhost/replica:0/task:0/device:GPU:0
+Const: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.572231: I tensorflow/core/common_runtime/placer.cc:927] Const: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Const_1: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.579902: I tensorflow/core/common_runtime/placer.cc:927] Const_1: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_2/reduction_indices: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.583176: I tensorflow/core/common_runtime/placer.cc:927] Sum_2/reduction_indices: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_3/reduction_indices: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.586764: I tensorflow/core/common_runtime/placer.cc:927] Sum_3/reduction_indices: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+beta/initial_value: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.590850: I tensorflow/core/common_runtime/placer.cc:927] beta/initial_value: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.594788: I tensorflow/core/common_runtime/placer.cc:927] Reshape/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_1/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.598203: I tensorflow/core/common_runtime/placer.cc:927] Reshape_1/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_2/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:31:35.601606: I tensorflow/core/common_runtime/placer.cc:927] Reshape_2/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+TFSingleDest: runModel  829.0974423885345  seconds
+end tf run
+(venv) PS D:\richard\GitHub\UMaaS> python main.py
+python main function
+start tf run
+2018-12-06 11:50:31.459311: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+2018-12-06 11:50:32.113442: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1432] Found device 0 with properties:
+name: GeForce GTX 980 Ti major: 5 minor: 2 memoryClockRate(GHz): 1.076
+pciBusID: 0000:02:00.0
+totalMemory: 6.00GiB freeMemory: 4.88GiB
+2018-12-06 11:50:32.274931: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1432] Found device 1 with properties:
+name: GeForce GTX 980 Ti major: 5 minor: 2 memoryClockRate(GHz): 1.076
+pciBusID: 0000:03:00.0
+totalMemory: 6.00GiB freeMemory: 4.88GiB
+2018-12-06 11:50:32.282288: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1511] Adding visible gpu devices: 0, 1
+2018-12-06 11:50:35.012573: I tensorflow/core/common_runtime/gpu/gpu_device.cc:982] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-12-06 11:50:35.019325: I tensorflow/core/common_runtime/gpu/gpu_device.cc:988]      0 1
+2018-12-06 11:50:35.023599: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 0:   N N
+2018-12-06 11:50:35.028204: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 1:   N N
+2018-12-06 11:50:35.033258: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 4632 MB memory) -> physical GPU (device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2)
+2018-12-06 11:50:35.045496: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:1 with 4632 MB memory) -> physical GPU (device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2)
+Device mapping:
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2
+/job:localhost/replica:0/task:0/device:GPU:1 -> device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2
+2018-12-06 11:50:35.058218: I tensorflow/core/common_runtime/direct_session.cc:307] Device mapping:
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 980 Ti, pci bus id: 0000:02:00.0, compute capability: 5.2
+/job:localhost/replica:0/task:0/device:GPU:1 -> device: 1, name: GeForce GTX 980 Ti, pci bus id: 0000:03:00.0, compute capability: 5.2
+
+Mul: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.077183: I tensorflow/core/common_runtime/placer.cc:927] Mul: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Sum: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.081628: I tensorflow/core/common_runtime/placer.cc:927] Sum: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_1: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.085806: I tensorflow/core/common_runtime/placer.cc:927] Sum_1: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+truediv: (RealDiv): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.089767: I tensorflow/core/common_runtime/placer.cc:927] truediv: (RealDiv)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_2: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.093840: I tensorflow/core/common_runtime/placer.cc:927] Sum_2: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_3: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.102737: I tensorflow/core/common_runtime/placer.cc:927] Sum_3: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+beta: (VariableV2): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.107173: I tensorflow/core/common_runtime/placer.cc:927] beta: (VariableV2)/job:localhost/replica:0/task:0/device:GPU:0
+beta/Assign: (Assign): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.111208: I tensorflow/core/common_runtime/placer.cc:927] beta/Assign: (Assign)/job:localhost/replica:0/task:0/device:GPU:0
+beta/read: (Identity): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.116160: I tensorflow/core/common_runtime/placer.cc:927] beta/read: (Identity)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.120689: I tensorflow/core/common_runtime/placer.cc:927] Reshape: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+Neg: (Neg): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.124871: I tensorflow/core/common_runtime/placer.cc:927] Neg: (Neg)/job:localhost/replica:0/task:0/device:GPU:0
+mul_1: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.128556: I tensorflow/core/common_runtime/placer.cc:927] mul_1: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Exp: (Exp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.133546: I tensorflow/core/common_runtime/placer.cc:927] Exp: (Exp)/job:localhost/replica:0/task:0/device:GPU:0
+MatMul: (MatMul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.137261: I tensorflow/core/common_runtime/placer.cc:927] MatMul: (MatMul)/job:localhost/replica:0/task:0/device:GPU:0
+Reciprocal: (Reciprocal): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.146283: I tensorflow/core/common_runtime/placer.cc:927] Reciprocal: (Reciprocal)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_1: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.151522: I tensorflow/core/common_runtime/placer.cc:927] Reshape_1: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_2: (Reshape): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.155582: I tensorflow/core/common_runtime/placer.cc:927] Reshape_2: (Reshape)/job:localhost/replica:0/task:0/device:GPU:0
+MatMul_1: (MatMul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.159900: I tensorflow/core/common_runtime/placer.cc:927] MatMul_1: (MatMul)/job:localhost/replica:0/task:0/device:GPU:0
+Neg_1: (Neg): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.163822: I tensorflow/core/common_runtime/placer.cc:927] Neg_1: (Neg)/job:localhost/replica:0/task:0/device:GPU:0
+mul_2: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.168249: I tensorflow/core/common_runtime/placer.cc:927] mul_2: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+Exp_1: (Exp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.176616: I tensorflow/core/common_runtime/placer.cc:927] Exp_1: (Exp)/job:localhost/replica:0/task:0/device:GPU:0
+mul_3: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.181228: I tensorflow/core/common_runtime/placer.cc:927] mul_3: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+result: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.186639: I tensorflow/core/common_runtime/placer.cc:927] result: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+init: (NoOp): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.190797: I tensorflow/core/common_runtime/placer.cc:927] init: (NoOp)/job:localhost/replica:0/task:0/device:GPU:0
+Tij: (Placeholder): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.194263: I tensorflow/core/common_runtime/placer.cc:927] Tij: (Placeholder)/job:localhost/replica:0/task:0/device:GPU:0
+Cij: (Placeholder): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.198812: I tensorflow/core/common_runtime/placer.cc:927] Cij: (Placeholder)/job:localhost/replica:0/task:0/device:GPU:0
+Const: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.206923: I tensorflow/core/common_runtime/placer.cc:927] Const: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Const_1: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.210279: I tensorflow/core/common_runtime/placer.cc:927] Const_1: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_2/reduction_indices: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.215300: I tensorflow/core/common_runtime/placer.cc:927] Sum_2/reduction_indices: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Sum_3/reduction_indices: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.219613: I tensorflow/core/common_runtime/placer.cc:927] Sum_3/reduction_indices: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+beta/initial_value: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.223968: I tensorflow/core/common_runtime/placer.cc:927] beta/initial_value: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.227927: I tensorflow/core/common_runtime/placer.cc:927] Reshape/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_1/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.241918: I tensorflow/core/common_runtime/placer.cc:927] Reshape_1/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Reshape_2/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-12-06 11:50:35.245634: I tensorflow/core/common_runtime/placer.cc:927] Reshape_2/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+TFSingleDest: runModel  1105.5535986423492  seconds

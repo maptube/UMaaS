@@ -10,7 +10,7 @@ import math
 import numpy as np
 
 from globals import *
-from utils import loadMatrix
+from utils import loadMatrix, resizeMatrix
 from models.SingleDest import SingleDest
 from models.TFSingleDest import TFSingleDest
 
@@ -103,15 +103,18 @@ def testTFSingleDest():
     #TPred=testModel.TPred
     #Beta=testModel.Beta
     #
-    Oi = testTFModel.calculateOi(TObs1)
-    Dj = testTFModel.calculateDj(TObs1)
-    TFDebugTPred = testTFModel.debugRunModel(Oi,Dj,TObs1,Cij1,1.0)
+    #Oi = testTFModel.calculateOi(TObs1)
+    #Dj = testTFModel.calculateDj(TObs1)
+    #TFDebugTPred = testTFModel.debugRunModel(Oi,Dj,TObs1,Cij1,1.0)
     #print("TFDebugTPred[0,0]",TFDebugTPred[0,0])
     #
+    print("start tf run")
     testTFModel.TObs=TObs
     testTFModel.Cij=Cij
     testTFModel.isUsingConstraints=False
-    TFTPred=testTFModel.runModel(TObs1,Cij1,1.0)
+
+    TFTPred=testTFModel.runModel(resizeMatrix(TObs1,16000),resizeMatrix(Cij1,16000),1.0)
+    print("end tf run")
     #print("TFTPred[0,0]=",TFTPred[0,0])
     #TFTPred=testTFModel.TPred
     #TFBeta=testTFModel.Beta
@@ -120,7 +123,7 @@ def testTFSingleDest():
     #print(assertEqualFloatsMsg(Beta[1],TFBeta[1],'{status} Beta test: Beta1={val1} TFBeta1={val2} diff={diff}'))
     #print(assertEqualFloatsMsg(Beta[2],TFBeta[2],'{status} Beta test: Beta2={val1} TFBeta2={val2} diff={diff}'))
     #print(assertEqualMatricesMsg(TPred,TFTPred,'{status} TPred test: TPred={val1} TFTPred={val2} diff={diff}'))
-    print(assertEqualMatricesMsg(TFDebugTPred,TFTPred,'{status} TFDebugTPred test: TPred={val1} TFTPred={val2} diff={diff}'))
+    #print(assertEqualMatricesMsg(TFDebugTPred,TFTPred,'{status} TFDebugTPred test: TPred={val1} TFTPred={val2} diff={diff}'))
 
 
 

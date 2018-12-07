@@ -134,3 +134,17 @@ def loadQUANTMatrix(filename):
     return matrix
 
 ###############################################################################
+
+"""
+Resize a matrix: if smaller then rows and cols are cut out, if bigger then rows and cols are repeated modulo
+This is used for the benchmarks, so I can vary the matrix size and see how long it takes
+"""
+def resizeMatrix(matrix,N):
+    (m, n) = np.shape(matrix) #original matrix size
+    m2 = np.zeros(N*N).reshape(N, N)
+    for i in range(0,N):
+        for j in range(0,N):
+            m2[i,j]=matrix[i % n,j % n]
+    return m2
+
+###############################################################################

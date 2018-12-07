@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from math import exp, fabs
+import time
 
 """
 Tensorflow implementation of single destination constrained gravity model
@@ -10,6 +11,7 @@ class TFSingleDest:
     ###############################################################################
 
     def __init__(self):
+        self.N=16000 #7201 #number of zones - needed to be preset for the TF code (i.e. before matrix was loaded to give us N) - TODO: use TF adaptive sizes
         self.numModes=3
         self.TObs=[] #Data input to model list of NDArray
         self.Cij=[] #cost matrix for zones in TObs
@@ -22,8 +24,8 @@ class TFSingleDest:
         self.Beta=[] #Beta values for three modes - this is also output
 
         #create a graph for TensorFlow to calculate the CBar value
-        self.tfTij = tf.placeholder(tf.float32, shape=(7201,7201), name='Tij') #input tensor 1 #hack! need to have the matrix dimension here!
-        self.tfCij = tf.placeholder(tf.float32, shape=(7201,7201), name='Cij') #input tensor 2
+        self.tfTij = tf.placeholder(tf.float32, shape=(self.N,self.N), name='Tij') #input tensor 1 #hack! need to have the matrix dimension here!
+        self.tfCij = tf.placeholder(tf.float32, shape=(self.N,self.N), name='Cij') #input tensor 2
         self.tfCBar = self.buildTFGraphCBar()
         #create Oi graph
         self.tfOi = self.buildTFGraphOi()
@@ -87,11 +89,11 @@ class TFSingleDest:
         #TODO: here!!!!
         #[Oi 1 x n] [Dj n x 1]
         #formula: Tij=Oi * Dj * exp(-beta * Cij)/(sumj Dj * exp(-beta * Cij))
-        tfBalance = tf.reciprocal(tf.matmul(tf.reshape(self.tfDj, shape=(1,7201)), tf.exp(tf.negative(self.tfBeta) * self.tfCij)))
+        tfBalance = tf.reciprocal(tf.matmul(tf.reshape(self.tfDj, shape=(1,self.N)), tf.exp(tf.negative(self.tfBeta) * self.tfCij)))
         #this is the real model
         tfRunModel = tf.multiply(
             tfBalance,
-            tf.matmul(tf.reshape(self.tfOi, shape=(7201,1)),tf.reshape(self.tfDj,shape=(1,7201))) * tf.exp(tf.negative(self.tfBeta) * self.tfCij),
+            tf.matmul(tf.reshape(self.tfOi, shape=(self.N,1)),tf.reshape(self.tfDj,shape=(1,self.N))) * tf.exp(tf.negative(self.tfBeta) * self.tfCij),
             name='result'
         )
         #this is testing
@@ -160,7 +162,11 @@ class TFSingleDest:
         #run Tij = Ai * Oi * Dj * exp(-Beta * Cij)   where Ai = 1/sumj Dj*exp(-Beta * Cij)
         with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
             sess.run(tf.global_variables_initializer())
-            Tij = sess.run(self.tfRunModel, {self.tfTij: Tij, self.tfCij: Cij, self.tfBeta: Beta})
+            starttime = time.time()
+            for i in range(0,1000):
+                Tij = sess.run(self.tfRunModel, {self.tfTij: Tij, self.tfCij: Cij, self.tfBeta: Beta})
+            finishtime = time.time()
+        print("TFSingleDest: runModel ",finishtime-starttime," seconds")
         return Tij
 
     ###############################################################################
