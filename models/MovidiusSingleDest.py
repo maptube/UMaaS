@@ -51,8 +51,8 @@ class MovidiusSingleDest:
         #so why not use the TensorFlow graph from the TFSingleDest model?
         #This sets up the graph model (which we know works) and that can be saved to
         #file for use by the run function.
-        TObs1 = loadMatrix(os.path.join(modelRunsDir,TObs31Filename))
-        Cij1 = loadMatrix(os.path.join(modelRunsDir,CijRoadMinFilename))
+        #TObs1 = loadMatrix(os.path.join(modelRunsDir,TObs31Filename))
+        #Cij1 = loadMatrix(os.path.join(modelRunsDir,CijRoadMinFilename))
         #tfModel = TFSingleDest()
         #export_dir = ""
         #builder = tf.saved_model.builder.SavedModelBuilder(export_dir)
@@ -70,13 +70,13 @@ class MovidiusSingleDest:
         #tfModel = TFSingleDest()
         #tf.train.write_graph(sess.graph,'logs','graphRunModel.pbtxt',as_text=True)
         #tf.train.write_graph(sess.graph,'logs','graphRunModel.pb',as_text=False)
-        with tf.Session(graph=tf.Graph()) as sess:
-            tfModel = TFSingleDest()
-            saver = tf.train.Saver(tf.global_variables())
-            #saver = tf.train.Saver({"tfRunModel": tfModel.tfRunModel})
-            tfModel.tfBeta.initializer.run()
-            Tij = sess.run(tfModel.tfRunModel, {tfModel.tfTij: TObs1, tfModel.tfCij: Cij1, tfModel.tfBeta: 1.0})
-            saver.save(sess, "logs/graphRunModel2.pb")
+        #with tf.Session(graph=tf.Graph()) as sess:
+        #    tfModel = TFSingleDest()
+        #    saver = tf.train.Saver(tf.global_variables())
+        #    #saver = tf.train.Saver({"tfRunModel": tfModel.tfRunModel})
+        #    tfModel.tfBeta.initializer.run()
+        #    Tij = sess.run(tfModel.tfRunModel, {tfModel.tfTij: TObs1, tfModel.tfCij: Cij1, tfModel.tfBeta: 1.0})
+        #    saver.save(sess, "logs/graphRunModel2.pb")
 
         #from the model optimizer docs:
         with tf.Session() as sess:
