@@ -11,8 +11,8 @@ import numpy as np
 
 from globals import *
 from utils import loadMatrix, resizeMatrix
-from models.SingleDest import SingleDest
-from models.TFSingleDest import TFSingleDest
+from models.SingleOrigin import SingleOrigin
+from models.TFSingleOrigin import TFSingleOrigin
 
 #define epsilon difference limit for assertion tests
 epsilon = 2.0 #increased this from 0.1
@@ -66,11 +66,11 @@ def assertEqualMatricesMsg(mat1,mat2,msg):
 ###############################################################################
 
 """
-This is an equivalence test for the SingleDest giving the same results as the TFSingleDest i.e. the TensorFlow code
+This is an equivalence test for the SingleOrigin giving the same results as the TFSingleOrigin i.e. the TensorFlow code
 produces the same results.
 NOTE: final matrix equivalence test commented out as it is proving problematic to implement - need better test.
 """
-def testTFSingleDest():
+def testTFSingleOrigin():
     #TensorFlow tests - load testing matrices
     TObs1 = loadMatrix(os.path.join(modelRunsDir,TObs31Filename))
     TObs2 = loadMatrix(os.path.join(modelRunsDir,TObs32Filename))
@@ -82,8 +82,8 @@ def testTFSingleDest():
     Cij = [Cij1,Cij2,Cij3]
     
     #now set up the two models for comparison
-    testModel = SingleDest()
-    testTFModel = TFSingleDest(7201)
+    testModel = SingleOrigin()
+    testTFModel = TFSingleOrigin(7201)
     
     #CBar Test
     CBar = testModel.calculateCBar(TObs1,Cij1)
@@ -104,31 +104,24 @@ def testTFSingleDest():
     #testModel.TObs=TObs
     #testModel.Cij=Cij
     #testModel.isUsingConstraints=False
-    #testModel.run()
+    #testModel.run() #version 1 - this is the main model run code
     #TPred=testModel.TPred
     #Beta=testModel.Beta
+    (TPred, secs) = testModel.benchmarkRun(TObs1,Cij,1.0) #version 2 - this is the optimised benchmark code
     #
+    #This is an alternative equivalence test built into the TFModel class as debug code
+    #NOTE: external calculation of Oi and Dj, so not suitable for a speed test
     #Oi = testTFModel.calculateOi(TObs1)
     #Dj = testTFModel.calculateDj(TObs1)
     #TFDebugTPred = testTFModel.debugRunModel(Oi,Dj,TObs1,Cij1,1.0)
     #print("TFDebugTPred[0,0]",TFDebugTPred[0,0])
-    #
-    #print("start tf run")
-    #testTFModel.TObs=TObs
-    #testTFModel.Cij=Cij
-    #testTFModel.isUsingConstraints=False
 
-    #TFTPred=testTFModel.runModel(resizeMatrix(TObs1,8000),resizeMatrix(Cij1,8000),1.0)
-    #print("end tf run")
-    #print("TFTPred[0,0]=",TFTPred[0,0])
-    #TFTPred=testTFModel.TPred
-    #TFBeta=testTFModel.Beta
+    #
+    #This is the real GPU code
+    TFTPred=testTFModel.runModel(TObs1,Cij1,1.0)
     #and compare them...
-    #print(assertEqualFloatsMsg(Beta[0],TFBeta[0],'{status} Beta test: Beta0={val1} TFBeta0={val2} diff={diff}'))
-    #print(assertEqualFloatsMsg(Beta[1],TFBeta[1],'{status} Beta test: Beta1={val1} TFBeta1={val2} diff={diff}'))
-    #print(assertEqualFloatsMsg(Beta[2],TFBeta[2],'{status} Beta test: Beta2={val1} TFBeta2={val2} diff={diff}'))
-    #print(assertEqualMatricesMsg(TPred,TFTPred,'{status} TPred test: TPred={val1} TFTPred={val2} diff={diff}'))
     #print(assertEqualMatricesMsg(TFDebugTPred,TFTPred,'{status} TFDebugTPred test: TPred={val1} TFTPred={val2} diff={diff}'))
+    print(assertEqualMatricesMsg(TPred,TFTPred,'{status} TFDebugTPred test: TPred={val1} TFTPred={val2} diff={diff}'))
 
 ###############################################################################
 

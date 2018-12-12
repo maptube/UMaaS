@@ -7,12 +7,12 @@ import os.path
 import numpy as np
 from globals import *
 from utils import loadZoneLookup, loadMatrix, saveMatrix
-from models.SingleDest import SingleDest
-from models.TFSingleDest import TFSingleDest
+from models.SingleOrigin import SingleOrigin
+from models.TFSingleOrigin import TFSingleOrigin
 from benchmark.run_benchmarks import runBenchmarks
-from benchmark.benchmark_SingleDest import benchmarkSingleDestMatrixSizes
-from benchmark.benchmark_TFSingleDest import benchmarkTFSingleDestMatrixSizes
-from unittests.test_TFSingleDest import testTFSingleDest
+from benchmark.benchmark_SingleOrigin import benchmarkSingleOriginMatrixSizes
+from benchmark.benchmark_TFSingleOrigin import benchmarkTFSingleOriginMatrixSizes
+from unittests.test_TFSingleOrigin import testTFSingleOrigin
 #from unittests.test_Movidius import testMovidius, testBuildMovidiusGraph, testRunMovidiusGraph
 
 
@@ -22,7 +22,7 @@ def main():
     print("python main function")
 
     #EQUIVALENCE TESTS
-    #testTFSingleDest() #this is an equivalence test of SingleDest vs TFSingleDest i.e. does the TF code produce equivalent result?
+    testTFSingleOrigin() #this is an equivalence test of SingleDest vs TFSingleDest i.e. does the TF code produce equivalent result?
     #testMovidius()
     #testBuildMovidiusGraph()
     #testRunMovidiusGraph()
@@ -30,13 +30,13 @@ def main():
     #BENCHMARK TESTS
     #size test doing a sweep of matrix size from N=100 to N=16000
     #======CPU CPU CPU======
-    #benchmarkSingleDestMatrixSizes(100,2000,100) #NOTE: this takes 15 minutes to run
-    #benchmarkSingleDestMatrixSizes(7201,7202,1) #OK, hack a 7201 run for comparison with the real QUANT
-    #benchmarkSingleDestMatrixSizes(2500,13000,500) #NOTE: this takes a VERY long time to run (a day?)
+    #benchmarkSingleOriginMatrixSizes(100,2000,100) #NOTE: this takes 15 minutes to run
+    #benchmarkSingleOriginMatrixSizes(7201,7202,1) #OK, hack a 7201 run for comparison with the real QUANT
+    #benchmarkSingleOriginMatrixSizes(2500,13000,500) #NOTE: this takes a VERY long time to run (a day?)
     #======GPU GPU GPU======
-    #benchmarkTFSingleDestMatrixSizes(100,2000,100)
-    #benchmarkTFSingleDestMatrixSizes(7201,7202,1) #OK, hack a 7201 run for comparison with the real QUANT
-    #benchmarkTFSingleDestMatrixSizes(2500,16000,500) #NOTE: this takes a VERY long time to run (days?)
+    #benchmarkTFSingleOriginMatrixSizes(100,2000,100)
+    #benchmarkTFSingleOriginMatrixSizes(7201,7202,1) #OK, hack a 7201 run for comparison with the real QUANT
+    #benchmarkTFSingleOriginMatrixSizes(2500,16000,500) #NOTE: this takes a VERY long time to run (days?)
 
 
     #print ("test run model")
@@ -54,7 +54,7 @@ def main():
     #Cij = [Cij1,Cij2,Cij3]
     #print("loaded matrices")
     #set up model information to calibrate
-    #model = SingleDest()
+    #model = SingleOrigin()
     #model.TObs = TObs
     #model.Cij=Cij
     #model.isUsingConstraints=False

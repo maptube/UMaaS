@@ -3,12 +3,12 @@ Run benchmark code
 """
 
 from globals import *
-from benchmark.benchmark_SingleDest import *
+from benchmark.benchmark_SingleOrigin import *
 
 ###############################################################################
 
 def runBenchmarks():
-    print("SingleDest tests")
+    print("SingleOrigin tests")
     #cbar = benchmark_calculateCBar_slow()
     #cbar2 = benchmark_calculateCBar_fast()
     #assert cbar==cbar2?

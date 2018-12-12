@@ -444,18 +444,18 @@ class SingleOrigin:
         (M, N) = np.shape(Tij)
         starttime = time.time()
         for r in range(0,1000):
-            #Tij = sess.run(self.tfRunModel, {self.tfTij: Tij, self.tfCij: Cij, self.tfBeta: Beta})
+            TPred = np.zeros(N*N).reshape(N, N)
             Oi = self.calculateOi(Tij)
             Dj = self.calculateDj(Tij)
-            expBetaCij = np.exp(-Beta*Cij) #pre-calculate an exp(-Beta*cij) matrix for speed
+            expBetaCij = np.exp((-Beta)*Cij) #pre-calculate an exp(-Beta*cij) matrix for speed
             for i in range(0,N):
                 denom = np.sum(Dj*expBetaCij[i,:]) #sigmaj Dj exp(-Beta*Cij)
                 Tij2=Oi[i]*(Dj*expBetaCij[i]/denom)
-                Tij[i,:]=Tij2 #put answer slice back in return array
+                TPred[i,:]=Tij2 #put answer slice back in return array
             #end for i
         #end for r
         finishtime = time.time()
         #print("SingleDest: benchmarkRun ",finishtime-starttime," seconds")
-        return (Tij,finishtime-starttime)
+        return (TPred,finishtime-starttime)
 
 ###############################################################################
