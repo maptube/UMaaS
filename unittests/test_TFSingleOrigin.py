@@ -65,6 +65,11 @@ def assertEqualMatricesMsg(mat1,mat2,msg):
 
 ###############################################################################
 
+"""
+This is an equivalence test for the SingleDest giving the same results as the TFSingleDest i.e. the TensorFlow code
+produces the same results.
+NOTE: final matrix equivalence test commented out as it is proving problematic to implement - need better test.
+"""
 def testTFSingleDest():
     #TensorFlow tests - load testing matrices
     TObs1 = loadMatrix(os.path.join(modelRunsDir,TObs31Filename))
@@ -78,22 +83,22 @@ def testTFSingleDest():
     
     #now set up the two models for comparison
     testModel = SingleDest()
-    testTFModel = TFSingleDest()
+    testTFModel = TFSingleDest(7201)
     
     #CBar Test
-    #CBar = testModel.calculateCBar(TObs1,Cij1)
-    #TFCBar = testTFModel.calculateCBar(TObs1,Cij1)
-    #print(assertEqualFloatsMsg(CBar,TFCBar,'{status} CBar test: CBar={val1} TFCBar={val2} diff={diff}'))
+    CBar = testModel.calculateCBar(TObs1,Cij1)
+    TFCBar = testTFModel.calculateCBar(TObs1,Cij1)
+    print(assertEqualFloatsMsg(CBar,TFCBar,'{status} CBar test: CBar={val1} TFCBar={val2} diff={diff}'))
 
     #Oi Test
-    #Oi = testModel.calculateOi(TObs1)
-    #TFOi = testTFModel.calculateOi(TObs1)
-    #print(assertEqualVectorsMsg(Oi,TFOi,'{status} Oi test: Oi={val1} TFOi={val2} diff={diff}'))
+    Oi = testModel.calculateOi(TObs1)
+    TFOi = testTFModel.calculateOi(TObs1)
+    print(assertEqualVectorsMsg(Oi,TFOi,'{status} Oi test: Oi={val1} TFOi={val2} diff={diff}'))
 
     #Dj Test
-    #Dj = testModel.calculateDj(TObs1)
-    #TFDj = testTFModel.calculateDj(TObs1)
-    #print(assertEqualVectorsMsg(Dj,TFDj,'{status} Dj test: Dj={val1} TFDj={val2} diff={diff}'))
+    Dj = testModel.calculateDj(TObs1)
+    TFDj = testTFModel.calculateDj(TObs1)
+    print(assertEqualVectorsMsg(Dj,TFDj,'{status} Dj test: Dj={val1} TFDj={val2} diff={diff}'))
 
     #Calibrate test - this gives us three predicted matrices and three beta values
     #testModel.TObs=TObs
@@ -108,13 +113,13 @@ def testTFSingleDest():
     #TFDebugTPred = testTFModel.debugRunModel(Oi,Dj,TObs1,Cij1,1.0)
     #print("TFDebugTPred[0,0]",TFDebugTPred[0,0])
     #
-    print("start tf run")
-    testTFModel.TObs=TObs
-    testTFModel.Cij=Cij
-    testTFModel.isUsingConstraints=False
+    #print("start tf run")
+    #testTFModel.TObs=TObs
+    #testTFModel.Cij=Cij
+    #testTFModel.isUsingConstraints=False
 
-    TFTPred=testTFModel.runModel(resizeMatrix(TObs1,16000),resizeMatrix(Cij1,16000),1.0)
-    print("end tf run")
+    #TFTPred=testTFModel.runModel(resizeMatrix(TObs1,8000),resizeMatrix(Cij1,8000),1.0)
+    #print("end tf run")
     #print("TFTPred[0,0]=",TFTPred[0,0])
     #TFTPred=testTFModel.TPred
     #TFBeta=testTFModel.Beta
@@ -124,6 +129,9 @@ def testTFSingleDest():
     #print(assertEqualFloatsMsg(Beta[2],TFBeta[2],'{status} Beta test: Beta2={val1} TFBeta2={val2} diff={diff}'))
     #print(assertEqualMatricesMsg(TPred,TFTPred,'{status} TPred test: TPred={val1} TFTPred={val2} diff={diff}'))
     #print(assertEqualMatricesMsg(TFDebugTPred,TFTPred,'{status} TFDebugTPred test: TPred={val1} TFTPred={val2} diff={diff}'))
+
+###############################################################################
+
 
 
 

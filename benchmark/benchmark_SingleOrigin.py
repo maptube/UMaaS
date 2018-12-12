@@ -5,7 +5,9 @@ from math import exp, fabs
 from sys import float_info
 
 from globals import *
-from utils import loadMatrix
+from utils import loadMatrix, resizeMatrix
+
+from models.SingleDest import SingleDest
 
 """
 Benchmarks for the Single Destination Constrained model (models/SingleDest.py)
@@ -67,6 +69,31 @@ def benchmark_calculateCBar_fast():
     print("CBar2=",CBar2)
 
     return CBar2
+
+###############################################################################
+
+"""
+This is a benchmark of the simple Python code for SingleDest using different matrix sizes.
+It is a test for how long a single execution of the main loop takes. Timings are printed
+to the console based on 1000 runs of the model code i.e. the timing you see in seconds
+must be divided by 1000.
+NOTE: this could take a VERY long time to run if you pass in a high number for Nfinish 
+"""
+def benchmarkSingleDestMatrixSizes(Nstart,Nfinish,Nstep):
+    print("benchmark_SingleDest running matrix Nstart=",Nstart," Nfinish=",Nfinish, " Nstep=",Nstep)
+
+    #load testing matrices
+    TObs1 = loadMatrix(os.path.join(modelRunsDir,TObs31Filename))
+    Cij1 = loadMatrix(os.path.join(modelRunsDir,CijRoadMinFilename))
+
+    for N in range(Nstart,Nfinish,Nstep):
+        #print("TPred runModel N=",N)
+        #set up the model
+        testModel = SingleDest()
+        (TPred, secs)=testModel.benchmarkRun(resizeMatrix(TObs1,N),resizeMatrix(Cij1,N),1.0)
+        #NOTE: timing printed to console based on 1000 iterations of the main loop in the above code
+        #Should not contain any setup timings - only the actual algorithm run time.
+        print(N,",1000,",secs) #all console logging from here - makes it nice and easy to import into excel
 
 ###############################################################################
 

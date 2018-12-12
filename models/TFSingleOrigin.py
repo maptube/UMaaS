@@ -7,11 +7,11 @@ import time
 Tensorflow implementation of single destination constrained gravity model
 How about PyTorch or Keras?
 """
-class TFSingleDest:
+class TFSingleOrigin:
     ###############################################################################
 
-    def __init__(self):
-        self.N=16000 #7201 #number of zones - needed to be preset for the TF code (i.e. before matrix was loaded to give us N) - TODO: use TF adaptive sizes
+    def __init__(self,N):
+        self.N=N #7201 #number of zones - needed to be preset for the TF code (i.e. before matrix was loaded to give us N) - TODO: use TF adaptive sizes
         self.numModes=3
         self.TObs=[] #Data input to model list of NDArray
         self.Cij=[] #cost matrix for zones in TObs
@@ -51,7 +51,7 @@ class TFSingleDest:
         #build graph
         CNumerator = tf.reduce_sum(tf.multiply(self.tfTij,self.tfCij))
         CDenominator = tf.reduce_sum(self.tfTij)
-        tfCBar = tf.divide(CNumerator,CDenominator)
+        tfCBar = tf.divide(CNumerator,CDenominator,name='CBar')
         #tf.math.multiply
         #tf.math.exp
 
@@ -161,15 +161,31 @@ class TFSingleDest:
         #TensorFlow
         #run Tij = Ai * Oi * Dj * exp(-Beta * Cij)   where Ai = 1/sumj Dj*exp(-Beta * Cij)
         with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
+            writer = tf.summary.FileWriter("log/TFSingleDest", sess.graph)
             sess.run(tf.global_variables_initializer())
             starttime = time.time()
             for i in range(0,1000):
                 Tij = sess.run(self.tfRunModel, {self.tfTij: Tij, self.tfCij: Cij, self.tfBeta: Beta})
             finishtime = time.time()
+            writer.close()
         print("TFSingleDest: runModel ",finishtime-starttime," seconds")
         return Tij
 
     ###############################################################################
+
+    #def debugWriteModelGraph(self,Tij,Cij,Beta):
+    #    with tf.Session() as sess:
+    #        writer = tf.summary.FileWriter("log/TFSingleDest", sess.graph)
+    #        sess.run(tf.global_variables_initializer())
+    #        Tij = sess.run(self.tfRunModel, {self.tfTij: Tij, self.tfCij: Cij, self.tfBeta: Beta})
+    #
+    #        writer.close()
+    #        g = tf.get_default_graph()
+    #        print(g.get_operations())
+        
+
+    ###############################################################################
+
 
     """
     Test run of equation Tij=OiDje(-BetaCij)/denom
