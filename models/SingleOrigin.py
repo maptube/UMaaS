@@ -439,15 +439,15 @@ class SingleOrigin:
     Added to allow timing of the main loop for speed comparison with the TensorFlow code.
     NOTE: this is only single mode and one iteration of the main loop. This is what all the benchmark tests do.
     """
-    def benchmarkRun(self,Tij,Cij,Beta):
+    def benchmarkRun(self,numRuns,Tij,Cij,Beta):
         #run Tij = Ai * Oi * Dj * exp(-Beta * Cij)   where Ai = 1/sumj Dj*exp(-Beta * Cij)
         (M, N) = np.shape(Tij)
         starttime = time.time()
-        for r in range(0,1000):
+        for r in range(0,numRuns):
             TPred = np.zeros(N*N).reshape(N, N)
             Oi = self.calculateOi(Tij)
             Dj = self.calculateDj(Tij)
-            expBetaCij = np.exp((-Beta)*Cij) #pre-calculate an exp(-Beta*cij) matrix for speed
+            expBetaCij = np.exp(-Beta*Cij) #pre-calculate an exp(-Beta*cij) matrix for speed
             for i in range(0,N):
                 denom = np.sum(Dj*expBetaCij[i,:]) #sigmaj Dj exp(-Beta*Cij)
                 Tij2=Oi[i]*(Dj*expBetaCij[i]/denom)

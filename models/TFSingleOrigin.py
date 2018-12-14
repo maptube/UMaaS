@@ -173,15 +173,15 @@ class TFSingleOrigin:
 
     ###############################################################################
 
-    #def debugWriteModelGraph(self,Tij,Cij,Beta):
-    #    with tf.Session() as sess:
-    #        writer = tf.summary.FileWriter("log/TFSingleDest", sess.graph)
-    #        sess.run(tf.global_variables_initializer())
-    #        Tij = sess.run(self.tfRunModel, {self.tfTij: Tij, self.tfCij: Cij, self.tfBeta: Beta})
-    #
-    #        writer.close()
-    #        g = tf.get_default_graph()
-    #        print(g.get_operations())
+    def debugWriteModelGraph(self,Tij,Cij,Beta):
+        with tf.Session() as sess:
+            writer = tf.summary.FileWriter("log/TFSingleOrigin", sess.graph)
+            sess.run(tf.global_variables_initializer())
+            Tij = sess.run(self.tfRunModel, {self.tfTij: Tij, self.tfCij: Cij, self.tfBeta: Beta})
+    
+            writer.close()
+            g = tf.get_default_graph()
+            print(g.get_operations())
         
 
     ###############################################################################

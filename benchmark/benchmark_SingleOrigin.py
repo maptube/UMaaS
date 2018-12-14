@@ -90,7 +90,7 @@ def benchmarkSingleOriginMatrixSizes(Nstart,Nfinish,Nstep):
         #print("TPred runModel N=",N)
         #set up the model
         testModel = SingleOrigin()
-        (TPred, secs)=testModel.benchmarkRun(resizeMatrix(TObs1,N),resizeMatrix(Cij1,N),1.0)
+        (TPred, secs)=testModel.benchmarkRun(1000,resizeMatrix(TObs1,N),resizeMatrix(Cij1,N),1.0)
         #NOTE: timing printed to console based on 1000 iterations of the main loop in the above code
         #Should not contain any setup timings - only the actual algorithm run time.
         print(N,",1000,",secs) #all console logging from here - makes it nice and easy to import into excel

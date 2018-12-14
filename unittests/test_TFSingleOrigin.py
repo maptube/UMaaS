@@ -107,7 +107,7 @@ def testTFSingleOrigin():
     #testModel.run() #version 1 - this is the main model run code
     #TPred=testModel.TPred
     #Beta=testModel.Beta
-    (TPred, secs) = testModel.benchmarkRun(TObs1,Cij,1.0) #version 2 - this is the optimised benchmark code
+    (TPred, secs) = testModel.benchmarkRun(1,TObs1,Cij1,1.0) #version 2 - this is the optimised benchmark code
     #
     #This is an alternative equivalence test built into the TFModel class as debug code
     #NOTE: external calculation of Oi and Dj, so not suitable for a speed test
@@ -118,9 +118,11 @@ def testTFSingleOrigin():
 
     #
     #This is the real GPU code
-    TFTPred=testTFModel.runModel(TObs1,Cij1,1.0)
+    TFTPred=testTFModel.runModel(TObs1,Cij1,1.0) #TODO: need number of runs passed in here too, just like the cpu one
     #and compare them...
+    print("Comparing TPred and TFTPred matrices for equivalence")
     #print(assertEqualMatricesMsg(TFDebugTPred,TFTPred,'{status} TFDebugTPred test: TPred={val1} TFTPred={val2} diff={diff}'))
+    #todo: need better way of doing this - need mse report of whole thing and printed discrepancies
     print(assertEqualMatricesMsg(TPred,TFTPred,'{status} TFDebugTPred test: TPred={val1} TFTPred={val2} diff={diff}'))
 
 ###############################################################################

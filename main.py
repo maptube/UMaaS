@@ -14,6 +14,7 @@ from benchmark.benchmark_SingleOrigin import benchmarkSingleOriginMatrixSizes
 from benchmark.benchmark_TFSingleOrigin import benchmarkTFSingleOriginMatrixSizes
 from unittests.test_TFSingleOrigin import testTFSingleOrigin
 #from unittests.test_Movidius import testMovidius, testBuildMovidiusGraph, testRunMovidiusGraph
+from unittests.test_KerasGravityANN import testKerasGravityANN
 
 
 ###############################################################################
@@ -22,21 +23,34 @@ def main():
     print("python main function")
 
     #EQUIVALENCE TESTS
-    testTFSingleOrigin() #this is an equivalence test of SingleDest vs TFSingleDest i.e. does the TF code produce equivalent result?
+    #testTFSingleOrigin() #this is an equivalence test of SingleDest vs TFSingleDest i.e. does the TF code produce equivalent result?
+    #======MOVIDIUS======
     #testMovidius()
     #testBuildMovidiusGraph()
     #testRunMovidiusGraph()
+    #======Keras ANN======
+    testKerasGravityANN()
+
 
     #BENCHMARK TESTS
     #size test doing a sweep of matrix size from N=100 to N=16000
     #======CPU CPU CPU======
     #benchmarkSingleOriginMatrixSizes(100,2000,100) #NOTE: this takes 15 minutes to run
     #benchmarkSingleOriginMatrixSizes(7201,7202,1) #OK, hack a 7201 run for comparison with the real QUANT
-    #benchmarkSingleOriginMatrixSizes(2500,13000,500) #NOTE: this takes a VERY long time to run (a day?)
+    #benchmarkSingleOriginMatrixSizes(2000,13000,500) #NOTE: this takes a VERY long time to run (a day?)
+    ##benchmarkSingleOriginMatrixSizes(7500,13000,500) #TEST
     #======GPU GPU GPU======
     #benchmarkTFSingleOriginMatrixSizes(100,2000,100)
     #benchmarkTFSingleOriginMatrixSizes(7201,7202,1) #OK, hack a 7201 run for comparison with the real QUANT
-    #benchmarkTFSingleOriginMatrixSizes(2500,16000,500) #NOTE: this takes a VERY long time to run (days?)
+    #benchmarkTFSingleOriginMatrixSizes(2000,16000,500) #NOTE: this takes a VERY long time to run (days?)
+
+
+    #write out TF compute graph for the paper
+    #TObs1 = loadMatrix(os.path.join(modelRunsDir,TObs31Filename))
+    #Cij1 = loadMatrix(os.path.join(modelRunsDir,CijRoadMinFilename))
+    #TFModel = TFSingleOrigin(7201)
+    #TFModel.debugWriteModelGraph(TObs1,Cij1,1.0)
+    #tensorboard --logdir log/TFSingleOrigin
 
 
     #print ("test run model")
