@@ -42,6 +42,6 @@ def testKerasGravityANN():
     KGANN.normaliseInputsLinear(inputs,targets)
     #input is [ [Oi, Dj, Cij], ..., ... ]
     #targets are [ TObs, ..., ... ] to match inputs
-    KGANN.trainModel(inputs,targets,1000)
+    KGANN.trainModel(inputs,targets,2) #was 1000 ~ 20 hours!
 
     #todo: get the beta back out by equivalence testing and plot geographically

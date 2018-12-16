@@ -63,7 +63,7 @@ class KerasGravityANN:
         model=Sequential()
         model.add(Dense(8, input_dim=3, activation='relu')) #relu=f(x)=max(0,x)
         model.add(Dense(8, activation='relu'))
-        model.add(Dense(1, activation='sigmoid')) #sigmoid=S(x)=1/(1+exp(-x))
+        model.add(Dense(8, activation='sigmoid')) #sigmoid=S(x)=1/(1+exp(-x))
 
         # Compile model
         model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
