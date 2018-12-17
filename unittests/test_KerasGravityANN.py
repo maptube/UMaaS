@@ -25,16 +25,16 @@ def testKerasGravityANN():
     inputs = np.empty([N*N, 3], dtype=float)
     targets = np.empty([N*N,1], dtype=float)
     nextpct = 0
-    for i in range(0,N):
-        pct = i/N*100
-        if pct>=nextpct:
-            print(pct," percent complete")
-            nextpct+=10
-        for j in range(0,N):
-            inputs[i*j,0]=Oi[i]
-            inputs[i*j,1]=Dj[j]
-            inputs[i*j,2]=Cij1[i,j]
-            targets[i*j]=TObs1[i,j]
+    #for i in range(0,N):
+    #    pct = i/N*100
+    #    if pct>=nextpct:
+    #        print(pct," percent complete")
+    #        nextpct+=10
+    #    for j in range(0,N):
+    #        inputs[i*j,0]=Oi[i]
+    #        inputs[i*j,1]=Dj[j]
+    #        inputs[i*j,2]=Cij1[i,j]
+    #        targets[i*j]=TObs1[i,j]
         #end for j
     #end for i
 
@@ -42,6 +42,9 @@ def testKerasGravityANN():
     KGANN.normaliseInputsLinear(inputs,targets)
     #input is [ [Oi, Dj, Cij], ..., ... ]
     #targets are [ TObs, ..., ... ] to match inputs
-    KGANN.trainModel(inputs,targets,2) #was 1000 ~ 20 hours!
+    #KGANN.trainModel(inputs,targets,2) #was 1000 ~ 20 hours!
+    KGANN.loadModel('KerasGravityANN_20181217_213518.h5')
 
     #todo: get the beta back out by equivalence testing and plot geographically
+    TPred = KGANN.predictMatrix(TObs1,Cij1)
+    print('TPred [0,0]=',TPred[0,0],'TObs[0,0]=',TObs1[0,0]) #OK, not aj great test, but let's see it work

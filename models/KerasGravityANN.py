@@ -1,5 +1,7 @@
 from keras.models import Sequential
 from keras.layers import Dense
+from keras.models import load_model
+
 import numpy as np
 from math import exp, fabs
 import time
@@ -73,6 +75,12 @@ class KerasGravityANN:
     
     ###############################################################################
 
+    def loadModel(self,filename):
+        self.model=load_model(filename)
+
+    ###############################################################################
+
+
     """
     Normalise the inputs and outputs to fit between +-1. Uses linear normalisation.
     @param inputs [ [Oi,Dj,Cij], ... ]
@@ -120,18 +128,54 @@ class KerasGravityANN:
     def trainModel(self,inputs,targets,numEpochs):
         #TODO: the inputs and outputs stil
         self.model.fit(inputs, targets, epochs=numEpochs, batch_size=10000) #batch was 10 originally
+        #save the model for later
+        self.model.save('KerasGravityANN_'+time.strftime('%Y%m%d_%H%M%S')+'.h5')
         # evaluate the model
         scores = self.model.evaluate(inputs, targets)
         print("\n%s: %.2f%%" % (self.model.metrics_names[1], scores[1]*100))
 
     ###############################################################################
 
+    """
+    Evaluation function for new data.
+    @param inputs Single input line containing Oi, Dj, Cij
+    """
     def predict(self,inputs):
         # calculate predictions
         predictions = self.model.predict(inputs)
         # round predictions
-        rounded = [round(x[0]) for x in predictions]
-        print(rounded)
+        #rounded = [round(x[0]) for x in predictions]
+        #print(rounded)
+        print('KerasGravityANN::predictions ',predictions)
+        return predictions
 
     ###############################################################################
+
+    """
+    Evaluate from the training data to get the TPred matrix that we can compare to the
+    other methods.
+    @param TObs Input matrix, used to calculate Oi and Dj
+    @param Cij Cost matrix
+    @returns TPred predicted matrix which can be compared to TObs for accuracy
+    """
+    def predictMatrix(self,TObs,Cij):
+        (M, N) = np.shape(TObs)
+        Oi = self.calculateOi(TObs)
+        Dj = self.calculateDj(TObs)
+        Tij = np.empty([N, N], dtype=float)
+        inputs = np.empty([1,3], dtype=float)
+        #for i in range(0,N):
+        #    for j in range(0,N):
+        i=0
+        j=0
+        inputs[0,0]=Oi[i]
+        inputs[0,1]=Dj[j]
+        inputs[0,2]=Cij[i,j]
+        Tij[i,j]=self.predict(inputs)
+            #end for j
+        #end for i
+        return Tij
+
+
+
 
