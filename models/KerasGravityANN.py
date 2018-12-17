@@ -61,12 +61,13 @@ class KerasGravityANN:
     """
     def createNetwork(self):
         model=Sequential()
-        model.add(Dense(8, input_dim=3, activation='relu')) #relu=f(x)=max(0,x)
-        model.add(Dense(8, activation='relu'))
-        model.add(Dense(8, activation='sigmoid')) #sigmoid=S(x)=1/(1+exp(-x))
+        model.add(Dense(8, input_dim=3, activation='tanh')) #relu=f(x)=max(0,x)
+        #model.add(Dense(8, activation='relu'))
+        model.add(Dense(1, activation='sigmoid')) #sigmoid=S(x)=1/(1+exp(-x))
 
         # Compile model
-        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+        #model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+        model.compile(loss='mean_squared_error', optimizer='sgd', metrics=['mae','accuracy'])
 
         return model
     
@@ -92,9 +93,11 @@ class KerasGravityANN:
         maxTij = np.amax(targets)
         maxOiDj = max(maxOi,maxDj) #composite max of origins and destinations - should be approx same magnitude
         #calculate and save the linear scale factors as we will need it for inference
-        self.scaleOiDj=1/maxOiDj
-        self.scaleCij=1/maxCij
-        self.scaleTij=1/maxTij
+        self.scaleOiDj=1 #1/maxOiDj
+        self.scaleCij=1 #1/maxCij
+        self.scaleTij=1 #1/maxTij
+        print('maxOi=',maxOi,'maxDj=',maxDj,'maxCij=',maxCij,'maxTij=',maxTij)
+        print('scaleOiDj=',self.scaleOiDj,'scaleCij=',self.scaleCij,'scaleTij=',self.scaleTij)
         #now scale the data
         inputs[:,0]*=self.scaleOiDj
         inputs[:,1]*=self.scaleOiDj
@@ -116,7 +119,7 @@ class KerasGravityANN:
     """
     def trainModel(self,inputs,targets,numEpochs):
         #TODO: the inputs and outputs stil
-        self.model.fit(inputs, targets, epochs=numEpochs, batch_size=1000) #batch was 10 originally
+        self.model.fit(inputs, targets, epochs=numEpochs, batch_size=10000) #batch was 10 originally
         # evaluate the model
         scores = self.model.evaluate(inputs, targets)
         print("\n%s: %.2f%%" % (self.model.metrics_names[1], scores[1]*100))
