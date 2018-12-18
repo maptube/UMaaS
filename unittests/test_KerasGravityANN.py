@@ -34,7 +34,7 @@ def testKerasGravityANN():
     Cij1 = loadMatrix(os.path.join(modelRunsDir,CijRoadMinFilename))
     (M, N) = np.shape(TObs1)
     KGANN = KerasGravityANN()
-    KGANN.loadModel('KerasGravityANN_20181218_162316.h5')
+    KGANN.loadModel('KerasGravityANN_20181218_205001.h5')
     Oi = KGANN.calculateOi(TObs1)
     Dj = KGANN.calculateDj(TObs1)
     #now we need to make an input set which is [Oi,Dj,Cij] with a target of Tij
@@ -42,24 +42,24 @@ def testKerasGravityANN():
     inputs = np.empty([N*N, 3], dtype=float)
     targets = np.empty([N*N,1], dtype=float)
     nextpct = 0
-    #for i in range(0,N):
-    #    pct = i/N*100
-    #    if pct>=nextpct:
-    #        print(pct," percent complete")
-    #        nextpct+=10
-    #    for j in range(0,N):
-    #        inputs[i*j,0]=Oi[i]
-    #        inputs[i*j,1]=Dj[j]
-    #        inputs[i*j,2]=Cij1[i,j]
-    #        targets[i*j]=TObs1[i,j]
+    for i in range(0,N):
+        pct = i/N*100
+        if pct>=nextpct:
+            print(pct," percent complete")
+            nextpct+=10
+        for j in range(0,N):
+            inputs[i*N+j,0]=Oi[i]
+            inputs[i*N+j,1]=Dj[j]
+            inputs[i*N+j,2]=Cij1[i,j]
+            targets[i*N+j]=TObs1[i,j]
         #end for j
     #end for i
 
     #raw inputs must be normalised for input to the ANN [0..1]
-    #KGANN.normaliseInputsLinear(inputs,targets)
+    KGANN.normaliseInputsLinear(inputs,targets)
     #input is [ [Oi, Dj, Cij], ..., ... ]
     #targets are [ TObs, ..., ... ] to match inputs
-    #KGANN.trainModel(inputs,targets,100) #was 1000 ~ 20 hours!
+    KGANN.trainModel(inputs,targets,100) #was 1000 ~ 20 hours!
     #KGANN.loadModel('KerasGravityANN_20181218_102849.h5')
 
     #todo: get the beta back out by equivalence testing and plot geographically
