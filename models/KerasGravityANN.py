@@ -101,9 +101,9 @@ class KerasGravityANN:
         maxTij = np.amax(targets)
         maxOiDj = max(maxOi,maxDj) #composite max of origins and destinations - should be approx same magnitude
         #calculate and save the linear scale factors as we will need it for inference
-        self.scaleOiDj=1 #1/maxOiDj
-        self.scaleCij=1 #1/maxCij
-        self.scaleTij=1 #1/maxTij
+        self.scaleOiDj=1/maxOiDj
+        self.scaleCij=1/maxCij
+        self.scaleTij=1/maxTij
         print('maxOi=',maxOi,'maxDj=',maxDj,'maxCij=',maxCij,'maxTij=',maxTij)
         print('scaleOiDj=',self.scaleOiDj,'scaleCij=',self.scaleCij,'scaleTij=',self.scaleTij)
         #now scale the data
@@ -130,9 +130,9 @@ class KerasGravityANN:
         self.model.fit(inputs, targets, epochs=numEpochs, batch_size=10000) #batch was 10 originally
         #save the model for later
         self.model.save('KerasGravityANN_'+time.strftime('%Y%m%d_%H%M%S')+'.h5')
-        # evaluate the model
-        scores = self.model.evaluate(inputs, targets)
-        print("\n%s: %.2f%%" % (self.model.metrics_names[1], scores[1]*100))
+        # evaluate the model - takes ages on fermi, very quick on xmesh though....?
+        #scores = self.model.evaluate(inputs, targets)
+        #print("\n%s: %.2f%%" % (self.model.metrics_names[1], scores[1]*100))
 
     ###############################################################################
 
@@ -146,7 +146,7 @@ class KerasGravityANN:
         # round predictions
         #rounded = [round(x[0]) for x in predictions]
         #print(rounded)
-        print('KerasGravityANN::predictions ',predictions)
+        #print('KerasGravityANN::predictions ',predictions)
         return predictions
 
     ###############################################################################
@@ -163,17 +163,18 @@ class KerasGravityANN:
         Oi = self.calculateOi(TObs)
         Dj = self.calculateDj(TObs)
         Tij = np.empty([N, N], dtype=float)
-        inputs = np.empty([1,3], dtype=float)
-        #for i in range(0,N):
-        #    for j in range(0,N):
-        i=0
-        j=0
-        inputs[0,0]=Oi[i]
-        inputs[0,1]=Dj[j]
-        inputs[0,2]=Cij[i,j]
-        Tij[i,j]=self.predict(inputs)
+        inputs = np.empty([N*N,3], dtype=float)
+        for i in range(0,N):
+            if i%100==0:
+                print('i=',i)
+            for j in range(0,N):
+                inputs[i*N+j,0]=Oi[i]*self.scaleOiDj
+                inputs[i*N+j,1]=Dj[j]*self.scaleOiDj
+                inputs[i*N+j,2]=Cij[i,j]*self.scaleTij
             #end for j
         #end for i
+        Tij=self.predict(inputs).reshape([N,N])
+        Tij=Tij/self.scaleTij
         return Tij
 
 

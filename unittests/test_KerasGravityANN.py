@@ -11,6 +11,22 @@ from models.KerasGravityANN import KerasGravityANN
 
 ###############################################################################
 
+"""
+Compare two matrices and return mean square error
+"""
+def meanSquareError(TObs,TPred):
+    #todo: probably should fail if shape TObs not the same as TPred - it's just going to crash though
+    #(M, N) = np.shape(TObs)
+    #e = 0
+    #for i in range(0,N):
+    #    for j in range(0,N):
+    #        diff = TObs[i,j]-TPred[i,j]
+    #        e+=diff*diff
+    #return e/(N*N)
+    return np.square(np.subtract(TObs, TPred)).mean()
+
+###############################################################################
+
 def testKerasGravityANN():
     #load in data - we have 52 million points!
     #use mode 1 = road
@@ -18,6 +34,7 @@ def testKerasGravityANN():
     Cij1 = loadMatrix(os.path.join(modelRunsDir,CijRoadMinFilename))
     (M, N) = np.shape(TObs1)
     KGANN = KerasGravityANN()
+    KGANN.loadModel('KerasGravityANN_20181218_162316.h5')
     Oi = KGANN.calculateOi(TObs1)
     Dj = KGANN.calculateDj(TObs1)
     #now we need to make an input set which is [Oi,Dj,Cij] with a target of Tij
@@ -39,12 +56,13 @@ def testKerasGravityANN():
     #end for i
 
     #raw inputs must be normalised for input to the ANN [0..1]
-    KGANN.normaliseInputsLinear(inputs,targets)
+    #KGANN.normaliseInputsLinear(inputs,targets)
     #input is [ [Oi, Dj, Cij], ..., ... ]
     #targets are [ TObs, ..., ... ] to match inputs
-    #KGANN.trainModel(inputs,targets,2) #was 1000 ~ 20 hours!
-    KGANN.loadModel('KerasGravityANN_20181217_213518.h5')
+    #KGANN.trainModel(inputs,targets,100) #was 1000 ~ 20 hours!
+    #KGANN.loadModel('KerasGravityANN_20181218_102849.h5')
 
     #todo: get the beta back out by equivalence testing and plot geographically
     TPred = KGANN.predictMatrix(TObs1,Cij1)
     print('TPred [0,0]=',TPred[0,0],'TObs[0,0]=',TObs1[0,0]) #OK, not aj great test, but let's see it work
+    print('mean square error = ',meanSquareError(TObs1,TPred))
