@@ -1,6 +1,7 @@
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.models import load_model
+from keras import optimizers
 
 import numpy as np
 from math import exp, fabs
@@ -63,13 +64,15 @@ class KerasGravityANN:
     """
     def createNetwork(self):
         model=Sequential()
-        model.add(Dense(8, input_dim=3, activation='sigmoid')) #relu=f(x)=max(0,x)
-        model.add(Dense(8, activation='sigmoid'))
+        model.add(Dense(16, input_dim=3, activation='sigmoid')) #relu=f(x)=max(0,x)
+        model.add(Dense(16, activation='sigmoid'))
         model.add(Dense(1, activation='sigmoid')) #sigmoid=S(x)=1/(1+exp(-x))
 
+        sgd = optimizers.SGD(lr=0.01, decay=0.0, momentum=0.0, nesterov=False)
         # Compile model
         #model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-        model.compile(loss='mean_squared_error', optimizer='sgd', metrics=['mae','accuracy'])
+        #model.compile(loss='mean_squared_error', optimizer='sgd', metrics=['mae','accuracy'])
+        model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['mae','accuracy']) #use sgd with custom params
 
         return model
     
