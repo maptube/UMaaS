@@ -63,8 +63,8 @@ class KerasGravityANN:
     """
     def createNetwork(self):
         model=Sequential()
-        model.add(Dense(8, input_dim=3, activation='tanh')) #relu=f(x)=max(0,x)
-        #model.add(Dense(8, activation='relu'))
+        model.add(Dense(8, input_dim=3, activation='sigmoid')) #relu=f(x)=max(0,x)
+        model.add(Dense(8, activation='sigmoid'))
         model.add(Dense(1, activation='sigmoid')) #sigmoid=S(x)=1/(1+exp(-x))
 
         # Compile model
@@ -176,6 +176,19 @@ class KerasGravityANN:
         Tij=self.predict(inputs).reshape([N,N])
         Tij=Tij/self.scaleTij
         return Tij
+
+    def predictSingle(self,TObs,Cij,i,j):
+        (M, N) = np.shape(TObs)
+        Oi = self.calculateOi(TObs)
+        Dj = self.calculateDj(TObs)
+        inputs = np.empty([1,3], dtype=float)
+        inputs[0,0]=Oi[i]*self.scaleOiDj
+        inputs[0,1]=Dj[j]*self.scaleOiDj
+        inputs[0,2]=Cij[i,j]*self.scaleTij
+        Tij=self.model.predict(inputs)
+        Tij=Tij/self.scaleTij
+        return Tij
+
 
 
 

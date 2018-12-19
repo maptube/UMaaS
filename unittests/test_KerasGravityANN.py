@@ -34,7 +34,7 @@ def testKerasGravityANN():
     Cij1 = loadMatrix(os.path.join(modelRunsDir,CijRoadMinFilename))
     (M, N) = np.shape(TObs1)
     KGANN = KerasGravityANN()
-    KGANN.loadModel('KerasGravityANN_20181218_205001.h5')
+    #KGANN.loadModel('KerasGravityANN_20181219_113116.h5')
     Oi = KGANN.calculateOi(TObs1)
     Dj = KGANN.calculateDj(TObs1)
     #now we need to make an input set which is [Oi,Dj,Cij] with a target of Tij
@@ -63,6 +63,7 @@ def testKerasGravityANN():
     #KGANN.loadModel('KerasGravityANN_20181218_102849.h5')
 
     #todo: get the beta back out by equivalence testing and plot geographically
-    TPred = KGANN.predictMatrix(TObs1,Cij1)
-    print('TPred [0,0]=',TPred[0,0],'TObs[0,0]=',TObs1[0,0]) #OK, not aj great test, but let's see it work
-    print('mean square error = ',meanSquareError(TObs1,TPred))
+    #TPred = KGANN.predictMatrix(TObs1,Cij1)
+    TPred00 = KGANN.predictSingle(TObs1,Cij1,0,0)
+    print('TPred [0,0]=',TPred00,'TObs[0,0]=',TObs1[0,0]) #OK, not a great test, but let's see it work
+    #print('mean square error = ',meanSquareError(TObs1,TPred))
