@@ -64,13 +64,13 @@ class KerasGravityANN:
     """
     def createNetwork(self):
         model=Sequential()
-        model.add(Dense(4, input_dim=3, activation='sigmoid')) #relu=f(x)=max(0,x)
-        #model.add(Dense(16, activation='tanh'))
+        model.add(Dense(16, input_dim=3, activation='sigmoid')) #relu=f(x)=max(0,x)
+        model.add(Dense(16, activation='sigmoid'))
         model.add(Dense(1, activation='sigmoid')) #sigmoid=S(x)=1/(1+exp(-x))
 
         # Compile model
-        #model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['mae','accuracy'])
-        model.compile(loss='mean_squared_error', optimizer='sgd', metrics=['mae','accuracy'])
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['mae','accuracy'])
+        #model.compile(loss='mean_squared_error', optimizer='sgd', metrics=['mae','accuracy'])
         #sgd = optimizers.SGD(lr=0.1, decay=0.0, momentum=0.0, nesterov=False)
         #model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['mae','accuracy']) #use sgd with custom params
 
@@ -148,7 +148,7 @@ class KerasGravityANN:
     """
     def trainModel(self,inputs,targets,numEpochs):
         #TODO: the inputs and outputs stil
-        self.model.fit(inputs, targets, epochs=numEpochs, batch_size=1000) #batch was 10 originally
+        self.model.fit(inputs, targets, epochs=numEpochs, batch_size=1) #batch was 10 originally
         #save the model for later
         self.model.save('KerasGravityANN_'+time.strftime('%Y%m%d_%H%M%S')+'.h5')
         # evaluate the model - takes ages on fermi, very quick on xmesh though....?
@@ -205,7 +205,7 @@ class KerasGravityANN:
         inputs = np.empty([1,3], dtype=float)
         inputs[0,0]=Oi[i]*self.scaleOiDj
         inputs[0,1]=Dj[j]*self.scaleOiDj
-        inputs[0,2]=Cij[i,j]*self.scaleTij
+        inputs[0,2]=Cij[i,j]*self.scaleCij
         Tij=self.model.predict(inputs)
         Tij=Tij/self.scaleTij
         return Tij

@@ -48,12 +48,13 @@ def testKerasGravityANN():
     Cij1 = loadMatrix(os.path.join(modelRunsDir,CijRoadMinFilename))
     (M, N) = np.shape(TObs1)
     KGANN = KerasGravityANN()
-    #KGANN.loadModel('KerasGravityANN_20181220_151045_3-16S-16S-1S_Batch1000.h5')
+    #KGANN.loadModel('KerasGravityANN_20181220_203918.h5')
     Oi = KGANN.calculateOi(TObs1)
     Dj = KGANN.calculateDj(TObs1)
     #now we need to make an input set which is [Oi,Dj,Cij] with a target of Tij
     print("Building training set - this might take a while...")
     count = countNonZero(TObs1) #make count N*N if you want everything
+    count=1000 #HACK!!!!
     print('Found ',count,' non-zero entries in TObs')
     inputs = np.empty([count, 3], dtype=float)
     targets = np.empty([count,1], dtype=float)
@@ -69,21 +70,33 @@ def testKerasGravityANN():
                 inputs[dataidx,0]=Oi[i]
                 inputs[dataidx,1]=Dj[j]
                 inputs[dataidx,2]=Cij1[i,j]
-                targets[dataidx]=TObs1[i,j]
+                targets[dataidx,0]=TObs1[i,j]
                 dataidx+=1
+                if dataidx>=count: break
         #end for j
+        if dataidx>=count: break
     #end for i
+    for i in range(0,10):
+        print('[',inputs[i,0],',',inputs[i,1],',',inputs[i,2],'] ---> ',targets[i,0])
 
     #raw inputs must be normalised for input to the ANN [0..1]
     KGANN.normaliseInputsLinear(inputs,targets)
     #input is [ [Oi, Dj, Cij], ..., ... ]
     #targets are [ TObs, ..., ... ] to match inputs
-    KGANN.trainModel(inputs,targets,100) #was 1000 ~ 20 hours!
+    KGANN.trainModel(inputs,targets,1000) #was 1000 ~ 20 hours!
     #KGANN.loadModel('KerasGravityANN_20181218_102849.h5')
 
     #todo: get the beta back out by equivalence testing and plot geographically
     #TPred = KGANN.predictMatrix(TObs1,Cij1)
-    for i in range(0,N):
+    for i in range(0,10):
         TPredij = KGANN.predictSingle(TObs1,Cij1,i,0)
         print('TPred [',i,',0]=',TPredij,'TObs[',i,',0]=',TObs1[i,0]) #OK, not a great test, but let's see it work
     #print('mean square error = ',meanSquareError(TObs1,TPred))
+
+    for i in range(0,10):
+        in2 = np.empty([1, 3], dtype=float)
+        in2[0,0]=inputs[i,0]
+        in2[0,1]=inputs[i,1]
+        in2[0,2]=inputs[i,2]
+        TPredij = KGANN.predict(in2)
+        print('TPred2',i,'=',TPredij/KGANN.scaleTij,'Target=',targets[i,0]/KGANN.scaleTij)
