@@ -25,7 +25,7 @@ class KerasGravityANN:
         self.scaleCij=1 #scaling for Cij inputs to ANN to bring inputs into [0..1] range
         self.scaleTij=1 #scaling for Tij targets for ANN to bring targets into [0..1] range
         #self.numLayers???
-        self.batchSize=10 #training batch size
+        #self.batchSize=10 #training batch size
         #dropout?
         self.model=self.createNetwork()
 
@@ -64,15 +64,15 @@ class KerasGravityANN:
     """
     def createNetwork(self):
         model=Sequential()
-        model.add(Dense(16, input_dim=3, activation='sigmoid')) #relu=f(x)=max(0,x)
-        model.add(Dense(16, activation='sigmoid'))
+        model.add(Dense(4, input_dim=3, activation='sigmoid')) #relu=f(x)=max(0,x)
+        #model.add(Dense(16, activation='tanh'))
         model.add(Dense(1, activation='sigmoid')) #sigmoid=S(x)=1/(1+exp(-x))
 
-        sgd = optimizers.SGD(lr=0.01, decay=0.0, momentum=0.0, nesterov=False)
         # Compile model
-        #model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-        #model.compile(loss='mean_squared_error', optimizer='sgd', metrics=['mae','accuracy'])
-        model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['mae','accuracy']) #use sgd with custom params
+        #model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['mae','accuracy'])
+        model.compile(loss='mean_squared_error', optimizer='sgd', metrics=['mae','accuracy'])
+        #sgd = optimizers.SGD(lr=0.1, decay=0.0, momentum=0.0, nesterov=False)
+        #model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['mae','accuracy']) #use sgd with custom params
 
         return model
     
@@ -97,11 +97,29 @@ class KerasGravityANN:
         #maxOi = max(inputs,key=itemgetter(0))[0]
         #maxDj = max(inputs,key=itemgetter(1))[1]
         #maxCij = max(inputs,key=itemgetter(2))[2]
-        maxCols = np.amax(inputs,axis=1) # [maxOi,maxDj,maxCij]
-        maxOi = maxCols[0]
-        maxDj = maxCols[1]
-        maxCij = maxCols[2]
-        maxTij = np.amax(targets)
+
+        maxOi=0
+        maxDj=0
+        maxCij=0
+        maxTij=0
+        for i in range(0,len(inputs)):
+            if inputs[i,0]>maxOi:
+                maxOi = inputs[i,0]
+            if inputs[i,1]>maxDj:
+                maxDj = inputs[i,1]
+            if inputs[i,2]>maxCij:
+                maxCij = inputs[i,2]
+            if targets[i]>maxTij:
+                maxTij = targets[i,0]
+        print('first max Oi = ',maxOi,' first max Dj = ',maxDj,' first maxCij=',maxCij,' first maxTij=',maxTij)
+
+        #this is rubbish - doesn't work properly
+        #maxCols = np.amax(inputs,axis=1) # [maxOi,maxDj,maxCij]
+        #maxOi = maxCols[0]
+        #maxDj = maxCols[1]
+        #maxCij = maxCols[2]
+        #maxTij = np.amax(targets)
+        #end
         maxOiDj = max(maxOi,maxDj) #composite max of origins and destinations - should be approx same magnitude
         #calculate and save the linear scale factors as we will need it for inference
         self.scaleOiDj=1/maxOiDj
@@ -130,7 +148,7 @@ class KerasGravityANN:
     """
     def trainModel(self,inputs,targets,numEpochs):
         #TODO: the inputs and outputs stil
-        self.model.fit(inputs, targets, epochs=numEpochs, batch_size=10000) #batch was 10 originally
+        self.model.fit(inputs, targets, epochs=numEpochs, batch_size=1000) #batch was 10 originally
         #save the model for later
         self.model.save('KerasGravityANN_'+time.strftime('%Y%m%d_%H%M%S')+'.h5')
         # evaluate the model - takes ages on fermi, very quick on xmesh though....?

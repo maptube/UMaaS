@@ -27,6 +27,20 @@ def meanSquareError(TObs,TPred):
 
 ###############################################################################
 
+"""
+Return a count of all the non-zero elements in TObs
+"""
+def countNonZero(TObs):
+    (M, N) = np.shape(TObs)
+    count=0
+    for i in range(0,N):
+        for j in range(0,N):
+            if TObs[i,j]>=1:
+                count+=1
+    return count
+
+###############################################################################
+
 def testKerasGravityANN():
     #load in data - we have 52 million points!
     #use mode 1 = road
@@ -34,24 +48,29 @@ def testKerasGravityANN():
     Cij1 = loadMatrix(os.path.join(modelRunsDir,CijRoadMinFilename))
     (M, N) = np.shape(TObs1)
     KGANN = KerasGravityANN()
-    #KGANN.loadModel('KerasGravityANN_20181219_113116.h5')
+    #KGANN.loadModel('KerasGravityANN_20181220_151045_3-16S-16S-1S_Batch1000.h5')
     Oi = KGANN.calculateOi(TObs1)
     Dj = KGANN.calculateDj(TObs1)
     #now we need to make an input set which is [Oi,Dj,Cij] with a target of Tij
     print("Building training set - this might take a while...")
-    inputs = np.empty([N*N, 3], dtype=float)
-    targets = np.empty([N*N,1], dtype=float)
+    count = countNonZero(TObs1) #make count N*N if you want everything
+    print('Found ',count,' non-zero entries in TObs')
+    inputs = np.empty([count, 3], dtype=float)
+    targets = np.empty([count,1], dtype=float)
     nextpct = 0
+    dataidx=0
     for i in range(0,N):
         pct = i/N*100
         if pct>=nextpct:
             print(pct," percent complete")
             nextpct+=10
         for j in range(0,N):
-            inputs[i*N+j,0]=Oi[i]
-            inputs[i*N+j,1]=Dj[j]
-            inputs[i*N+j,2]=Cij1[i,j]
-            targets[i*N+j]=TObs1[i,j]
+            if TObs1[i,j]>=1:
+                inputs[dataidx,0]=Oi[i]
+                inputs[dataidx,1]=Dj[j]
+                inputs[dataidx,2]=Cij1[i,j]
+                targets[dataidx]=TObs1[i,j]
+                dataidx+=1
         #end for j
     #end for i
 
@@ -64,6 +83,7 @@ def testKerasGravityANN():
 
     #todo: get the beta back out by equivalence testing and plot geographically
     #TPred = KGANN.predictMatrix(TObs1,Cij1)
-    TPred00 = KGANN.predictSingle(TObs1,Cij1,0,0)
-    print('TPred [0,0]=',TPred00,'TObs[0,0]=',TObs1[0,0]) #OK, not a great test, but let's see it work
+    for i in range(0,N):
+        TPredij = KGANN.predictSingle(TObs1,Cij1,i,0)
+        print('TPred [',i,',0]=',TPredij,'TObs[',i,',0]=',TObs1[i,0]) #OK, not a great test, but let's see it work
     #print('mean square error = ',meanSquareError(TObs1,TPred))
