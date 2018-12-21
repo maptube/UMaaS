@@ -54,7 +54,7 @@ def testKerasGravityANN():
     #now we need to make an input set which is [Oi,Dj,Cij] with a target of Tij
     print("Building training set - this might take a while...")
     count = countNonZero(TObs1) #make count N*N if you want everything
-    count=1000 #HACK!!!!
+    #count=1000 #HACK!!!!
     print('Found ',count,' non-zero entries in TObs')
     inputs = np.empty([count, 3], dtype=float)
     targets = np.empty([count,1], dtype=float)
@@ -72,7 +72,7 @@ def testKerasGravityANN():
                 inputs[dataidx,2]=Cij1[i,j]
                 targets[dataidx,0]=TObs1[i,j]
                 dataidx+=1
-                if dataidx>=count: break
+                if dataidx>=count: break #this was really to allow me to set count=1000 for debugging (also break below)
         #end for j
         if dataidx>=count: break
     #end for i
@@ -83,7 +83,7 @@ def testKerasGravityANN():
     KGANN.normaliseInputsLinear(inputs,targets)
     #input is [ [Oi, Dj, Cij], ..., ... ]
     #targets are [ TObs, ..., ... ] to match inputs
-    KGANN.trainModel(inputs,targets,1000) #was 1000 ~ 20 hours!
+    KGANN.trainModel(inputs,targets,100) #was 1000 ~ 20 hours!
     #KGANN.loadModel('KerasGravityANN_20181218_102849.h5')
 
     #todo: get the beta back out by equivalence testing and plot geographically

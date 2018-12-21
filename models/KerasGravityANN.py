@@ -2,10 +2,13 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.models import load_model
 from keras import optimizers
+from keras import backend as K
+K.set_floatx('float64')
 
 import numpy as np
 from math import exp, fabs
 import time
+import os
 
 """
 Artificial Neural Network model using Keras for gravity model
@@ -17,6 +20,8 @@ class KerasGravityANN:
     ###############################################################################
 
     def __init__(self):
+        os.environ['CUDA_VISIBLE_DEVICES'] = '-1' #RUN ON CPU!!!!!!!!!!!!!!!!!
+
         np.random.seed(42) #set random seed for repeatability
         #gravity model
         self.numModes=3
@@ -64,8 +69,9 @@ class KerasGravityANN:
     """
     def createNetwork(self):
         model=Sequential()
-        model.add(Dense(16, input_dim=3, activation='sigmoid')) #relu=f(x)=max(0,x)
-        model.add(Dense(16, activation='sigmoid'))
+        model.add(Dense(128, input_dim=3, activation='sigmoid')) #relu=f(x)=max(0,x)
+        #model.add(Dense(64, activation='sigmoid'))
+        #model.add(Dense(64, activation='sigmoid'))
         model.add(Dense(1, activation='sigmoid')) #sigmoid=S(x)=1/(1+exp(-x))
 
         # Compile model
@@ -148,7 +154,7 @@ class KerasGravityANN:
     """
     def trainModel(self,inputs,targets,numEpochs):
         #TODO: the inputs and outputs stil
-        self.model.fit(inputs, targets, epochs=numEpochs, batch_size=1) #batch was 10 originally
+        self.model.fit(inputs, targets, epochs=numEpochs, batch_size=1000) #batch was 10 originally
         #save the model for later
         self.model.save('KerasGravityANN_'+time.strftime('%Y%m%d_%H%M%S')+'.h5')
         # evaluate the model - takes ages on fermi, very quick on xmesh though....?
