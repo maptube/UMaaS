@@ -29,15 +29,16 @@ def main():
     #testBuildMovidiusGraph()
     #testRunMovidiusGraph()
     #======Keras ANN======
-    #testKerasGravityANN(500,[64],200000,10000) #model 1 500x500 3-64-1
-    #testKerasGravityANN(500,[32],200000,10000) #model 2 500x500 3-32-1
-    #testKerasGravityANN(500,[16],200000,10000) #model 3 500x500 3-16-1
-    #testKerasGravityANN(500,[8],200000,10000) #model 4 500x500 3-8-1
-    #testKerasGravityANN(500,[4],200000,10000) #model 5 500x500 3-4-1
-    #testKerasGravityANN(500,[4,4],200000,10000) #model 6 500x500 3-4-4-1 10,000 epoch on varying batch size
-    #testKerasGravityANN(500,[4,4],31250,1000) #model 6 10,000 to 40,000 epoch on batch 31250 (optimum)
+    #testKerasGravityANN('',500,[64],200000,10000) #model 1 500x500 3-64-1
+    #testKerasGravityANN('',500,[32],200000,10000) #model 2 500x500 3-32-1
+    #testKerasGravityANN('',500,[16],200000,10000) #model 3 500x500 3-16-1
+    #testKerasGravityANN('',500,[8],200000,10000) #model 4 500x500 3-8-1
+    #testKerasGravityANN('',500,[4],200000,10000) #model 5 500x500 3-4-1
+    #testKerasGravityANN('',500,[4,4],200000,10000) #model 6 500x500 3-4-4-1 10,000 epoch on varying batch size
+    #testKerasGravityANN('',500,[4,4],31250,10000) #model 6 10,000 to 40,000 epoch on batch 31250 (optimum)
     #Now some tests on the real matrix
-    testKerasGravityANN(7201,[4,4],400000,100)
+    #testKerasGravityANN('KerasGravityANN_20190102_115120_500_3441_10000.h5',7201,[4,4],57608,100) - no good!
+    testKerasGravityANN('',7201,[4,4],115216,100)
 
 
     #BENCHMARK TESTS

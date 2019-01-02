@@ -44,12 +44,15 @@ def countNonZero(TObs):
 
 """
 Testing procedure for gravity ANN. Allows for changing network size, type, matrix size, training batch and epochs
+@param modelFilename null, or filename of an h5 model and weights to load for continuation training. If null, then train a new model from scratch.
+        NOTE: the file loaded doesn't necessarily match the numHiddens, but will override numHiddens with the model structure that was saved. numHiddens
+        is redundant if modelFilename is used.
 @param matrixN Allows resizing of the matrix for faster testing
 @param numHiddens is a list of hiddens in each layer
 @param batchSize
 @param numEpochs
 """
-def testKerasGravityANN(matrixN,numHiddens,batchSize,numEpochs):
+def testKerasGravityANN(modelFilename,matrixN,numHiddens,batchSize,numEpochs):
     #load in data - we have 52 million points!
     #use mode 1 = road
     TObs1 = loadMatrix(os.path.join(modelRunsDir,TObs31Filename))
@@ -62,7 +65,8 @@ def testKerasGravityANN(matrixN,numHiddens,batchSize,numEpochs):
     #end matrix resize
     (M, N) = np.shape(TObs1)
     KGANN = KerasGravityANN(numHiddens)
-    #KGANN.loadModel('KerasGravityANN_20181223_215731.h5')
+    if modelFilename!='': #NOTE: this OVERWRITES the model that was just created, so numHiddens is not used - could be a different architecture
+        KGANN.loadModel(modelFilename)
     Oi = KGANN.calculateOi(TObs1)
     Dj = KGANN.calculateDj(TObs1)
     KGANN.targetOi = Oi #these three, targetOi/Dj/Cij are used for evaluating DjPred every epoch

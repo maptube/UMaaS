@@ -25,7 +25,7 @@ class KerasGravityANN:
 
     def __init__(self,numHiddens):
         #NOTE: numHiddens is a list, so [16] is 16 hiddens in layer 1, [16,16] is two hidden layers of 16
-        os.environ['CUDA_VISIBLE_DEVICES'] = '-1' #RUN ON CPU!!!!!!!!!!!!!!!!!
+        #os.environ['CUDA_VISIBLE_DEVICES'] = '-1' #RUN ON CPU!!!!!!!!!!!!!!!!!
 
         np.random.seed(42) #set random seed for repeatability
         #gravity model
