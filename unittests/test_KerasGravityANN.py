@@ -5,6 +5,7 @@ import os.path
 import math
 import time
 import numpy as np
+import random
 
 from globals import *
 from utils import loadMatrix, resizeMatrix
@@ -139,4 +140,60 @@ def testKerasGravityANN(modelFilename,matrixN,numHiddens,batchSize,numEpochs):
     KGANN.predict(inputs)
     finishtime = time.time()
     print('Inference time: ',finishtime-starttime, ' seconds')
+
+###############################################################################
+
+def testKerasGravityANNInference(matrixN,numHiddens):
+    TObs1 = loadMatrix(os.path.join(modelRunsDir,TObs31Filename))
+    Cij1 = loadMatrix(os.path.join(modelRunsDir,CijRoadMinFilename))
+    (M, N) = np.shape(TObs1)
+    #if the real shape of the matrix matches matrixN (i.e. 7201), then don't touch it, otherwise resize TObs1 and Cij1
+    if matrixN!=N:
+        TObs1=resizeMatrix(TObs1,matrixN)
+        Cij1=resizeMatrix(Cij1,matrixN)
+    #end matrix resize
+    (M, N) = np.shape(TObs1)
+    KGANN = KerasGravityANN(numHiddens)
+    Oi = KGANN.calculateOi(TObs1)
+    Dj = KGANN.calculateDj(TObs1)
+    KGANN.targetOi = Oi #these three, targetOi/Dj/Cij are used for evaluating DjPred every epoch
+    KGANN.targetDj = Dj
+    KGANN.targetCij = Cij1
+    #now we need to make an input set which is [Oi,Dj,Cij] with a target of Tij
+    print("Building training set - this might take a while...")
+    #count = countNonZero(TObs1) #make count N*N if you want everything
+    #count=100 #HACK!!!!
+    count=N*N #do this to include EVERY sample - including zero ones
+    print('Found ',count,' non-zero entries in TObs')
+    inputs = np.empty([count, 3], dtype=float)
+    targets = np.empty([count,1], dtype=float)
+    nextpct = 0
+    dataidx=0
+    for i in range(0,N):
+        pct = i/N*100
+        if pct>=nextpct:
+            print(pct," percent complete")
+            nextpct+=10
+        for j in range(0,N):
+            #if TObs1[i,j]>=1: #HACK!
+            inputs[dataidx,0]=Oi[i] #max(Oi[i],0.001) #need to avoid log(0)
+            inputs[dataidx,1]=Dj[i] #max(Dj[j],0.001)
+            inputs[dataidx,2]=Cij1[i,j] #max(Cij1[i,j],0.001)
+            targets[dataidx,0]=TObs1[i,j] #max(TObs1[i,j],0.001)
+            dataidx+=1
+            if dataidx>=count: break #this was really to allow me to set count=1000 for debugging (also break below)
+        #end for j
+        if dataidx>=count: break
+    #end for i
+
+    #raw inputs must be normalised for input to the ANN [0..1]
+    KGANN.normaliseInputsLinear(inputs,targets)
+
+    #time inference time
+    starttime = time.time()
+    KGANN.predict(inputs)
+    finishtime = time.time()
+    print('Inference time: ',finishtime-starttime, ' seconds')
+
+
 

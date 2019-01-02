@@ -10,6 +10,7 @@ import numpy as np
 from math import exp, fabs
 import time
 import os
+import random
 
 """
 Artificial Neural Network model using Keras for gravity model
@@ -281,8 +282,12 @@ class KerasGravityANN:
         self.trainTimestamp = time.strftime('%Y%m%d_%H%M%S')
         csv_logger = CSVLogger(self.trainLogFilename+self.trainTimestamp+'.csv', separator=',', append=False)
 
-        self.model.fit(inputs, targets, epochs=numEpochs, shuffle=True, batch_size=batchSize,
-            verbose=1, callbacks=[csv_logger]) #batch was 10 originally
+        #First version - train on batch data
+        #self.model.fit(inputs, targets, epochs=numEpochs, shuffle=True, batch_size=batchSize,
+        #    verbose=1, callbacks=[csv_logger]) #batch was 10 originally
+        #Second version - train using a generator
+        self.model.fit_generator(self.generator(inputs, targets, batchSize), steps_per_epoch=10, epochs=numEpochs)
+        
         #save the model for later
         #self.model.save('KerasGravityANN_'+time.strftime('%Y%m%d_%H%M%S')+'.h5')
         self.model.save(self.trainLogFilename+self.trainTimestamp+'.h5')
@@ -292,13 +297,47 @@ class KerasGravityANN:
 
     ###############################################################################
 
+    def generator(self, inputs, targets, batchSize):
+        # Create empty arrays to contain batch of features and labels#
+        batchInputs = np.zeros((batchSize, 3))
+        batchTargets = np.zeros((batchSize,1))
+        while True:
+            for i in range(batchSize):
+                # choose random index in features
+                #index= random.choice(len(inputs),1)
+                index = random.randrange(0,len(inputs))
+                #batchInputs[i] = some_processing(inputs[index]) what????
+                batchInputs[i,:] = inputs[index,:]
+                batchTargets[i] = targets[index]
+            yield batchInputs, batchTargets
+
+    ###############################################################################
+
+    def predgenerator(self, inputs, targets, batchSize):
+        #TODO!!!!
+        # Create empty arrays to contain batch of features and labels#
+        batchInputs = np.zeros((batchSize, 3))
+        batchTargets = np.zeros((batchSize,1))
+        while True:
+            for i in range(batchSize):
+                # choose random index in features
+                #index= random.choice(len(inputs),1)
+                index = random.randrange(0,len(inputs))
+                #batchInputs[i] = some_processing(inputs[index]) what????
+                batchInputs[i,:] = inputs[index,:]
+                batchTargets[i] = targets[index]
+            yield batchInputs, batchTargets
+
+    ###############################################################################
+
     """
     Evaluation function for new data.
     @param inputs Single input line containing Oi, Dj, Cij
     """
     def predict(self,inputs):
         # calculate predictions
-        predictions = self.model.predict(inputs)
+        #predictions = self.model.predict(inputs)
+        predictions = self.model.predict_on_batch(inputs)
         # round predictions
         #rounded = [round(x[0]) for x in predictions]
         #print(rounded)

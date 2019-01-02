@@ -14,7 +14,7 @@ from benchmark.benchmark_SingleOrigin import benchmarkSingleOriginMatrixSizes
 from benchmark.benchmark_TFSingleOrigin import benchmarkTFSingleOriginMatrixSizes
 from unittests.test_TFSingleOrigin import testTFSingleOrigin
 #from unittests.test_Movidius import testMovidius, testBuildMovidiusGraph, testRunMovidiusGraph
-from unittests.test_KerasGravityANN import testKerasGravityANN
+from unittests.test_KerasGravityANN import testKerasGravityANN, testKerasGravityANNInference
 
 
 ###############################################################################
@@ -38,7 +38,8 @@ def main():
     #testKerasGravityANN('',500,[4,4],31250,10000) #model 6 10,000 to 40,000 epoch on batch 31250 (optimum)
     #Now some tests on the real matrix
     #testKerasGravityANN('KerasGravityANN_20190102_115120_500_3441_10000.h5',7201,[4,4],57608,100) - no good!
-    testKerasGravityANN('',7201,[4,4],115216,100)
+    #testKerasGravityANN('',7201,[4,4],28804,1000)
+    testKerasGravityANNInference(7201,[4,4])
 
 
     #BENCHMARK TESTS
