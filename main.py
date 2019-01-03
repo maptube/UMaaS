@@ -38,10 +38,16 @@ def main():
     #testKerasGravityANN('',500,[4,4],31250,10000) #model 6 10,000 to 40,000 epoch on batch 31250 (optimum)
     #Now some tests on the real matrix
     #testKerasGravityANN('KerasGravityANN_20190102_115120_500_3441_10000.h5',7201,[4,4],57608,100) - no good!
-    testKerasGravityANN('KerasGravityANN_20190103_151516.h5',7201,[4,4],230432,1500) #was 28804
+    #testKerasGravityANN('KerasGravityANN_20190103_151516.h5',7201,[4,4],230432,1500) #was 28804
+    testKerasGravityANN('KerasGravityANN_20190103_215433.h5',7201,[8],230432,2000)
     
     #======Keras ANN Inference Times======
     #ANN Inference testing - OK, this should really be benchmarking as it's a speed test of inference
+    #testKerasGravityANNInference(7201,[64]) #NOTE this is a long one
+    #testKerasGravityANNInference(7201,[32])
+    #testKerasGravityANNInference(7201,[16])
+    #testKerasGravityANNInference(7201,[8])
+    #testKerasGravityANNInference(7201,[4])
     #testKerasGravityANNInference(7201,[4,4])
 
 
