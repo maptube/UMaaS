@@ -283,10 +283,9 @@ class KerasGravityANN:
         csv_logger = CSVLogger(self.trainLogFilename+self.trainTimestamp+'.csv', separator=',', append=False)
 
         #First version - train on batch data
-        #self.model.fit(inputs, targets, epochs=numEpochs, shuffle=True, batch_size=batchSize,
-        #    verbose=1, callbacks=[csv_logger]) #batch was 10 originally
+        self.model.fit(inputs, targets, epochs=numEpochs, shuffle=True, batch_size=batchSize, verbose=1, callbacks=[csv_logger])
         #Second version - train using a generator
-        self.model.fit_generator(self.generator(inputs, targets, batchSize), steps_per_epoch=10, epochs=numEpochs)
+        #self.model.fit_generator(self.generator(inputs, targets, batchSize), steps_per_epoch=100, epochs=numEpochs, verbose=1, callbacks=[csv_logger])
         
         #save the model for later
         #self.model.save('KerasGravityANN_'+time.strftime('%Y%m%d_%H%M%S')+'.h5')
