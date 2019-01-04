@@ -39,7 +39,7 @@ def main():
     #Now some tests on the real matrix
     #testKerasGravityANN('KerasGravityANN_20190102_115120_500_3441_10000.h5',7201,[4,4],57608,100) - no good!
     #testKerasGravityANN('KerasGravityANN_20190103_151516.h5',7201,[4,4],230432,1500) #was 28804
-    testKerasGravityANN('KerasGravityANN_20190103_215433.h5',7201,[8],230432,2000)
+    testKerasGravityANN('KerasGravityANN_20190104_124425.h5',7201,[8],230432,100) #8 seems to train more reliably
     
     #======Keras ANN Inference Times======
     #ANN Inference testing - OK, this should really be benchmarking as it's a speed test of inference
