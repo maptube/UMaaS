@@ -91,7 +91,7 @@ def testKerasGravityANN(modelFilename,matrixN,numHiddens,batchSize,numEpochs):
         for j in range(0,N):
             #if TObs1[i,j]>=1: #HACK!
             inputs[dataidx,0]=Oi[i] #max(Oi[i],0.001) #need to avoid log(0)
-            inputs[dataidx,1]=Dj[i] #max(Dj[j],0.001)
+            inputs[dataidx,1]=Dj[j] #max(Dj[j],0.001)
             inputs[dataidx,2]=Cij1[i,j] #max(Cij1[i,j],0.001)
             targets[dataidx,0]=TObs1[i,j] #max(TObs1[i,j],0.001)
             dataidx+=1
@@ -177,7 +177,7 @@ def testKerasGravityANNInference(matrixN,numHiddens):
         for j in range(0,N):
             #if TObs1[i,j]>=1: #HACK!
             inputs[dataidx,0]=Oi[i] #max(Oi[i],0.001) #need to avoid log(0)
-            inputs[dataidx,1]=Dj[i] #max(Dj[j],0.001)
+            inputs[dataidx,1]=Dj[j] #max(Dj[j],0.001)
             inputs[dataidx,2]=Cij1[i,j] #max(Cij1[i,j],0.001)
             targets[dataidx,0]=TObs1[i,j] #max(TObs1[i,j],0.001)
             dataidx+=1

@@ -119,8 +119,11 @@ class KerasGravityANN:
         #model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['mae','accuracy']) #use sgd with custom params
         #V2
         #model.compile(loss='mean_absolute_error', optimizer='rmsprop', metrics=['mae'])
-        model.compile(loss='mean_squared_error', optimizer='rmsprop', metrics=['mse','mae'])
+        #model.compile(loss='mean_squared_error', optimizer='rmsprop', metrics=['mse','mae']) #<<this one
         #model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mse','mae'])
+
+        rmsprop = optimizers.rmsprop(lr=0.0001, rho=0.9, epsilon=None, decay=0.0)
+        model.compile(loss='mean_squared_error', optimizer=rmsprop, metrics=['mse','mae'])
 
         return model
     
