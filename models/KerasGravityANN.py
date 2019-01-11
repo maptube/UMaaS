@@ -122,8 +122,10 @@ class KerasGravityANN:
         #model.compile(loss='mean_squared_error', optimizer='rmsprop', metrics=['mse','mae']) #<<this one
         #model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mse','mae'])
 
-        rmsprop = optimizers.rmsprop(lr=0.0001, rho=0.9, epsilon=None, decay=0.0)
+        rmsprop = optimizers.rmsprop(lr=0.2, rho=0.9, epsilon=None, decay=0.0)
         model.compile(loss='mean_squared_error', optimizer=rmsprop, metrics=['mse','mae'])
+
+        print('Learning rate at creation: ',K.get_value(model.optimizer.lr))
 
         return model
     
@@ -131,6 +133,10 @@ class KerasGravityANN:
 
     def loadModel(self,filename):
         self.model=load_model(filename)
+
+    def setLearningRate(self,lr):
+        K.set_value(self.model.optimizer.lr,lr)
+        print('setLearningRate: lr=',K.get_value(self.model.optimizer.lr))
 
     ###############################################################################
 

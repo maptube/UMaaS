@@ -111,6 +111,7 @@ def testKerasGravityANN(modelFilename,matrixN,numHiddens,batchSize,numEpochs):
     ###
     #input is [ [Oi, Dj, Cij], ..., ... ]
     #targets are [ TObs, ..., ... ] to match inputs
+    KGANN.setLearningRate(0.2)  #HACK! Override learning rate
     starttime = time.time()
     KGANN.trainModel(inputs,targets,batchSize,numEpochs) #was 1000 ~ 20 hours!
     finishtime = time.time()

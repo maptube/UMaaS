@@ -38,7 +38,8 @@ def main():
     #testKerasGravityANN('',500,[4,4],31250,10000) #model 6 10,000 to 40,000 epoch on batch 31250 (optimum)
     #Now some tests on the real matrix
     #testKerasGravityANN('KerasGravityANN_20190102_115120_500_3441_10000.h5',7201,[4,4],57608,100) - no good!
-    testKerasGravityANN('KerasGravityANN_20190106_204330.h5',7201,[4,4],230432,100) #was 28804
+    #testKerasGravityANN('KerasGravityANN_20190107_101348.h5',7201,[4,4],230432,100) #was 28804
+    testKerasGravityANN('KerasGravityANN_20190111_124934.h5',7201,[4,4],230432,200)
     #testKerasGravityANN('',7201,[8],230432,100) #8 seems to train more reliably
     
     #======Keras ANN Inference Times======
