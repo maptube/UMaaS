@@ -122,7 +122,7 @@ class KerasGravityANN:
         #model.compile(loss='mean_squared_error', optimizer='rmsprop', metrics=['mse','mae']) #<<this one
         #model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mse','mae'])
 
-        rmsprop = optimizers.rmsprop(lr=0.2, rho=0.9, epsilon=None, decay=0.0)
+        rmsprop = optimizers.rmsprop(lr=0.05, rho=0.9, epsilon=None, decay=0.0)
         model.compile(loss='mean_squared_error', optimizer=rmsprop, metrics=['mse','mae'])
 
         print('Learning rate at creation: ',K.get_value(model.optimizer.lr))
@@ -418,8 +418,10 @@ class KerasGravityANN:
         print('calculateCBarError...')
         CBarObs = self.calculateCBar(TObs,Cij)
         TijPred = self.predictMatrix(TObs,Cij)
-        for i in range(0,500):
+        for i in range(0,100):
             print('CBAR TObs, TPred: ',TObs[i,0],' ',TijPred[i,0])
+        for j in range(0,100):
+            print('CBAR TObs, TPred: ',TObs[0,j],' ',TijPred[0,j])
         CBarPred = self.calculateCBar(TijPred,Cij)
         #then work out error between self.Dj and DjPred - you subtract the sums
         error = CBarPred-CBarObs

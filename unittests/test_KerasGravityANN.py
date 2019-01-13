@@ -131,7 +131,7 @@ def testKerasGravityANN(modelFilename,matrixN,numHiddens,batchSize,numEpochs):
         in2[0,1]=inputs[i,1]
         in2[0,2]=inputs[i,2]
         TPredij = KGANN.predict(in2)
-        print('TPred2',i,'=',KGANN.unconvertTij(TPredij),'Target=',KGANN.unconvertTij(targets[i,0]))
+        print('TPred2',i,'=',in2[0,0],in2[0,1],in2[0,2],KGANN.unconvertTij(TPredij),'Target=',KGANN.unconvertTij(targets[i,0]))
 
     #this is computationally intensive - compute the mean trips error to see whether the training is aacceptable
     KGANN.calculateCBarError(TObs1,Cij1)
