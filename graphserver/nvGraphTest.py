@@ -12,22 +12,22 @@ class nvgraphStatus(Enum):
     #all NVGRAPH_STATUS_* in docs
     #nvgraph.h
     #typedef enum{NVGRAPH_STATUS_SUCCESS=0,NVGRAPH_STATUS_NOT_INITIALIZED=1,NVGRAPH_STATUS_ALLOC_FAILED=2,NVGRAPH_STATUS_INVALID_VALUE=3,NVGRAPH_STATUS_ARCH_MISMATCH=4,NVGRAPH_STATUS_MAPPING_ERROR=5,NVGRAPH_STATUS_EXECUTION_FAILED=6,NVGRAPH_STATUS_INTERNAL_ERROR=7,NVGRAPH_STATUS_TYPE_NOT_SUPPORTED=8,NVGRAPH_STATUS_NOT_CONVERGED=9} nvgraphStatus_t;
-    Success = 0
-    NotInitialized = 1
-    AllocFailed = 2
-    InvalidValue = 3
-    ArchMismatch = 4
-    MappingError = 5
-    ExecutionFailed = 6
-    InternalError = 7
-    TypeNotSupported = 8
-    NotConverged = 9
+    Success = c.c_uint(0)
+    NotInitialized = c.c_uint(1)
+    AllocFailed = c.c_uint(2)
+    InvalidValue = c.c_uint(3)
+    ArchMismatch = c.c_uint(4)
+    MappingError = c.c_uint(5)
+    ExecutionFailed = c.c_uint(6)
+    InternalError = c.c_uint(7)
+    TypeNotSupported = c.c_uint(8)
+    NotConverged = c.c_uint(9)
 
 class nvgraphTopologyType(Enum):
     #typedef enum {   NVGRAPH_CSR_32 = 0,   NVGRAPH_CSC_32 = 1, } nvgraphTopologyType_t;
-    CSR_32 = 0
-    CSC_32 = 1
-    COO_32 = 2
+    CSR_32 = c.c_uint(0)
+    CSC_32 = c.c_uint(1)
+    COO_32 = c.c_uint(2)
 
 #struct nvgraphCSRTopology32I_st {  int nvertices;  int nedges;  int *source_offsets;  int *destination_indices; }; typedef struct nvgraphCSRTopology32I_st *nvgraphCSRTopology32I_t;
 class nvgraphCSRTopology32I_st(c.Structure):
@@ -118,6 +118,13 @@ nvgraphDestroyGraphDescr = c.CDLL(lib_nvGraph).nvgraphDestroyGraphDescr
 
 ################################################################################
 
+def check_status(status):
+    if status!=0:
+        print("ERROR: status=",status)
+
+################################################################################
+
+
 ###main program - from TestSSSP in nvGraph.cs
 n = 6
 nnz = 10
@@ -150,14 +157,14 @@ weights_h = weights_seq(*weights)
 destination_offsets = [ c.c_int(0), c.c_int(1), c.c_int(3), c.c_int(4), c.c_int(6), c.c_int(8), c.c_int(10) ]
 destination_offsets_seq = c.c_int*len(destination_offsets)
 destination_offsets_h = destination_offsets_seq(*destination_offsets)
-destination_offsets_p = c.pointer(destination_offsets_h)
-destination_offsets_p.contents = destination_offsets_h
+#destination_offsets_p = c.pointer(destination_offsets_h)
+#destination_offsets_p.contents = destination_offsets_h
 
-source_indices = [ c.c_int(2), c.c_int(0), c.c_int(2), c.c_int(0), c.c_int(4), c.c_int(5), c.c_int(2), c.c_int(3), c.c_int(3), c.c_int(4) ]
+source_indices = [ 2, 0, 2, 0, 4, 5, 2, 3, 3, 4 ]
 source_indices_seq = c.c_int*len(source_indices)
 source_indices_h = source_indices_seq(*source_indices)
-source_indices_p = c.pointer(source_indices_h)
-source_indices_p.contents = source_indices_h
+#source_indices_p = c.pointer(source_indices_h)
+#source_indices_p.contents = source_indices_h
 
 handle = nvgraphHandle_t()
 handle_p = c.pointer(handle)
@@ -166,10 +173,8 @@ graph = nvgraphDescr_t()
 graph_p = c.pointer(graph)
 graph_p.contents = graph
 
-success = nvgraphCreate(handle_p) #now we create the graph with a graph pointer handle for the return
-print("nvgraphCreate success = ", success)
-success = nvgraphCreateGraphDescr(handle, graph_p) #and then do the same with a graph descriptor handle
-print("nvgraphCreateGraphDescr success = ",success)
+check_status(nvgraphCreate(handle_p)) #now we create the graph with a graph pointer handle for the return
+check_status(nvgraphCreateGraphDescr(handle, graph_p)) #and then do the same with a graph descriptor handle
 
 CSC_input = nvgraphCSCTopology32I_st() #or as params nvgraphCSCTopology32I_st(6,10,s_i_h,d_o_h)
 CSC_input.nvertices = n
@@ -180,11 +185,11 @@ CSC_input.source_indices = source_indices_h
 #CSC_p.contents = CSC_input
 #print("CSC=",CSC_p,CSC_input)
 
-CSR_input = nvgraphCSRTopology32I_st()
-CSR_input.nvertices = n
-CSR_input.nedges = nnz
-CSR_input.source_offsets = destination_offsets_h
-CSR_input.destination_indices = source_indices_h
+#CSR_input = nvgraphCSRTopology32I_st()
+#CSR_input.nvertices = n
+#CSR_input.nedges = nnz
+#CSR_input.source_offsets = destination_offsets_h
+#CSR_input.destination_indices = source_indices_h
 
 #GCHandle pin_weights_h = GCHandle.Alloc(weights_h, GCHandleType.Pinned);
 #GCHandle pin_destination_offsets_h = GCHandle.Alloc(destination_offsets_h, GCHandleType.Pinned);
@@ -197,24 +202,17 @@ CSR_input.destination_indices = source_indices_h
 
 
 # Set graph connectivity and properties (tranfers)
-print("t1: ",handle_p,graph,CSC_input,nvgraphTopologyType.CSC_32.value)
-#success = nvgraphSetGraphStructure(handle, graph, CSC_input, c.c_int(nvgraphTopologyType.CSC_32.value))
-success = nvgraphSetGraphStructure(handle, graph, CSR_input, c.c_int(nvgraphTopologyType.CSR_32.value))
-print("nvgraphSetGraphStructure success = ",success)
-success = nvgraphAllocateVertexData(handle, graph, vertex_numsets, vertex_dimT_h)
-print("nvgraphAllocateVertexData success = ",success)
-success = nvgraphAllocateEdgeData(handle, graph, edge_numsets, edge_dimT_h)
-print("nvgraphAllocateEdgeData success = ",success)
-success = nvgraphSetEdgeData(handle, graph, weights_h, 0, nvgraphTopologyType.CSC_32.value)
-print("nvgraphSetEdgeData success = ",success)
+check_status(nvgraphSetGraphStructure(handle, graph, CSC_input, nvgraphTopologyType.CSC_32.value))
+#success = nvgraphSetGraphStructure(handle, graph, CSR_input, c.c_int(nvgraphTopologyType.CSR_32.value))
+check_status(nvgraphAllocateVertexData(handle, graph, vertex_numsets, vertex_dimT_h))
+check_status(nvgraphAllocateEdgeData(handle, graph, edge_numsets, edge_dimT_h))
+check_status(nvgraphSetEdgeData(handle, graph, weights_h, 0, nvgraphTopologyType.CSC_32.value))
 # Solve
 source_vert = c.c_int(0)
 source_vert_h = c.pointer(source_vert)
-success = nvgraphSssp(handle, graph, 0,  source_vert_h, 0)
-print("nvgraphSSSP success = ",success)
+check_status(nvgraphSssp(handle, graph, 0,  source_vert_h, 0))
 # Get and print result
-success = nvgraphGetVertexData(handle, graph, sssp_1_h, 0, nvgraphTopologyType.CSC_32.value)
-print("nvgraphGetVertexData success = ",success)
+check_status(nvgraphGetVertexData(handle, graph, sssp_1_h, 0, nvgraphTopologyType.CSC_32.value))
 #for i in range(0,n):
 #    #print(source_vert + " -> ", int(i) , " " , sssp_1[int(i)])
 #    print(i,sssp_1)
@@ -223,5 +221,5 @@ print(list(sssp_1_h))
 
 
 #Clean up - all variables are python managed
-success = nvgraphDestroyGraphDescr(handle, graph)
-print("nvgraphDestroyGraphDescr success = ",success)
+check_status(nvgraphDestroyGraphDescr(handle, graph))
+check_status(nvgraphDestroy(handle))
