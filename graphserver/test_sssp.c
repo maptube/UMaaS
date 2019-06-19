@@ -1,3 +1,6 @@
+#include "cuda.h"
+#include "nvgraph.h"
+
 /*This is the CUDA test example for nvGraph SSSP*/
 void check(nvgraphStatus_t status) {
     if (status != NVGRAPH_STATUS_SUCCESS) {
