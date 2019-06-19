@@ -7,6 +7,7 @@ https://docs.python.org/3/library/ctypes.html#module-ctypes
 
 import ctypes as c
 from enum import Enum
+import platform
 
 class nvgraphStatus(Enum):
     #all NVGRAPH_STATUS_* in docs
@@ -82,8 +83,11 @@ class cudaDataType(Enum):
 #For Linux RHEL, /usr/local/cuda-10.1/bin and /usr/local/cuda/bin
 #File is in /usr/local/cuda/lib64/libnvgraph.so
 
-lib_nvGraph = "nvgraph64_10.dll" #"nvgraph64_90.dll" #Windows
-#lib_nvGraph = "libnvgraph.so" #Linux
+print("Platform: ",platform.system())
+if platform.system()=="Windows": #should return Windows
+    lib_nvGraph = "nvgraph64_10.dll" #"nvgraph64_90.dll" #Windows
+else:
+    lib_nvGraph = "libnvgraph.so" #Linux
 
 nvgraphPagerank = c.CDLL(lib_nvGraph).nvgraphPagerank
 
@@ -128,21 +132,14 @@ def check_status(msg,status):
 ###main program - from TestSSSP in nvGraph.cs
 n = 6
 nnz = 10
-vertex_numsets = 1 #c.c_size_t(3)
-edge_numsets = 1 #c.c_size_t(1)
+vertex_numsets = 1
+edge_numsets = 1
 
 #init host data
-#sssp_1 = c.c_float(n) #sssp_1_h = (float*)malloc(n*sizeof(float));
-#sssp_1_h = c.pointer(sssp_1)
-##
 sssp_1 = [0.0,0.0,0.0,0.0,0.0,0.0]
-sssp_1_seq = c.c_float * n
+sssp_1_seq = c.c_float * len(sssp_1)
 sssp_1_h = sssp_1_seq(*sssp_1)
 
-
-#void** vertex_dim;
-#vertex_dim = int(vertex_numsets)
-#vertex_dim = c.c_void_p * 3
 vertex_dimT = [cudaDataType.CUDA_R_32F.value]
 vertex_dimT_seq = c.c_int * len(vertex_dimT)
 vertex_dimT_h = vertex_dimT_seq(*vertex_dimT)
@@ -183,27 +180,10 @@ CSC_input.destination_offsets = destination_offsets_h
 CSC_input.source_indices = source_indices_h
 #CSC_p = c.pointer(CSC_input)
 #CSC_p.contents = CSC_input
-#print("CSC=",CSC_p,CSC_input)
-
-#CSR_input = nvgraphCSRTopology32I_st()
-#CSR_input.nvertices = n
-#CSR_input.nedges = nnz
-#CSR_input.source_offsets = destination_offsets_h
-#CSR_input.destination_indices = source_indices_h
-
-#GCHandle pin_weights_h = GCHandle.Alloc(weights_h, GCHandleType.Pinned);
-#GCHandle pin_destination_offsets_h = GCHandle.Alloc(destination_offsets_h, GCHandleType.Pinned);
-#GCHandle pin_source_indices_h = GCHandle.Alloc(source_indices_h, GCHandleType.Pinned);
-#CSC_input.destination_offsets = pin_destination_offsets_h.AddrOfPinnedObject();
-#CSC_input.source_indices = pin_source_indices_h.AddrOfPinnedObject();
-#CSC_input.destination_offsets = destination_offsets_h
-#CSC_input.source_indices = source_indices_h
-
 
 
 # Set graph connectivity and properties (tranfers)
 check_status("nvgraphSetGraphStructure",nvgraphSetGraphStructure(handle, graph, c.pointer(CSC_input), nvgraphTopologyType.CSC_32.value))
-#success = nvgraphSetGraphStructure(handle, graph, CSR_input, c.c_int(nvgraphTopologyType.CSR_32.value))
 check_status("nvgraphAllocateVertexData",nvgraphAllocateVertexData(handle, graph, vertex_numsets, vertex_dimT_h))
 check_status("nvgraphAllocateEdgeData",nvgraphAllocateEdgeData(handle, graph, edge_numsets, edge_dimT_h))
 check_status("nvgraphSetEdgeData",nvgraphSetEdgeData(handle, graph, weights_h, 0, nvgraphTopologyType.CSC_32.value))
@@ -217,7 +197,6 @@ check_status("nvgraphGetVertexData",nvgraphGetVertexData(handle, graph, sssp_1_h
 #    #print(source_vert + " -> ", int(i) , " " , sssp_1[int(i)])
 #    print(i,sssp_1)
 print(list(sssp_1_h))
-
 
 
 #Clean up - all variables are python managed
