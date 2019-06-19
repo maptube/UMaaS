@@ -118,9 +118,9 @@ nvgraphDestroyGraphDescr = c.CDLL(lib_nvGraph).nvgraphDestroyGraphDescr
 
 ################################################################################
 
-def check_status(status):
+def check_status(msg,status):
     if status!=0:
-        print("ERROR: status=",status)
+        print("ERROR: ", msg, " status=",status)
 
 ################################################################################
 
@@ -173,8 +173,8 @@ graph = nvgraphDescr_t()
 graph_p = c.pointer(graph)
 graph_p.contents = graph
 
-check_status(nvgraphCreate(handle_p)) #now we create the graph with a graph pointer handle for the return
-check_status(nvgraphCreateGraphDescr(handle, graph_p)) #and then do the same with a graph descriptor handle
+check_status("nvgraphCreate",nvgraphCreate(handle_p)) #now we create the graph with a graph pointer handle for the return
+check_status("nvgraphCreateGraphDescr",nvgraphCreateGraphDescr(handle, graph_p)) #and then do the same with a graph descriptor handle
 
 CSC_input = nvgraphCSCTopology32I_st() #or as params nvgraphCSCTopology32I_st(6,10,s_i_h,d_o_h)
 CSC_input.nvertices = n
@@ -202,17 +202,17 @@ CSC_input.source_indices = source_indices_h
 
 
 # Set graph connectivity and properties (tranfers)
-check_status(nvgraphSetGraphStructure(handle, graph, CSC_input, nvgraphTopologyType.CSC_32.value))
+check_status("nvgraphSetGraphStructure",nvgraphSetGraphStructure(handle, graph, c.pointer(CSC_input), nvgraphTopologyType.CSC_32.value))
 #success = nvgraphSetGraphStructure(handle, graph, CSR_input, c.c_int(nvgraphTopologyType.CSR_32.value))
-check_status(nvgraphAllocateVertexData(handle, graph, vertex_numsets, vertex_dimT_h))
-check_status(nvgraphAllocateEdgeData(handle, graph, edge_numsets, edge_dimT_h))
-check_status(nvgraphSetEdgeData(handle, graph, weights_h, 0, nvgraphTopologyType.CSC_32.value))
+check_status("nvgraphAllocateVertexData",nvgraphAllocateVertexData(handle, graph, vertex_numsets, vertex_dimT_h))
+check_status("nvgraphAllocateEdgeData",nvgraphAllocateEdgeData(handle, graph, edge_numsets, edge_dimT_h))
+check_status("nvgraphSetEdgeData",nvgraphSetEdgeData(handle, graph, weights_h, 0, nvgraphTopologyType.CSC_32.value))
 # Solve
 source_vert = c.c_int(0)
 source_vert_h = c.pointer(source_vert)
-check_status(nvgraphSssp(handle, graph, 0,  source_vert_h, 0))
+check_status("nvgraphSssp",nvgraphSssp(handle, graph, 0,  source_vert_h, 0))
 # Get and print result
-check_status(nvgraphGetVertexData(handle, graph, sssp_1_h, 0, nvgraphTopologyType.CSC_32.value))
+check_status("nvgraphGetVertexData",nvgraphGetVertexData(handle, graph, sssp_1_h, 0, nvgraphTopologyType.CSC_32.value))
 #for i in range(0,n):
 #    #print(source_vert + " -> ", int(i) , " " , sssp_1[int(i)])
 #    print(i,sssp_1)
@@ -221,5 +221,5 @@ print(list(sssp_1_h))
 
 
 #Clean up - all variables are python managed
-check_status(nvgraphDestroyGraphDescr(handle, graph))
-check_status(nvgraphDestroy(handle))
+check_status("nvgraphDestroyGraphDescr",nvgraphDestroyGraphDescr(handle, graph))
+check_status("nvgraphDestroy",nvgraphDestroy(handle))
