@@ -6,7 +6,8 @@
 import os.path
 import numpy as np
 from globals import *
-from utils import loadZoneLookup, loadMatrix, saveMatrix
+from utils import loadMatrix, saveMatrix
+from zonecodes import ZoneCodes #you need loadZoneLookup function from this
 from models.SingleOrigin import SingleOrigin
 from models.TFSingleOrigin import TFSingleOrigin
 from benchmark.run_benchmarks import runBenchmarks
@@ -15,6 +16,8 @@ from benchmark.benchmark_TFSingleOrigin import benchmarkTFSingleOriginMatrixSize
 from unittests.test_TFSingleOrigin import testTFSingleOrigin
 #from unittests.test_Movidius import testMovidius, testBuildMovidiusGraph, testRunMovidiusGraph
 from unittests.test_KerasGravityANN import testKerasGravityANN, testKerasGravityANNInference
+
+from graphserver.graphtest import graphtest1
 
 
 ###############################################################################
@@ -41,7 +44,7 @@ def main():
     #testKerasGravityANN('KerasGravityANN_20190107_101348.h5',7201,[4,4],230432,100) #was 28804
     #testKerasGravityANN('KerasGravityANN_20190111_124934.h5',7201,[4,4],230432,200)
     #testKerasGravityANN('',7201,[8],230432,100) #8 seems to train more reliably
-    testKerasGravityANN('KerasGravityANN_20190112_181256.h5',7201,[32],230432,100)
+    #testKerasGravityANN('KerasGravityANN_20190112_181256.h5',7201,[32],230432,100)
     
     #======Keras ANN Inference Times======
     #ANN Inference testing - OK, this should really be benchmarking as it's a speed test of inference
@@ -95,6 +98,11 @@ def main():
     #model.isUsingConstraints=False
     #print("run model")
     #model.run()
+
+    #======NETWORK TESTS======
+    #ZoneCodes.deriveAreakeyToZoneCodeFromShapefile('data/geometry/EnglandWalesScotland_MSOA.shp') #create the zone codes csv file from the shapefile
+    graphtest1()
+
 
 ###############################################################################
 

@@ -13,27 +13,28 @@ import struct
 """
 Load the zone codes lookup from a csv file into a dictionary of dictionaries
 """
-def loadZoneLookup(filename):
-    ZoneLookup = {}
-    with open(filename,'r') as csv_file:
-        reader = csv.reader(csv_file, delimiter=',')
-        header = next(reader,None) #skip header line
-        for row in reader:
-            #zonei,areakey,name,east,north
-            #0,E02000001,City of London 001,532482.7,181269.3
-            zonei = int(row[0])
-            msoa = row[1]
-            name = row[2]
-            east = float(row[3])
-            north = float(row[4])
-            ZoneLookup[msoa] = {
-                'zonei': zonei,
-                'name': name,
-                'east': east,
-                'north': north
-            }
-            #print("loadZoneLookup: ",msoa,zonei,name,east,north) #DEBUG
-    return ZoneLookup
+#MOVED TO zonecodes.py
+# def loadZoneLookup(filename):
+#     ZoneLookup = {}
+#     with open(filename,'r') as csv_file:
+#         reader = csv.reader(csv_file, delimiter=',')
+#         header = next(reader,None) #skip header line
+#         for row in reader:
+#             #zonei,areakey,name,east,north
+#             #0,E02000001,City of London 001,532482.7,181269.3
+#             zonei = int(row[0])
+#             msoa = row[1]
+#             name = row[2]
+#             east = float(row[3])
+#             north = float(row[4])
+#             ZoneLookup[msoa] = {
+#                 'zonei': zonei,
+#                 'name': name,
+#                 'east': east,
+#                 'north': north
+#             }
+#             #print("loadZoneLookup: ",msoa,zonei,name,east,north) #DEBUG
+#     return ZoneLookup
 ###############################################################################
 
 

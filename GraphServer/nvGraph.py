@@ -1,8 +1,6 @@
 """
-Test of SSSP shortest paths in nvGraph
-
-read this...
-https://docs.python.org/3/library/ctypes.html#module-ctypes
+Header file for nvGraph library.
+Contains data structures and SSSP functions, which are the only ones we use.
 """
 
 import ctypes as c
@@ -128,77 +126,3 @@ def check_status(msg,status):
 
 ################################################################################
 
-
-###main program - from TestSSSP in nvGraph.cs
-n = 6
-nnz = 10
-vertex_numsets = 1
-edge_numsets = 1
-
-#init host data
-sssp_1 = [0.0,0.0,0.0,0.0,0.0,0.0]
-sssp_1_seq = c.c_float * len(sssp_1)
-sssp_1_h = sssp_1_seq(*sssp_1)
-
-vertex_dimT = [cudaDataType.CUDA_R_32F.value]
-vertex_dimT_seq = c.c_int * len(vertex_dimT)
-vertex_dimT_h = vertex_dimT_seq(*vertex_dimT)
-edge_dimT = [cudaDataType.CUDA_R_32F.value]
-edge_dimT_seq = c.c_int * len(edge_dimT)
-edge_dimT_h = edge_dimT_seq(*edge_dimT)
-
-#note: this is the NVidia example from their SSSP example program            
-weights = [ 0.333333, 0.5, 0.333333, 0.5, 0.5, 1.0, 0.333333, 0.5, 0.5, 0.5 ]
-weights_seq = c.c_float * len(weights)
-weights_h = weights_seq(*weights)
-destination_offsets = [ c.c_int(0), c.c_int(1), c.c_int(3), c.c_int(4), c.c_int(6), c.c_int(8), c.c_int(10) ]
-destination_offsets_seq = c.c_int*len(destination_offsets)
-destination_offsets_h = destination_offsets_seq(*destination_offsets)
-#destination_offsets_p = c.pointer(destination_offsets_h)
-#destination_offsets_p.contents = destination_offsets_h
-
-source_indices = [ 2, 0, 2, 0, 4, 5, 2, 3, 3, 4 ]
-source_indices_seq = c.c_int*len(source_indices)
-source_indices_h = source_indices_seq(*source_indices)
-#source_indices_p = c.pointer(source_indices_h)
-#source_indices_p.contents = source_indices_h
-
-handle = nvgraphHandle_t()
-handle_p = c.pointer(handle)
-handle_p.contents = handle
-graph = nvgraphDescr_t()
-graph_p = c.pointer(graph)
-graph_p.contents = graph
-
-check_status("nvgraphCreate",nvgraphCreate(handle_p)) #now we create the graph with a graph pointer handle for the return
-check_status("nvgraphCreateGraphDescr",nvgraphCreateGraphDescr(handle, graph_p)) #and then do the same with a graph descriptor handle
-
-CSC_input = nvgraphCSCTopology32I_st() #or as params nvgraphCSCTopology32I_st(6,10,s_i_h,d_o_h)
-CSC_input.nvertices = n
-CSC_input.nedges = nnz
-CSC_input.destination_offsets = destination_offsets_h
-CSC_input.source_indices = source_indices_h
-#CSC_p = c.pointer(CSC_input)
-#CSC_p.contents = CSC_input
-
-
-# Set graph connectivity and properties (tranfers)
-check_status("nvgraphSetGraphStructure",nvgraphSetGraphStructure(handle, graph, c.pointer(CSC_input), nvgraphTopologyType.CSC_32.value))
-check_status("nvgraphAllocateVertexData",nvgraphAllocateVertexData(handle, graph, vertex_numsets, vertex_dimT_h))
-check_status("nvgraphAllocateEdgeData",nvgraphAllocateEdgeData(handle, graph, edge_numsets, edge_dimT_h))
-check_status("nvgraphSetEdgeData",nvgraphSetEdgeData(handle, graph, weights_h, 0, nvgraphTopologyType.CSC_32.value))
-# Solve
-source_vert = c.c_int(0)
-source_vert_h = c.pointer(source_vert)
-check_status("nvgraphSssp",nvgraphSssp(handle, graph, 0,  source_vert_h, 0))
-# Get and print result
-check_status("nvgraphGetVertexData",nvgraphGetVertexData(handle, graph, sssp_1_h, 0, nvgraphTopologyType.CSC_32.value))
-#for i in range(0,n):
-#    #print(source_vert + " -> ", int(i) , " " , sssp_1[int(i)])
-#    print(i,sssp_1)
-print(list(sssp_1_h))
-
-
-#Clean up - all variables are python managed
-check_status("nvgraphDestroyGraphDescr",nvgraphDestroyGraphDescr(handle, graph))
-check_status("nvgraphDestroy",nvgraphDestroy(handle))

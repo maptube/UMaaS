@@ -10,10 +10,16 @@ from scipy.spatial import KDTree, cKDTree
 #from sklearn.neighbors import KNeighborsClassifier
 #geopandas?
 import geopandas as gpd
+from shapely.geometry import Point, Polygon
 #from rtree import index
 import math
+import time
+import timeit
+import ctypes as c
 
-from GTFSUtils import GTFSUtils
+from graphserver.GTFSUtils import GTFSUtils
+import graphserver.nvGraph as nvGraph
+
 
 class PublicTransportNetwork:
 
@@ -215,87 +221,260 @@ class PublicTransportNetwork:
     # /// RWM: NOTE: generalised this from MSOA only to work with any shapefile. This required added a field name for the area code.
     # /// RWM2: NOTE: also changed the code so that it skips and warns of an area in the shapefile not in the zonecodes file - this is for the Manchester and London subsets
     # /// </summary>
-    # /// <param name="ZoneCodes"></param>
+    # /// <param name="ZoneCodesDT">Note zonecodes is a dictionary of ZoneData, NOT the zone codes class that holds it</param>
     # /// <param name="ShapefileFilename"></param>
     # /// <returns>A lookup between the MSOA (or other shapefile geometry e.g. LSOA) areakey and the unqiue string identifier of its calculated centroid bus stop</returns>
-    def FindCentroids(self, ZoneCodes, ShapefileFilename, ShapefileAreaKeyField):
+    def FindCentroids(self, ZoneCodesDT, ShapefileFilename, ShapefileAreaKeyField):
 
         Result = {}
         
         shapefile = gpd.read_file(ShapefileFilename)
-        print(shapefile)
+        #print(shapefile)
         for idx, f in shapefile.iterrows():
             #print(f)
             #for this feature, get the centroid, which we use as the origin
             areakey = f[ShapefileAreaKeyField] #was "MSOA11CD" for MSOA
             #print(f['geometry'].centroid)
             #areaname = f["MSOA11NM"] #not needed
-        #     DataRow Rowi = ZoneCodes.Rows.Find(areakey);
-        #     if (Rowi==null)
-        #     {
-        #         #System.Diagnostics.Debug.WriteLine("WARN: area " + areakey + " in shapefile, but not in the zonecodes table - skipped. This will occur when processing subsets of areas from a main shapefile containing every possible area.");
-        #         continue;
-        #     }
-        #     int Zonei = (int)Rowi["Zonei"];
-        #     float CentroidLat = (float)Rowi["Lat"];
-        #     float CentroidLon = (float)Rowi["Lon"];
+            if areakey not in ZoneCodesDT:
+                print("WARN: area " + areakey + " in shapefile, but not in the zonecodes table - skipped. This will occur when processing subsets of areas from a main shapefile containing every possible area.")
+                continue
+            
+            Rowi = ZoneCodesDT[areakey]
+            Zonei = Rowi["zonei"]
+            CentroidLat = Rowi["lat"]
+            CentroidLon = Rowi["lon"]
+            env = f['geometry'].envelope
+            #this whole section is designed to get the centroid point and max radius distance of envelope corners so that we can do the kd tree ball query below
+            #the original code did this a lot more easily with a proper kd tree implementation and an envelope query
+            cx = env.centroid.x
+            cy = env.centroid.y
+            dist2=0
+            for point in env.exterior.coords:
+                #print("point=",point)
+                dx = (point[0]-cx)
+                dy = (point[1]-cy)
+                d = dx*dx+dy*dy
+                if d>dist2:
+                    dist2 = d
+            dist=math.sqrt(dist2)
+            #print("cx=",cx,"cy=",cy,"r=",dist)
+
         #     List<KdNode<string>> nodes = (List<KdNode<string>>)kdtree.Query(f.Geometry.EnvelopeInternal);
-        #     double Lat = 0;
-        #     double Lon = 0;
-        #     int count = 0;
-        #     int MaxOutDegree = 0;
+            nodes = self.kdtree.query_ball_point([cx,cy],r=dist)
+            #print(nodes)
+            Lat = 0
+            Lon = 0
+            count = 0
+            MaxOutDegree = 0
         #     KdNode<string> MaxOutDegreeNode = null;
-        #     foreach (KdNode<string> node in nodes)
-        #     {
-        #         if (f.Geometry.Contains(new Point(node.Coordinate)))
-        #         {
-        #             Lat += node.Coordinate.Y;
-        #             Lon += node.Coordinate.X;
-        #             ++count;
-        #             #and look at the number of out edges for this node which is within the MSOA in order to find the maximum, which might be a better metric...
-        #             int O = graph.OutDegree(node.Data);
-        #             if (O > MaxOutDegree)
-        #             {
-        #                 MaxOutDegree = O;
-        #                 MaxOutDegreeNode = node;
-        #             }
-        #         }
-        #     }
-        #     if (count > 0)
-        #     {
-        #         Lat /= count;
-        #         Lon /= count;
+            for node in nodes: #note that node is a kd tree index into the points originally used to create the indes
+                graphnode = self.vertices[self.vidx[node]] #use lookup between kd tree and graph vertices to get the graph node with the actual geographic points
+                #print("graphnode=",graphnode,graphnode.Code)
+                #graph node is a gtfs stop point
+                P = Point(graphnode.Lon,graphnode.Lat)
+                if P.within(f['geometry']):
+                    Lat += graphnode.Lat
+                    Lon += graphnode.Lon
+                    count+=1
+                    #and look at the number of out edges for this node which is within the MSOA in order to find the maximum, which might be a better metric...
+                    #O = self.graph.OutDegree(node.Data)
+                    if (graphnode.Code in self.graph): #why on earth would a node be missing from the graph structure?
+                        O = len(self.graph[graphnode.Code]) #TODO: check - is this right?????
+                        if O > MaxOutDegree:
+                            MaxOutDegree = O
+                            MaxOutDegreeNode = graphnode
+                        #end if
+                    #else:
+                    #    print("Graph node ",graphnode.Code," no edges data - skipped")
+                    #endif
+                #end if
+            #end for node in nodes
+            if count > 0:
+                Lat /= count
+                Lon /= count
+                
+                minDist2 = sys.float_info.max
+                MinNode = None
+                for node in nodes:
+                    graphnode = self.vertices[self.vidx[node]]
+                    dx = graphnode.Lon - Lon
+                    dy = graphnode.Lat - Lat
+                    dist2 = dx * dx + dy * dy
+                    if (dist2 < minDist2):
+                        minDist2 = dist2
+                        MinNode = graphnode
+                    #end if 
+                #end for node in nodes
 
-        #         double minDist2 = double.MaxValue;
-        #         KdNode<string> MinNode = null;
-        #         foreach (KdNode<string> node in nodes)
-        #         {
-        #             double dx = node.Coordinate.X - Lon;
-        #             double dy = node.Coordinate.Y - Lat;
-        #             double dist2 = dx * dx + dy * dy;
-        #             if (dist2 < minDist2)
-        #             {
-        #                 minDist2 = dist2;
-        #                 MinNode = node;
-        #             }
-        #         }
-
-        #         #KdNode<string> node = kdtree.NearestNeighbor(new Coordinate(Lon, Lat)); - DOESN'T WORK! I think the kdtree nearest neighbour function is wrong!
-        #         System.Diagnostics.Debug.WriteLine("PublicTransportNetwork::FindCentroids: "+areakey + "," + CentroidLat + "," + CentroidLon + "," + Lat + "," + Lon + "," + MinNode.Coordinate.Y + "," + MinNode.Coordinate.X + "," + MinNode.Data
-        #             +","+MaxOutDegree+","+MaxOutDegreeNode.Data+","+count);
-        #         #we have options here - either return the closest node to the centroid of the stops within the MSOA (MinNode.data)
-        #         #OR return the node within the MSOA with the most out edges (MaxOutDegreeNode)
-        #         #Result.Add(areakey, MinNode.Data); //closest to centroid
-        #         Result.Add(areakey, MaxOutDegreeNode.Data); //max out edges
-        #     }
-        #     else
-        #     {
-        #         #System.Diagnostics.Debug.WriteLine("PublicTransportNetwork::FindCentroids: "+ areakey +", Error"); // + " " + areaname);
-        #         System.Diagnostics.Debug.WriteLine("PublicTransportNetwork::FindCentroids: " + areakey + "," + CentroidLat + "," + CentroidLon + "," + Lat + "," + Lon + "," + "0" + "," + "0" + "," + "0"
-        #             + "," + "0" + "," + "0" + "," + count);
-        #     }    
+                print("PublicTransportNetwork::FindCentroids: "+areakey + "," + str(CentroidLat) + "," + str(CentroidLon) + "," + str(Lat) + "," + str(Lon) + "," + str(MinNode.Lat) + "," + str(MinNode.Lon) + "," + MinNode.Code
+                +","+str(MaxOutDegree)+","+MaxOutDegreeNode.Code+","+str(count))
+                #we have options here - either return the closest node to the centroid of the stops within the MSOA (MinNode.data)
+                #OR return the node within the MSOA with the most out edges (MaxOutDegreeNode)
+                #Result.Add(areakey, MinNode.Data); //closest to centroid
+                Result[areakey] = MaxOutDegreeNode.Code #max out edges
+            else:
+                #print("PublicTransportNetwork::FindCentroids: "+ areakey +", Error"); // + " " + areaname)
+                print("PublicTransportNetwork::FindCentroids: " + areakey + "," + str(CentroidLat) + "," + str(CentroidLon) + "," + str(Lat) + "," + str(Lon) + "," + "0" + "," + "0" + "," + "0"
+                + "," + "0" + "," + "0" + "," + str(count))
+            #end if count>0
+        
         #end for f in shapefile
         
         return Result
+
+################################################################################
+
+    """
+    <summary>
+    Test of an existing QuickGraph network being converted to the CUDA nvGraph format and Single Source Shortest Path run.
+    PRE: needs and existing QuickGraph structure, so this.graph must be populated.
+    TODO: need to use zonecodes and centroidlookup
+    </summary>
+    <param name="ZoneCodes"></param>
+    <param name="CentroidLookup"></param>
+    <param name="OriginAreaKeys">NOT USED! List containing the origin of where to start from to get to all of the ZoneCodes in the list (arriving at their CentroidLookup nodes) e.g. "E02000001" is City of London</param>
+    <returns>Dictionary<string,float> of MSOA area destination and time to reach from the origin in seconds.</returns>
+    """
+    def TestCUDASSSP(self, ZoneCodes, CentroidLookup): #RWM removed OriginAreaKeys
+        #NOTE:
+        #for APSP, set vertex_numsets=7201
+        #then sssp_1 becomes an array of 7201 x sssp_1
+        #vertex_dim needs to be an array into each sssp_1 block of data (and vertex_dimT)
+        #NOTE: is vertex_dim every actually used????
+        #then you run nvGraph.nvgraphSssp(handle, graph, 0,  source_vert_h, 0) with the final zero as 0..7201, which puts results into each index block of the sssp_1 result
+        Results = {} #new Dictionary<string, float>();
+        N = len(ZoneCodes) #assuming 0..len(ZoneCodes)-1 zones
+        #matrix = np.array([np.zeros(N),np.zeros(N)])
+
+        n = self.graph.number_of_nodes()
+        nnz = self.graph.number_of_edges()
+        vertex_numsets = 1
+        edge_numsets = 1
+        #dimension arrays for the data
+        weights = [0.0] * nnz
+        destination_offsets = [0] * (n+1)
+        source_indices = [0] * nnz
+        #fill the arrays from the NetworkX structure
+        #first, make a lookup between vertex name (string) and vertex number (int) for the nvGraph arrays. You could potentially do this in one step, but with more lookups.
+        VIndex=0
+        VNumLookup = {} #<string,int>
+        for VName in self.graph.nodes:
+            VNumLookup[VName] = VIndex
+            VIndex+=1
+        #endfor
+        #OK, now have a name to index lookup, so build the data. Unfortunately, it's all backwards and QuickGraph doesn't have a graph.InEdges() method similar to graph.OutEdges().
+        #Make a lookup of vertex in edges by walking the entire edge list.
+        InEdges = [-1] * n
+        for i in range(0,n): InEdges[i] = []
+        for e in self.graph.edges:
+            Dest = VNumLookup[e[1]] #edges are a list of (source,target) tuples [0]=source, [1]=target
+            InEdges[Dest].append(e)
+        #endfor
+        #now we've got a list of destination nodes and the edges leading to them, we can build the nvGraph data
+        count = 0
+        for d in range(0,n):
+            destination_offsets[d] = count
+            for e in InEdges[d]:
+                s = VNumLookup[e[0]] #if it doesn't find the name then it crashes - something's gone badly wrong
+                #TODO: here, the weights need changing and check the indices
+                source_indices[count] = s
+                #NOTE: although the edge is a triple (source,target,weight?), the third value is always zero. You have to do it as in the line below:
+                w=self.graph.edges[e]['weight']
+                weights[count] = w
+                count+=1
+            #endfor
+        #endfor
+        destination_offsets[n] = count #there's an extra final n+1 vertex that you need to set
+            
+        #now build a list of MSOA code to vertex number which we want to route to and from (centroid)
+        CUDAZoneVertexLookup = {} #new Dictionary<string, int>();
+        for k, rowi in ZoneCodes.items():
+            AreaKeyi = rowi["areakey"] #OK, it's also 'k' anyway
+            if AreaKeyi in CentroidLookup:
+                Vertexi = CentroidLookup[AreaKeyi] #this is the nearest node to the msoa centroid
+                Zonei = rowi["zonei"]
+                CUDAVertex = VNumLookup[Vertexi]
+                CUDAZoneVertexLookup[AreaKeyi] = CUDAVertex
+                #System.Diagnostics.Debug.WriteLine(AreaKeyi + "," + Zonei + "," + CUDAVertex);
+            #endif
+        #endfor
+
+        #that's the data prepared, now do the real work
+
+        #Init arrays and other data - we're only every going to be using one vertex num set and one edge num set, so let's try and make it look elegant
+        print("Running SSSP: n=" + str(n) + ", nnz=" + str(nnz))
+        sssp_1 = [0.0] * n * 2
+        sssp_1_seq = c.c_float * len(sssp_1)
+        sssp_1_h = sssp_1_seq(*sssp_1)
+
+        vertex_dimT = [nvGraph.cudaDataType.CUDA_R_32F.value, nvGraph.cudaDataType.CUDA_R_32F.value]
+        vertex_dimT_seq = c.c_int * len(vertex_dimT)
+        vertex_dimT_h = vertex_dimT_seq(*vertex_dimT)
+        edge_dimT = [nvGraph.cudaDataType.CUDA_R_32F.value]
+        edge_dimT_seq = c.c_int * len(edge_dimT)
+        edge_dimT_h = edge_dimT_seq(*edge_dimT)
+        
+        weights_seq = c.c_float * len(weights)
+        weights_h = weights_seq(*weights)
+        destination_offsets_seq = c.c_int*len(destination_offsets)
+        destination_offsets_h = destination_offsets_seq(*destination_offsets)
+        source_indices_seq = c.c_int*len(source_indices)
+        source_indices_h = source_indices_seq(*source_indices)
+
+
+        handle = nvGraph.nvgraphHandle_t()
+        handle_p = c.pointer(handle)
+        handle_p.contents = handle
+        graph = nvGraph.nvgraphDescr_t()
+        graph_p = c.pointer(graph)
+        graph_p.contents = graph
+            
+        nvGraph.check_status("nvgraphCreate",nvGraph.nvgraphCreate(handle_p)) #now we create the graph with a graph pointer handle for the return
+        nvGraph.check_status("nvgraphCreateGraphDescr",nvGraph.nvgraphCreateGraphDescr(handle, graph_p)) #and then do the same with a graph descriptor handle
+        
+        CSC_input = nvGraph.nvgraphCSCTopology32I_st()
+        CSC_input.nvertices = n
+        CSC_input.nedges = nnz
+        CSC_input.destination_offsets = destination_offsets_h
+        CSC_input.source_indices = source_indices_h
+
+        # Set graph connectivity and properties (tranfers)
+        nvGraph.check_status("nvgraphSetGraphStructure",nvGraph.nvgraphSetGraphStructure(handle, graph, c.pointer(CSC_input), nvGraph.nvgraphTopologyType.CSC_32.value))
+        nvGraph.check_status("nvgraphAllocateVertexData",nvGraph.nvgraphAllocateVertexData(handle, graph, vertex_numsets, vertex_dimT_h))
+        nvGraph.check_status("nvgraphAllocateEdgeData",nvGraph.nvgraphAllocateEdgeData(handle, graph, edge_numsets, edge_dimT_h))
+        nvGraph.check_status("nvgraphSetEdgeData",nvGraph.nvgraphSetEdgeData(handle, graph, weights_h, 0, nvGraph.nvgraphTopologyType.CSC_32.value))
+        # Solve
+        start = time.process_time()
+        start2 = time.clock()
+        validcount=0
+        for areakey in ZoneCodes:
+            if areakey in CUDAZoneVertexLookup:
+                validcount+=1
+                source_vert = c.c_int(CUDAZoneVertexLookup[areakey]) #rwm was OriginAreaKeys[i]
+                source_vert_h = c.pointer(source_vert)
+                nvGraph.check_status("nvgraphSssp",nvGraph.nvgraphSssp(handle, graph, 0,  source_vert_h, 0))
+                # Get and print result
+                nvGraph.check_status("nvgraphGetVertexData",nvGraph.nvgraphGetVertexData(handle, graph, sssp_1_h, 0, nvGraph.nvgraphTopologyType.CSC_32.value))
+                #todo: here you need to get the data out of the sssp_1_h data and write it back to the matrix i.e. a subset of the origin to all other nodes
+            #endif
+        #endif
+            
+        millis = time.process_time()-start #actually, both of these are in seconds!
+        millis2 = time.clock() - start2
+        print("SSSP Elapsed milliseconds = " + str(millis)+" "+str(millis2),"validcount=",validcount)
+        for DestAreaKey,d in CUDAZoneVertexLookup.items():
+            #DestAreaKey = vertex code and d= vertex number in CUDA structure
+            #print(source_vert + " -> " + DestAreaKey + " " + str(sssp_1[d]))
+            Results[DestAreaKey] = sssp_1_h[d]
+        #endfor
+        #print(list(sssp_1_h))
+        
+
+        #Clean up - all variables are python managed
+        nvGraph.check_status("nvgraphDestroyGraphDescr",nvGraph.nvgraphDestroyGraphDescr(handle, graph))
+        nvGraph.check_status("nvgraphDestroy",nvGraph.nvgraphDestroy(handle))
+
+        return Results
 
 ################################################################################

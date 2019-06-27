@@ -5,7 +5,7 @@ import glob
 import zipfile
 import math
 
-from GTFSFile import *
+from graphserver.GTFSFile import *
 
 """
 Class representing an origin destination link between two points on a GTFS network. The time in seconds between the O and D is used for the runlink time.
