@@ -67,18 +67,22 @@ class PublicTransportNetwork:
         kdtreedata = [] #because we have to make the kdtree index in the constructor, we need to generate a list of [node_id,lat,lon] for every vertex
         #self.kdtree = index.Index() #rtree index
 
+        self.vertices = {}
         for dir in GTFSDirectories:
             #Dictionary<string, List<GTFS_ODLink>> links = new Dictionary<string, List<GTFS_ODLink>>();
             #Dictionary<string, GTFSStop> vertices = new Dictionary<string, GTFSStop>();
-            links, vertices = GTFSUtils.ExtractRunlinks(dir, AllowedRouteTypes) #NOTE: make sure the Allowed route types is set correctly i.e. (rail,ferry) or (bus,ferry)
-            self.vertices = vertices #map of stop code to GTFSFile.GTFSStop object, giving the lat lon
+            links, localvertices = GTFSUtils.ExtractRunlinks(dir, AllowedRouteTypes) #NOTE: make sure the Allowed route types is set correctly i.e. (rail,ferry) or (bus,ferry)
+            #now have to update self.vertices with (stop code, GTFS node data) so that we have the lat/lon to make the spatial index from - AND need to merge this between GTFS dirs in top loop
+            #self.vertices.update(localvertices) #update() doesn't work - why??? #map of stop code to GTFSFile.GTFSStop object, giving the lat lon
+            for code, value in localvertices.items(): #do it the hard way instead - map of stop code to GTFSFile.GTFSStop object, giving the lat lon
+                self.vertices[code]=value
 
             #now build the graph
             #NOTE: each links.value is a list of the same link, just for different times - we need to average them
             for link in links.values():
                 try:
-                    Stop_O = vertices[link[0].O]
-                    Stop_D = vertices[link[0].D]
+                    Stop_O = localvertices[link[0].O]
+                    Stop_D = localvertices[link[0].D]
                     total_secs = 0
                     count = 0
                     MinSeconds = sys.float_info.max
@@ -121,6 +125,13 @@ class PublicTransportNetwork:
             #end for link in links
         #end for dir
 
+        #build kd tree spatial index in a one shot operation using the data in self.vertices from the GTFS
+        #As the kd tree can only return nodes as index positions in this original data update, what I do is
+        #to create a self.vidx map (vertex index) between the id number as used in the kd tree index and the
+        #vertex code as used in the gtfs. This means that when you do a kd tree search and it returns ids of
+        #0, 54 and 99, then vidx[0], vidx[54] and vidx[99] will give you the gtfs vertex codes for the stops.
+        #NOTE: self.vertices still contains the data indexed by gtfs code e.g. vertices["6290WB05"] gets you
+        #the gtfs data object containing the lat lon.
         kdtreedata = []
         self.vidx = {}
         for idx, v in enumerate(self.vertices):
@@ -205,7 +216,7 @@ class PublicTransportNetwork:
                     if not node2 in links: #test whether this node is already connected to the other one
                         self.graph.add_edge(node1.Code, node2.Code, weight = dist/WalkSpeed)
                         count+=1
-                        print("FixupWalkingNodes added: ", node1.Code, node2.Code, dist, dist/WalkSpeed)
+                        #print("FixupWalkingNodes added: ", node1.Code, node2.Code, dist, dist/WalkSpeed)
             #endif
 
 
@@ -329,7 +340,6 @@ class PublicTransportNetwork:
     <summary>
     Test of an existing QuickGraph network being converted to the CUDA nvGraph format and Single Source Shortest Path run.
     PRE: needs and existing QuickGraph structure, so this.graph must be populated.
-    TODO: need to use zonecodes and centroidlookup
     </summary>
     <param name="ZoneCodes"></param>
     <param name="CentroidLookup"></param>
@@ -341,7 +351,7 @@ class PublicTransportNetwork:
         #for APSP, set vertex_numsets=7201
         #then sssp_1 becomes an array of 7201 x sssp_1
         #vertex_dim needs to be an array into each sssp_1 block of data (and vertex_dimT)
-        #NOTE: is vertex_dim every actually used????
+        #NOTE: is vertex_dim ever actually used????
         #then you run nvGraph.nvgraphSssp(handle, graph, 0,  source_vert_h, 0) with the final zero as 0..7201, which puts results into each index block of the sssp_1 result
         Results = {} #new Dictionary<string, float>();
         N = len(ZoneCodes) #assuming 0..len(ZoneCodes)-1 zones
@@ -460,9 +470,9 @@ class PublicTransportNetwork:
             #endif
         #endif
             
-        millis = time.process_time()-start #actually, both of these are in seconds!
-        millis2 = time.clock() - start2
-        print("SSSP Elapsed milliseconds = " + str(millis)+" "+str(millis2),"validcount=",validcount)
+        secs = time.process_time()-start #actually, both of these are in seconds!
+        secs2 = time.clock() - start2
+        print("SSSP Elapsed seconds = " + str(secs)+" "+str(secs2),"validcount=",validcount)
         for DestAreaKey,d in CUDAZoneVertexLookup.items():
             #DestAreaKey = vertex code and d= vertex number in CUDA structure
             #print(source_vert + " -> " + DestAreaKey + " " + str(sssp_1[d]))
@@ -476,5 +486,48 @@ class PublicTransportNetwork:
         nvGraph.check_status("nvgraphDestroy",nvGraph.nvgraphDestroy(handle))
 
         return Results
+
+################################################################################
+
+    def writeGraphML(self,filename):
+        #nx.write_graphml_lxml(self.graph, filename) # this one fails with NoneType does not contain Element
+        nx.write_graphml_xml(self.graph, filename) # this one uses a different xml writer and works!
+
+################################################################################
+
+    def writeVertexPositions(self,filename):
+        #this writes out the lat/lon position of each graph node
+        with open(filename,"w") as f:
+            f.write("vertex_name,lat,lon\n")
+            for code, value in self.vertices.items():
+                f.write(code+","+str(value.Lat)+","+str(value.Lon)+"\n")
+            #endfor
+        #endwidth
+
+################################################################################
+
+    def saveCentroids(self,centroids,filename):
+        with open(filename,"w") as f:
+            f.write("areakey,vertex\n")
+            for ak, code in centroids.items():
+                f.write(ak+","+code+"\n")
+            #endfor
+        #endwith
+
+################################################################################
+
+    def loadCentroids(self,filename):
+        centroids = {}
+        with open(filename,"r") as f:
+            f.readine() #skip the header line
+            lines = f.readlines()
+            for line in lines:
+                fields = line.split(',')
+                if (len(fields)==2):
+                    centroids[fields[0]]=fields[1]
+                #endif
+            #endfor
+        #endwith
+        return centroids
 
 ################################################################################

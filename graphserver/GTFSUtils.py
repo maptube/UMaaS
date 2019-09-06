@@ -128,8 +128,8 @@ class GTFSUtils:
         DeltaPhi = (lat2-lat1) * math.pi / 180.0
         DeltaLambda = (lon2-lon1) * math.pi / 180.0
             
-        a = math.sin(DeltaPhi/2) * math.sin(DeltaPhi/2) + math.cos(Phi1) * math.cos(Phi2) * math.sin(DeltaLambda/2) * math.sin(DeltaLambda/2)
-        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+        a = math.sin(DeltaPhi/2) * math.sin(DeltaPhi/2.0) + math.cos(Phi1) * math.cos(Phi2) * math.sin(DeltaLambda/2.0) * math.sin(DeltaLambda/2.0)
+        c = 2.0 * math.atan2(math.sqrt(a), math.sqrt(1.0-a))
         d = R * c
         return d
 

@@ -17,7 +17,7 @@ from unittests.test_TFSingleOrigin import testTFSingleOrigin
 #from unittests.test_Movidius import testMovidius, testBuildMovidiusGraph, testRunMovidiusGraph
 from unittests.test_KerasGravityANN import testKerasGravityANN, testKerasGravityANNInference
 
-from graphserver.graphtest import graphtest1
+from graphserver.graphtest import graphtest1, graphtest2, graphtestSSSP, graphtestRandomGraphs, graphtestNetworkX
 
 
 ###############################################################################
@@ -101,7 +101,11 @@ def main():
 
     #======NETWORK TESTS======
     #ZoneCodes.deriveAreakeyToZoneCodeFromShapefile('data/geometry/EnglandWalesScotland_MSOA.shp') #create the zone codes csv file from the shapefile
-    graphtest1()
+    #graphtest1() #this is a rail shortest paths gpu test
+    #graphtest2() #this is a bus shortest paths gpu test
+    #graphtestSSSP() #this is a Dijkstra SSSP test on CPU in python
+    #graphtestRandomGraphs() #this is a test of Dijkstra SSSP against KKP APSP
+    graphtestNetworkX() #this is a test of the in-built network x functions
 
 
 ###############################################################################

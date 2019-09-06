@@ -207,7 +207,7 @@ class GTFSFile:
                 if not Code in self.Stops:
                     self.Stops[Code] = GTFSStop(Code,Name,Lat, Lon)
             except Exception as e:
-                print('Error: stops.txt ' + self.CurrentFilename + ', ' + Line + ', ' + e)
+                print('Error: stops.txt ' + self.CurrentFilename + ', ' + str(Line) + ', ' + str(e))
             #end try except
         #end for
 
