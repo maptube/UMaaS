@@ -45,6 +45,8 @@ def main():
     #testKerasGravityANN('KerasGravityANN_20190111_124934.h5',7201,[4,4],230432,200)
     #testKerasGravityANN('',7201,[8],230432,100) #8 seems to train more reliably
     #testKerasGravityANN('KerasGravityANN_20190112_181256.h5',7201,[32],230432,100)
+    #testKerasGravityANN('KerasGravityANN_20190917_150033.h5',7201,[16,16],230432,10000) #NEW
+    testKerasGravityANN('',7201,[4,2,2],255782,10000)
     
     #======Keras ANN Inference Times======
     #ANN Inference testing - OK, this should really be benchmarking as it's a speed test of inference
@@ -105,7 +107,7 @@ def main():
     #graphtest2() #this is a bus shortest paths gpu test
     #graphtestSSSP() #this is a Dijkstra SSSP test on CPU in python
     #graphtestRandomGraphs() #this is a test of Dijkstra SSSP against KKP APSP
-    graphtestNetworkX() #this is a test of the in-built network x functions
+    #graphtestNetworkX() #this is a test of the in-built network x functions
 
 
 ###############################################################################
