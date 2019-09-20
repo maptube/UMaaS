@@ -46,7 +46,7 @@ def main():
     #testKerasGravityANN('',7201,[8],230432,100) #8 seems to train more reliably
     #testKerasGravityANN('KerasGravityANN_20190112_181256.h5',7201,[32],230432,100)
     #testKerasGravityANN('KerasGravityANN_20190917_150033.h5',7201,[16,16],230432,10000) #NEW
-    testKerasGravityANN('',7201,[4,2,2],255782,10000)
+    testKerasGravityANN('',7201,[4],1024,1000)
     
     #======Keras ANN Inference Times======
     #ANN Inference testing - OK, this should really be benchmarking as it's a speed test of inference

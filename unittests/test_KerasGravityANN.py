@@ -117,16 +117,16 @@ def testKerasGravityANN(modelFilename,matrixN,numHiddens,batchSize,numEpochs):
     writeTrainingSet("training_data.csv",inputs,targets) #write training data out to disk
 
     #raw inputs must be normalised for input to the ANN [0..1]
-    KGANN.normaliseInputsLinear(inputs,targets)
-    writeTrainingSet("training_data_norm.csv",inputs,targets) #write out normalised training data to disk for comparison
+    ###REMOVED NORMALISATION! KGANN.normaliseInputsLinear(inputs,targets)
+    #writeTrainingSet("training_data_norm.csv",inputs,targets) #write out normalised training data to disk for comparison
     #KGANN.normaliseInputsLog(inputs,targets)
     ###Test input normalisation
-    for i in range(0,10):
-        print('NORMALISED [',inputs[i,0],',',inputs[i,1],',',inputs[i,2],'] ---> ',targets[i,0])
+    #for i in range(0,10):
+    #    print('NORMALISED [',inputs[i,0],',',inputs[i,1],',',inputs[i,2],'] ---> ',targets[i,0])
     ###
     #input is [ [Oi, Dj, Cij], ..., ... ]
     #targets are [ TObs, ..., ... ] to match inputs
-    KGANN.setLearningRate(0.02)  #HACK! Override learning rate
+    #KGANN.setLearningRate(0.02)  #HACK! Override learning rate
     starttime = time.time()
     KGANN.trainModel(inputs,targets,batchSize,numEpochs) #was 1000 ~ 20 hours!
     finishtime = time.time()
@@ -147,7 +147,7 @@ def testKerasGravityANN(modelFilename,matrixN,numHiddens,batchSize,numEpochs):
         in2[0,2]=inputs[i,2]
         TPredij = KGANN.predict(in2)
         print('TPred2 RAW',i,'=',in2[0,0],in2[0,1],in2[0,2],TPredij,'Target=',targets[i,0])
-        print('TPred2',i,'=',in2[0,0],in2[0,1],in2[0,2],KGANN.unconvertTij(TPredij),'Target=',KGANN.unconvertTij(targets[i,0]))
+        #print('TPred2',i,'=',in2[0,0],in2[0,1],in2[0,2],KGANN.unconvertTij(TPredij),'Target=',KGANN.unconvertTij(targets[i,0]))
 
     #this is computationally intensive - compute the mean trips error to see whether the training is aacceptable
     KGANN.calculateCBarError(TObs1,Cij1)

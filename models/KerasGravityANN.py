@@ -1,5 +1,5 @@
 from keras.models import Sequential
-from keras.layers import Dense, BatchNormalization
+from keras.layers import Dense, Dropout, BatchNormalization
 from keras.models import load_model
 from keras import optimizers
 from keras import backend as K
@@ -106,26 +106,31 @@ class KerasGravityANN:
         #model.add(Dense(1, dtype='float64', activation='sigmoid', kernel_initializer='normal')) #sigmoid=S(x)=1/(1+exp(-x))
 
         #new code - build from the numHiddens list...
-        #relu or sigmoid?
+        #relu or sigmoid or linear?
         #initialisers: normal, random_uniform, truncated_normal, lecun_uniform, lecun_normal, glorot_normal, glorot_uniform, he_normal, he_uniform
-        model.add(Dense(numHiddens[0], input_dim=3, dtype='float64', activation='sigmoid', kernel_initializer='random_uniform', use_bias=True))
+        model.add(Dense(numHiddens[0], input_dim=3, dtype='float64', activation='relu', kernel_initializer='uniform', use_bias=False))
+        model.add(Dropout(0.2))
         for h in range(1,len(numHiddens)):
-            model.add(Dense(numHiddens[h], dtype='float64', activation='sigmoid', kernel_initializer='random_uniform', use_bias=True))
-        model.add(Dense(1, dtype='float64', activation='sigmoid', kernel_initializer='random_uniform'))
+            model.add(Dense(numHiddens[h], dtype='float64', activation='relu', kernel_initializer='uniform', use_bias=False))
+        model.add(Dense(1, dtype='float64', activation='linear', kernel_initializer='uniform'))
 
         # Compile model
         #model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['mse','mae'])
         #model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mae','accuracy'])
-        #model.compile(loss='mean_squared_error', optimizer='sgd', metrics=['mae','accuracy'])
-        sgd = optimizers.SGD(lr=0.9, decay=0.01, momentum=0.1, nesterov=True)
-        model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['mae','accuracy']) #use sgd with custom params
+        model.compile(loss='mean_squared_error', optimizer='sgd', metrics=['mae','accuracy'])
+        #sgd = optimizers.SGD(lr=0.9, decay=0.01, momentum=0.1, nesterov=True)
+        #model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['mse', 'mae','accuracy']) #use sgd with custom params
         #V2
         #model.compile(loss='mean_absolute_error', optimizer='rmsprop', metrics=['mae'])
         #model.compile(loss='mean_squared_error', optimizer='rmsprop', metrics=['mse','mae']) #<<this one
         #model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mse','mae'])
 
-        #rmsprop = optimizers.rmsprop(lr=0.05, rho=0.9, epsilon=None, decay=0.001)
+        #rmsprop = optimizers.rmsprop(lr=0.2, rho=0.9, epsilon=None, decay=0.001)
         #model.compile(loss='mean_squared_error', optimizer=rmsprop, metrics=['mse','mae'])
+
+        #???
+        #sgd = SGD(lr=0.1, momentum=0.9)
+	    #model.compile(loss='binary_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
         print('Learning rate at creation: ',K.get_value(model.optimizer.lr))
 
