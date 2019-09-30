@@ -6,6 +6,7 @@ import math
 import time
 import numpy as np
 import random
+from tensorflow.keras import optimizers
 
 from globals import *
 from utils import loadMatrix, resizeMatrix
@@ -29,6 +30,13 @@ def meanSquareError(TObs,TPred):
 
 ###############################################################################
 
+def filterValidData(i,j,T,C):
+    #returns true if data is valid for i,j,T,C
+    #note i,j are zone indices, T is the nimber of trips between i and j and C is the cost
+    #return i!=j and T>=10 and C>=30 #this is what the initial training used
+    #return i!=j and T>=10 and C>=25
+    return T>=5 and C>30
+
 """
 Return a count of all the non-zero elements in TObs
 """
@@ -37,7 +45,7 @@ def countNonZero(TObs,Cij):
     count=0
     for i in range(0,N):
         for j in range(0,N):
-            if i==j or TObs[i,j]<10 or Cij[i,j]<1:
+            if not filterValidData(i,j,TObs[i,j],Cij[i,j]):
                 continue #HACK!
             count+=1
     return count
@@ -68,8 +76,10 @@ Testing procedure for gravity ANN. Allows for changing network size, type, matri
 def testKerasGravityANN(modelFilename,matrixN,numHiddens,batchSize,numEpochs):
     #load in data - we have 52 million points!
     #use mode 1 = road
-    TObs1 = loadMatrix(os.path.join(modelRunsDir,TObs31Filename))
-    Cij1 = loadMatrix(os.path.join(modelRunsDir,CijRoadMinFilename))
+    #TObs1 = loadMatrix(os.path.join(modelRunsDir,TObs31Filename))
+    #Cij1 = loadMatrix(os.path.join(modelRunsDir,CijRoadMinFilename))
+    TObs1 = loadMatrix("data/fromQUANT/Py_TObs_road.bin") #alternate matrices built directly from the QUANT training data
+    Cij1 = loadMatrix("data/fromQUANT/Py_Cij_road.bin")
     (M, N) = np.shape(TObs1)
     #if the real shape of the matrix matches matrixN (i.e. 7201), then don't touch it, otherwise resize TObs1 and Cij1
     if matrixN!=N:
@@ -80,8 +90,15 @@ def testKerasGravityANN(modelFilename,matrixN,numHiddens,batchSize,numEpochs):
     KGANN = KerasGravityANN(numHiddens)
     if modelFilename!='': #NOTE: this OVERWRITES the model that was just created, so numHiddens is not used - could be a different architecture
         KGANN.loadModel(modelFilename)
+    #override loaded model
+    #sgd = optimizers.SGD(lr=0.1, momentum=0, decay=0)
+    #KGANN.model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['mse','mae'])
+    #KGANN.model.compile(loss='mean_squared_error', optimizer='adadelta', metrics=['mse','mae'])
+    #end
     Oi = KGANN.calculateOi(TObs1)
     Dj = KGANN.calculateDj(TObs1)
+    #for i in range(0,1000):
+    #    print("testGravityANN: Oi,Dj: ",Oi[i],Dj[i])
     KGANN.targetOi = Oi #these three, targetOi/Dj/Cij are used for evaluating DjPred every epoch
     KGANN.targetDj = Dj
     KGANN.targetCij = Cij1
@@ -101,7 +118,7 @@ def testKerasGravityANN(modelFilename,matrixN,numHiddens,batchSize,numEpochs):
             print(pct," percent complete")
             nextpct+=10
         for j in range(0,N):
-            if i==j or TObs1[i,j]<10 or Cij1[i,j]<1:
+            if not filterValidData(i,j,TObs1[i,j],Cij1[i,j]):
                 continue #HACK!
             inputs[dataidx,0]=Oi[i] #max(Oi[i],0.001) #need to avoid log(0)
             inputs[dataidx,1]=Dj[j] #max(Dj[j],0.001)
@@ -112,14 +129,21 @@ def testKerasGravityANN(modelFilename,matrixN,numHiddens,batchSize,numEpochs):
         #end for j
         if dataidx>=count: break
     #end for i
+    #thin out the training data if required
+    #count=20000
+    #inputs, targets = KGANN.reduceInputData(count,inputs,targets)
+    #inputs, targets = KGANN.clusterInputData(inputs,targets)
+    #end thinning out
     for i in range(0,10):
         print('[',inputs[i,0],',',inputs[i,1],',',inputs[i,2],'] ---> ',targets[i,0])
     writeTrainingSet("training_data.csv",inputs,targets) #write training data out to disk
 
-    #raw inputs must be normalised for input to the ANN [0..1]
-    ###REMOVED NORMALISATION! KGANN.normaliseInputsLinear(inputs,targets)
-    #writeTrainingSet("training_data_norm.csv",inputs,targets) #write out normalised training data to disk for comparison
+    #raw inputs must be normalised for input to the ANN [0..1] - three forms of normalisation here
+    #KGANN.normaliseInputsLinear(inputs,targets)
     #KGANN.normaliseInputsLog(inputs,targets)
+    KGANN.normaliseInputsMeanSD(inputs,targets)
+    KGANN.randomiseInputOrder(inputs,targets) #randomise the ordering of the inputs and targets
+    writeTrainingSet("training_data_norm.csv",inputs,targets) #write out normalised training data to disk for comparison
     ###Test input normalisation
     #for i in range(0,10):
     #    print('NORMALISED [',inputs[i,0],',',inputs[i,1],',',inputs[i,2],'] ---> ',targets[i,0])
@@ -132,6 +156,8 @@ def testKerasGravityANN(modelFilename,matrixN,numHiddens,batchSize,numEpochs):
     finishtime = time.time()
     print('Training time ',finishtime-starttime,' seconds')
     #KGANN.loadModel('KerasGravityANN_20181218_102849.h5')
+    score = KGANN.model.evaluate(inputs,targets,verbose=0)
+    print("%s: %.2f%%" % (KGANN.model.metrics_names[1], score[1]*100))
 
     #todo: get the beta back out by equivalence testing and plot geographically
     #TPred = KGANN.predictMatrix(TObs1,Cij1)
@@ -212,5 +238,33 @@ def testKerasGravityANNInference(matrixN,numHiddens):
     finishtime = time.time()
     print('Inference time: ',finishtime-starttime, ' seconds')
 
+###############################################################################
+
+"""
+Take a trained model file (h5) and run the CBar test on it to determine goodness of fit against
+the proper matrix
+"""
+def testKerasCBarError(filename):
+    print("test_KerasGravityANN.py::testKerasCBarError\n")
+    TObs1 = loadMatrix(os.path.join(modelRunsDir,TObs31Filename))
+    Cij1 = loadMatrix(os.path.join(modelRunsDir,CijRoadMinFilename))
+
+    KGANN = KerasGravityANN([256,256,256]) #doesn't matter how many hiddens we pass as we're loading a new one anyway
+    #KGANN.loadModel(filename)
+    KGANN.model.load_weights(filename)
+    KGANN.isMeanSDScale=True #need this as the model was trained on sd mean normalisation
+    #and need to put these numbers back in for all the normalisation to work
+    KGANN.meanOi= 7741.307142857143
+    KGANN.meanDj= 2406.9841013824885
+    KGANN.meanCij= 41.98041474654378
+    KGANN.meanTij= 16.243087557603687
+    KGANN.sdOi= 7106.816265087332
+    KGANN.sdDj= 728.4594067969223
+    KGANN.sdCij= 24.522797327549736
+    KGANN.sdTij= 9.358829127240579
+    TijPred = KGANN.calculateCBarError(TObs1,Cij1)
+    print("MSE=",meanSquareError(TObs1,TijPred))
+
+###############################################################################
 
 

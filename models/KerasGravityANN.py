@@ -1,10 +1,15 @@
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, BatchNormalization
-from keras.models import load_model
-from keras import optimizers
-from keras import backend as K
+import tensorflow as tf
+from tensorflow.keras import layers
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout, BatchNormalization
+from tensorflow.keras.models import load_model
+from tensorflow.keras import optimizers
+from tensorflow.keras import backend as K
 K.set_floatx('float64')
-from keras.callbacks import LambdaCallback, CSVLogger, Callback
+from tensorflow.keras.callbacks import LambdaCallback, CSVLogger, Callback
+
+#deprecated from tensorflow.keras.backend import set_session
+#doesn't work: from tensorflow.keras.backend import manual_variable_initialization manual_variable_initialization(True)
 
 import numpy as np
 from math import exp, fabs
@@ -28,14 +33,23 @@ class KerasGravityANN:
         #NOTE: numHiddens is a list, so [16] is 16 hiddens in layer 1, [16,16] is two hidden layers of 16
         #os.environ['CUDA_VISIBLE_DEVICES'] = '-1' #RUN ON CPU!!!!!!!!!!!!!!!!!
 
-        np.random.seed(42) #set random seed for repeatability
+        #np.random.seed(42) #set random seed for repeatability
         #gravity model
         self.numModes=3
         #ANN
         self.isLogScale = False #set when you do either normaliseInputsLinear or normaliseInputsLog to enable you to get the values back
+        self.isMeanSDScale = False #set to true when meanSDNormalisation is used - mean[OiDjCijTid] and sd[OiDjCijTid] used in this case
         self.scaleOiDj=1 #scaling for Oi and Dj inputs to ANN to bring inputs into [0..1] range
         self.scaleCij=1 #scaling for Cij inputs to ANN to bring inputs into [0..1] range
         self.scaleTij=1 #scaling for Tij targets for ANN to bring targets into [0..1] range
+        self.meanOi = 0 #these are the means for the Oi, Dj, Cij and Tij values, used for meand stddev normalisation
+        self.meanDj = 0
+        self.meanCij = 0
+        self.meanTij = 0
+        self.sdOi = 1.0 #these are the stddevs for the Oi, Dj, Cij and Tij values, used for meand stddev normalisation
+        self.sdDj = 1.0
+        self.sdCij = 1.0
+        self.sdTij = 1.0
         
         #logging
         self.trainLogFilename='KerasGravityANN_'
@@ -108,29 +122,42 @@ class KerasGravityANN:
         #new code - build from the numHiddens list...
         #relu or sigmoid or linear?
         #initialisers: normal, random_uniform, truncated_normal, lecun_uniform, lecun_normal, glorot_normal, glorot_uniform, he_normal, he_uniform
-        model.add(Dense(numHiddens[0], input_dim=3, dtype='float64', activation='relu', kernel_initializer='uniform', use_bias=False))
-        model.add(Dropout(0.2))
+        #dtype=float64
+        model.add(Dense(numHiddens[0], input_dim=3, activation='relu', kernel_initializer='uniform', use_bias=False))
+        #model.add(Dropout(0.2))
         for h in range(1,len(numHiddens)):
-            model.add(Dense(numHiddens[h], dtype='float64', activation='relu', kernel_initializer='uniform', use_bias=False))
-        model.add(Dense(1, dtype='float64', activation='linear', kernel_initializer='uniform'))
+            model.add(Dense(numHiddens[h], activation='relu', kernel_initializer='uniform', use_bias=False))
+            #model.add(Dropout(0.2))
+        model.add(Dense(1, activation='linear', kernel_initializer='uniform'))
+        #model.add(Dense(1, activation='relu', kernel_initializer='random_uniform'))
 
         # Compile model
+        # shuffle=True to shuffle batches?
         #model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['mse','mae'])
-        #model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mae','accuracy'])
-        model.compile(loss='mean_squared_error', optimizer='sgd', metrics=['mae','accuracy'])
-        #sgd = optimizers.SGD(lr=0.9, decay=0.01, momentum=0.1, nesterov=True)
-        #model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['mse', 'mae','accuracy']) #use sgd with custom params
+        #model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mae','accuracy']) #this for 256,256,256
+        #model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mse','mae','accuracy'])
+        #model.compile(loss='mean_absolute_error', optimizer='sgd', metrics=['mae','accuracy'])
+        #sgd = optimizers.SGD(lr=0.1, decay=0.0, momentum=0.0, nesterov=False)
+        #model.compile(loss='mean_absolute_error', optimizer=sgd, metrics=['mse', 'mae','accuracy']) #use sgd with custom params
         #V2
         #model.compile(loss='mean_absolute_error', optimizer='rmsprop', metrics=['mae'])
         #model.compile(loss='mean_squared_error', optimizer='rmsprop', metrics=['mse','mae']) #<<this one
         #model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mse','mae'])
 
-        #rmsprop = optimizers.rmsprop(lr=0.2, rho=0.9, epsilon=None, decay=0.001)
+        #rmsprop = optimizers.rmsprop(lr=0.0001, rho=0.9, epsilon=None, decay=0.000001)
         #model.compile(loss='mean_squared_error', optimizer=rmsprop, metrics=['mse','mae'])
 
         #???
-        #sgd = SGD(lr=0.1, momentum=0.9)
-	    #model.compile(loss='binary_crossentropy', optimizer=sgd, metrics=['accuracy'])
+        sgd = optimizers.SGD(lr=0.01, momentum=0, decay=0)
+        model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['mse','mae'])
+
+        ##
+        #256-256-256 model relu lin
+        #model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mae','accuracy'])
+
+        #adagrad, adadelta? adamax nadam
+        #model.compile(loss='mean_absolute_error', optimizer='adagrad', metrics=['mae','accuracy'])
+        #model.compile(loss='mean_squared_error', optimizer='adadelta', metrics=['mse','mae'])
 
         print('Learning rate at creation: ',K.get_value(model.optimizer.lr))
 
@@ -139,7 +166,14 @@ class KerasGravityANN:
     ###############################################################################
 
     def loadModel(self,filename):
-        self.model=load_model(filename)
+        #this hopefully makes the loading work
+        #sess = tf.Session()
+        #set_session(sess)
+        #sess.run(tf.global_variables_initializer())
+        ###
+        #self.model=load_model(filename)
+        self.model = tf.keras.models.load_model(filename)
+        #self.model.load_weights(filename)
 
     def setLearningRate(self,lr):
         K.set_value(self.model.optimizer.lr,lr)
@@ -147,6 +181,26 @@ class KerasGravityANN:
 
     ###############################################################################
 
+    def fudgeNormalisationScalingData(self):
+        #this is a kludge to fit the sd and mean data for any target and input dataset
+        #to match the data that the model was trained with i.e. the small Tij>10 Cij>30 dataset
+        #self.meanOi= 7741.307142857143
+        #self.meanDj= 2406.9841013824885
+        #self.meanCij= 41.98041474654378
+        #self.meanTij= 16.243087557603687
+        #self.sdOi= 7106.816265087332
+        #self.sdDj= 728.4594067969223
+        #self.sdCij= 24.522797327549736
+        #self.sdTij= 9.358829127240579
+        #this is for the full 1951743 data Tij>=1, Cij>=1
+        self.meanOi= 3368.98435
+        self.meanDj= 2093.4135
+        self.meanCij= 35.34465
+        self.meanTij= 6.90615
+        self.sdOi= 3797.9759197110707
+        self.sdDj= 756.3374526742354
+        self.sdCij= 42.58190421267552
+        self.sdTij= 22.40629023683974
 
     """
     Three (un) convert functions which enable the raw Oi, Dj, Cij and Tij values
@@ -156,39 +210,67 @@ class KerasGravityANN:
     operate on large sets of vector data and these individual conversions would be too
     slow. The code here is used mainly for debugging small sets of output data.
     """
-    def convertOiDj(self,OiDj):
-        if self.isLogScale:
-            return np.log(OiDj)*self.scaleOiDj
+    def convertOi(self,Oi):
+        if self.isMeanSDScale:
+            return (Oi-self.meanOi)/self.sdOi
+        elif self.isLogScale:
+            return np.log(Oi)*self.scaleOiDj
         else:
-            return OiDj * self.scaleOiDj + 0.1
+            return Oi * self.scaleOiDj + 0.1
+
+    def convertDj(self,Dj):
+        if self.isMeanSDScale:
+            return (Dj-self.meanDj)/self.sdDj
+        elif self.isLogScale:
+            return np.log(Dj)*self.scaleOiDj
+        else:
+            return Dj * self.scaleOiDj + 0.1
 
     def convertCij(self,Cij):
-        if self.isLogScale:
+        if self.isMeanSDScale:
+            return (Cij-self.meanCij)/self.sdCij
+        elif self.isLogScale:
             return np.log(Cij)*self.scaleCij
         else:
             return Cij * self.scaleCij + 0.1
 
     def convertTij(self,Tij):
-        if self.isLogScale:
+        if self.isMeanSDScale:
+            return (Tij-self.meanTij)/self.sdTij
+        elif self.isLogScale:
             return np.log(Tij)*self.scaleTij
         else:
             return Tij * self.scaleTij + 0.1
     ##
 
-    def unconvertOiDj(self,OiDj):
-        if self.isLogScale:
-            return np.exp(OiDj/self.scaleOiDj)
+    def unconvertOi(self,Oi):
+        if self.isMeanSDScale:
+            return (Oi * self.sdOi) + self.meanOi
+        elif self.isLogScale:
+            return np.exp(Oi/self.scaleOiDj)
         else:
-            return (OiDj-0.1)/self.scaleOiDj
+            return (Oi-0.1)/self.scaleOiDj
+
+    def unconvertDj(self,Dj):
+        if self.isMeanSDScale:
+            return (Dj * self.sdDj) + self.meanDj
+        elif self.isLogScale:
+            return np.exp(Dj/self.scaleOiDj)
+        else:
+            return (Dj-0.1)/self.scaleOiDj
 
     def unconvertCij(self,Cij):
-        if self.isLogScale:
+        if self.isMeanSDScale:
+            return (Cij * self.sdCij) + self.meanCij
+        elif self.isLogScale:
             return np.exp(Cij/self.scaleCij)
         else:
             return (Cij-0.1)/self.scaleCij
 
     def unconvertTij(self,Tij):
-        if self.isLogScale:
+        if self.isMeanSDScale:
+            return (Tij * self.sdTij) + self.meanTij
+        elif self.isLogScale:
             return np.exp(Tij/self.scaleTij)
         else:
             return (Tij-0.1)/self.scaleTij
@@ -206,6 +288,7 @@ class KerasGravityANN:
         #and Tij and Cij separately [0..1] [0..max] which gives me 3 linear constants that
         #I'm going to need for conversion.
         self.isLogScale = False
+        self.isMeanSDScale = False
 
         maxOi=0
         maxDj=0
@@ -262,6 +345,7 @@ class KerasGravityANN:
         #Reverse function: X = exp(newX/scaleX)
 
         self.isLogScale=True
+        self.isMeanSDScale=False
 
         #find max values on each column
         maxCols = np.amax(inputs,axis=0) # [maxOi,maxDj,maxCij]
@@ -284,6 +368,123 @@ class KerasGravityANN:
 
         #results returned in inputs and targets arrays which are now modified and scaled for ANN input
 
+    ###############################################################################
+
+    def normaliseInputsMeanSD(self,inputs,targets):
+        self.isLogScale=False
+        self.isMeanSDScale=True
+
+        #find max values on each column
+        #maxCols = np.amax(inputs,axis=0) # [maxOi,maxDj,maxCij]
+        meanCols = np.mean(inputs,axis=0)
+        sdCols = np.std(inputs,axis=0)
+        #clacualte and save all the means and stddev as we're normalising by (x-mean)/sd
+        self.meanOi = meanCols[0]
+        self.meanDj = meanCols[1]
+        self.meanCij = meanCols[2]
+        self.meanTij = np.mean(targets)
+        self.sdOi = sdCols[0]
+        self.sdDj = sdCols[1]
+        self.sdCij = sdCols[2]
+        self.sdTij = np.std(targets)
+        #HACK! this fudges the data above to match the data that the big network was trained with
+        #self.fudgeNormalisationScalingData()
+        print('meanOi=',self.meanOi,'meanDj=',self.meanDj,'meanCij=',self.meanCij,'meanTij=',self.meanTij)
+        print('sdOi=',self.sdOi,'sdDj=',self.sdDj,'sdCij=',self.sdCij,'sdTij=',self.sdTij)
+        #now linearise and scale the data
+        inputs[:,0]=(inputs[:,0]-self.meanOi)/self.sdOi
+        inputs[:,1]=(inputs[:,1]-self.meanDj)/self.sdDj
+        inputs[:,2]=(inputs[:,2]-self.meanCij)/self.sdCij
+        targets[:]=(targets[:]-self.meanTij)/self.sdTij
+
+
+    ###############################################################################
+
+    def randomiseInputOrder(self,inputs,targets):
+        #this is basically just a quick hack to mix up the ordering a bit
+        for i in range(0,len(inputs)):
+            Oi1=inputs[i,0]
+            Dj1=inputs[i,1]
+            Cij1=inputs[i,2]
+            Tij1=targets[i]
+            j = random.randrange(0,len(inputs))
+            Oi2=inputs[j,0]
+            Dj2=inputs[j,1]
+            Cij2=inputs[j,2]
+            Tij2=targets[j]
+            #now swap them over
+            inputs[i,0]=Oi2
+            inputs[i,1]=Dj2
+            inputs[i,2]=Cij2
+            targets[i]=Tij2
+            inputs[j,0]=Oi1
+            inputs[j,1]=Dj1
+            inputs[j,2]=Cij1
+            targets[j]=Tij1
+
+    ###############################################################################
+
+    def reduceInputData(self,newN,inputs,targets):
+        #thin out the input data to a new size NOTE: this is RANDOM!
+        #ASSERT newN<=N, otherwise it's going to hang!!!
+        print("KerasGravityANN::reduceInputData original count=",len(inputs)," new count=",newN)
+        newInputs = np.empty([newN,3], dtype=float)
+        newTargets = np.empty([newN,1], dtype=float)
+        for i in range(0,newN):
+            i2 = random.randrange(0,len(inputs))
+            while (inputs[i2,0]==-999999): i2=(i2+1)%len(inputs) #standard optimal hash search
+            newInputs[i,0]=inputs[i2,0]
+            newInputs[i,1]=inputs[i2,1]
+            newInputs[i,2]=inputs[i2,2]
+            newTargets[i]=targets[i2]
+            inputs[i2,0]=-999999 #OK, that's a bit of a hack, but it prevents the same value being used twice
+
+        return newInputs, newTargets
+
+    ###############################################################################
+
+    def clusterInputData(self,inputs,targets):
+        #thin out the input data, but by clustering each individual Tij as a target cluster
+        #return each Tij as an average of all the targets that made it
+        #TODO: I'm not sure this works - you might need to do a test on how close the Oi, Dj, Cij are for each Tij and have multiple Tij
+        print("KerasGravityANN::clusterInputData original count=",len(inputs))
+        repeatN = 5 #this is the number from each Tij cluster to randomly include
+        maxCols = np.amax(inputs,axis=0) # [maxOi,maxDj,maxCij]
+        maxOi = maxCols[0]
+        maxDj = maxCols[1]
+        maxCij = maxCols[2]
+        maxTij = np.amax(targets)
+        print("KerasGravityANN::clusterInputData maxOi=",maxOi," maxDj=",maxDj," maxCij=",maxCij," maxTij=",maxTij)
+        #there are 52 million rows in the training set, so let's do this with one walk over the data...
+        N = len(inputs)
+        cluster = {}
+        for i in range(0,N):
+            #if i % 1000 == 0:
+            #    print(i)
+            Tij = int(targets[i,0])
+            if not Tij in cluster:
+                cluster[Tij] = []
+            cluster[Tij].append([inputs[i,0],inputs[i,1],inputs[i,2]])
+        #OK, so we have cluster which contains ever Tij as a key, containing all the [Oi,Dj,Cij] for that Tij as a list
+        #Now we need to figure out how to turn those data points into representative data
+        newN=len(cluster)*repeatN
+        print("KerasGravityANN::clusterInputData newN=",newN)
+        newInputs = np.empty([newN,3], dtype=float)
+        newTargets = np.empty([newN,1], dtype=float)
+        idx=0
+        for Tij in cluster: #pick a random data point from each individual Tij
+            data = cluster[Tij]
+            for c in range(0,repeatN): #pick repeatN samples randomly from data - yes, this can repeat samples
+                i = random.randrange(0,len(data))
+                newInputs[idx,0]=data[i][0]
+                newInputs[idx,1]=data[i][1]
+                newInputs[idx,2]=data[i][2]
+                newTargets[idx,0]=Tij
+                print(newInputs[idx,0],",",newInputs[idx,1],",",newInputs[idx,2],",",newTargets[idx,0])
+                idx+=1
+        return newInputs, newTargets
+
+    ###############################################################################
 
     """
     Train model to fit data.
@@ -299,7 +500,7 @@ class KerasGravityANN:
         csv_logger = CSVLogger(self.trainLogFilename+self.trainTimestamp+'.csv', separator=',', append=False)
 
         #First version - train on batch data
-        self.model.fit(inputs, targets, epochs=numEpochs, shuffle=True, batch_size=batchSize, verbose=1, callbacks=[csv_logger])
+        self.model.fit(inputs, targets, epochs=numEpochs, shuffle=True, batch_size=batchSize, verbose=1, validation_split=0.2, callbacks=[csv_logger])
         #Second version - train using a generator
         #self.model.fit_generator(self.generator(inputs, targets, batchSize), steps_per_epoch=1, epochs=numEpochs, verbose=1, callbacks=[csv_logger])
         
@@ -351,12 +552,13 @@ class KerasGravityANN:
     """
     def predict(self,inputs):
         # calculate predictions
-        #predictions = self.model.predict(inputs)
-        predictions = self.model.predict_on_batch(inputs)
+        #print("KerasGravityANN::predict inputs=",inputs)
+        predictions = self.model.predict(inputs,batch_size=10240) #this is VERY slow, but guaranteed to work - batch_size makes it faster
+        #predictions = self.model.predict_on_batch(inputs) #this is fast, but can exceed memory
         # round predictions
         #rounded = [round(x[0]) for x in predictions]
         #print(rounded)
-        #print('KerasGravityANN::predictions ',predictions)
+        #print('KerasGravityANN::predict predictions=',predictions)
         return predictions
 
     ###############################################################################
@@ -383,13 +585,14 @@ class KerasGravityANN:
                 inputs[i*N+j,2]=Cij[i,j]
             #end for j
         #end for i
-        inputs[:,0]=self.convertOiDj(inputs[:,0])
-        inputs[:,1]=self.convertOiDj(inputs[:,1])
+        inputs[:,0]=self.convertOi(inputs[:,0])
+        inputs[:,1]=self.convertDj(inputs[:,1])
         inputs[:,2]=self.convertCij(inputs[:,2])
-        #inputs[:,0]=inputs[:,0]*self.scaleOiDj+0.1
-        #inputs[:,1]=inputs[:,1]*self.scaleOiDj+0.1
-        #inputs[:,2]=inputs[:,2]*self.scaleCij+0.1
         Tij=self.predict(inputs).reshape([N,N])
+        #for i in range(0,100):
+        #    print("KGANN Oi Dj: ",Oi[i],Dj[i])
+        #    print("KGANN Predict inputs: ",inputs[i])
+        #    print("KGANN Predict outputs: ",Tij[i])
         Tij=self.unconvertTij(Tij)
         return Tij
 
@@ -413,8 +616,8 @@ class KerasGravityANN:
         Oi = self.calculateOi(TObs)
         Dj = self.calculateDj(TObs)
         inputs = np.empty([1,3], dtype=float)
-        inputs[0,0]=self.convertOiDj(Oi[i])
-        inputs[0,1]=self.convertOiDj(Dj[j])
+        inputs[0,0]=self.convertOi(Oi[i])
+        inputs[0,1]=self.convertDj(Dj[j])
         inputs[0,2]=self.convertCij(Cij[i,j])
         Tij=self.model.predict(inputs)
         Tij=self.unconvertTij(Tij)
@@ -433,3 +636,4 @@ class KerasGravityANN:
         #then work out error between self.Dj and DjPred - you subtract the sums
         error = CBarPred-CBarObs
         print('CBar error = ',error,' CBarObs=',CBarObs,' CBarPred=',CBarPred)
+        return TijPred

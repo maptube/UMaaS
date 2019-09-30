@@ -137,6 +137,34 @@ def loadQUANTMatrix(filename):
 ###############################################################################
 
 """
+Load CSV data from QUANT in the form of i,j,Oi,Dj,Cij,Tij
+The N parameter specifies the matrix size i.e. 7201. Technically we could read
+this from the csv if it was complete, but it's easier to pass in
+NOTE: the csv data is already in the right format to make training data from, but
+this puts it back into a Tij and Cij matrix that we use to build it from again
+"""
+def loadQUANTCSV(filename,N):
+    Tij = np.zeros(N*N).reshape(N,N)
+    Cij = np.zeros(N*N).reshape(N,N)
+    with open(filename,'r') as f:
+        lines=f.readlines() # read everything in to memory at once - it's a lot faster, but there are 52M
+        for n in range(1,len(lines)): #need to skip the header
+            #so it's i,j,Oi,Dj,Cij,Tij
+            fields = lines[n].split(',')
+            if len(fields)==6:
+                i = int(fields[0])
+                j = int(fields[1])
+                #Oi = float(fields[2])
+                #Dj = float(fields[3])
+                valCij = float(fields[4])
+                valTij = float(fields[5]) #or int?
+                Tij[i,j]=valTij
+                Cij[i,j]=valCij
+    return Cij, Tij
+
+###############################################################################
+
+"""
 Resize a matrix: if smaller then rows and cols are cut out, if bigger then rows and cols are repeated modulo
 This is used for the benchmarks, so I can vary the matrix size and see how long it takes
 """
