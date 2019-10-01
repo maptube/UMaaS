@@ -16,7 +16,7 @@ from benchmark.benchmark_TFSingleOrigin import benchmarkTFSingleOriginMatrixSize
 from unittests.test_TFSingleOrigin import testTFSingleOrigin
 #from unittests.test_Movidius import testMovidius, testBuildMovidiusGraph, testRunMovidiusGraph
 from unittests.test_KerasGravityANN import testKerasGravityANN, testKerasGravityANNInference, testKerasCBarError
-from unittests.test_drawgraphs import plotLogCijLogTij, plotOiDj, plotCijHistogram, plotTijHistogram, plotTijTail
+from unittests.test_drawgraphs import plotLogCijLogTij, plotOiDj, plotCijHistogram, plotTijHistogram, plotTijTail, plotRegression
 
 #from graphserver.graphtest import graphtest1
 
@@ -138,7 +138,8 @@ def main():
     #plotOiDj(TObs1)
     #plotCijHistogram(Cij1)
     #plotTijHistogram(TObs1)
-    plotTijTail(TObs1)
+    #plotTijTail(TObs1)
+    plotRegression(TObs1,Cij1)
 
     #======NETWORK TESTS======
     #ZoneCodes.deriveAreakeyToZoneCodeFromShapefile('data/geometry/EnglandWalesScotland_MSOA.shp') #create the zone codes csv file from the shapefile

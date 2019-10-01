@@ -5,6 +5,7 @@ the data behind the model is correct.
 
 import numpy as np
 import matplotlib.pyplot as plt
+from math import exp
 
 ################################################################################
 
@@ -186,4 +187,40 @@ def plotTijTail(Tij):
     plt.scatter(x,y,label="OiDj",color="black",marker="+",s=8)
     plt.grid(True)
     plt.savefig('plotTijTail.png')
+    plt.show()
+
+###############################################################################
+
+def plotRegression(Tij,Cij):
+    plt.figure(figsize=(10,8)) #what are these? inches!
+    plt.title("Tij Cij Regression")
+    #plt.xscale('log')
+    #plt.yscale('log') #NOTE: you can plot a log y scale here, but it looks odd with the integer trips
+    plt.xlabel("x")
+    plt.ylabel("y")
+    #plt.xlim(0, 2300.0)
+    #plt.ylim(1, 10000.0)
+
+    x = []
+    y = []
+    beta = 0.137 #from quant
+    N = len(Tij)
+    #N = 500
+    Oi = calculateOi(Tij)
+    Dj = calculateDj(Tij)
+    count=0
+    for i in range(0,N):
+        Ai=0.0
+        for j in range(0,N):
+            Ai+=Dj[j]*exp(Cij[i,j])
+        Ai=1/Ai
+        for j in range(0,N):
+            if Tij[i,j]>0:
+                x.append(Ai*Oi[i]*Dj[j]*exp(Cij[i,j]))
+                y.append(Tij[i,j])
+                count+=1
+
+    plt.scatter(x,y,label="OiDj",color="black",marker="+",s=8)
+    plt.grid(True)
+    plt.savefig('plotRegression.png')
     plt.show()
