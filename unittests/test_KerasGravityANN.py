@@ -35,7 +35,13 @@ def filterValidData(i,j,T,C):
     #note i,j are zone indices, T is the nimber of trips between i and j and C is the cost
     #return i!=j and T>=10 and C>=30 #this is what the initial training used
     #return i!=j and T>=10 and C>=25
-    return T>=5 and C>30
+    #return T>=5 and C>10
+    #if T<1:
+    #    return random.random()>0.99 #take 1% of the zero data
+    #else:
+    #    return random.random()>0.95 #and 5% of the non zero data
+    #return True
+    return i<100
 
 """
 Return a count of all the non-zero elements in TObs
@@ -76,10 +82,10 @@ Testing procedure for gravity ANN. Allows for changing network size, type, matri
 def testKerasGravityANN(modelFilename,matrixN,numHiddens,batchSize,numEpochs):
     #load in data - we have 52 million points!
     #use mode 1 = road
-    #TObs1 = loadMatrix(os.path.join(modelRunsDir,TObs31Filename))
-    #Cij1 = loadMatrix(os.path.join(modelRunsDir,CijRoadMinFilename))
-    TObs1 = loadMatrix("data/fromQUANT/Py_TObs_road.bin") #alternate matrices built directly from the QUANT training data
-    Cij1 = loadMatrix("data/fromQUANT/Py_Cij_road.bin")
+    TObs1 = loadMatrix(os.path.join(modelRunsDir,TObs31Filename))
+    Cij1 = loadMatrix(os.path.join(modelRunsDir,CijRoadMinFilename))
+    #TObs1 = loadMatrix("data/fromQUANT/Py_TObs_road.bin") #alternate matrices built directly from the QUANT training data
+    #Cij1 = loadMatrix("data/fromQUANT/Py_Cij_road.bin")
     (M, N) = np.shape(TObs1)
     #if the real shape of the matrix matches matrixN (i.e. 7201), then don't touch it, otherwise resize TObs1 and Cij1
     if matrixN!=N:

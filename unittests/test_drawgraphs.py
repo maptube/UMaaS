@@ -192,7 +192,7 @@ def plotTijTail(Tij):
 ###############################################################################
 
 def plotRegression(Tij,Cij):
-    plt.figure(figsize=(10,8)) #what are these? inches!
+    plt.figure(figsize=(7,8)) #what are these? inches! This gets it roughly square so we can see the 45 degree regression line
     plt.title("Tij Cij Regression")
     #plt.xscale('log')
     #plt.yscale('log') #NOTE: you can plot a log y scale here, but it looks odd with the integer trips
@@ -203,7 +203,9 @@ def plotRegression(Tij,Cij):
 
     x = []
     y = []
-    beta = 0.137 #from quant
+    beta = 0.137 #road #from quant
+    #beta = 0.074 #bus
+    #beta = 0.049 #rail
     N = len(Tij)
     #N = 500
     Oi = calculateOi(Tij)
@@ -212,13 +214,25 @@ def plotRegression(Tij,Cij):
     for i in range(0,N):
         Ai=0.0
         for j in range(0,N):
-            Ai+=Dj[j]*exp(Cij[i,j])
+            Ai+=Dj[j]*exp(-beta * Cij[i,j])
         Ai=1/Ai
         for j in range(0,N):
             if Tij[i,j]>0:
-                x.append(Ai*Oi[i]*Dj[j]*exp(Cij[i,j]))
+                x.append(Ai*Oi[i]*Dj[j]*exp(-beta * Cij[i,j]))
                 y.append(Tij[i,j])
                 count+=1
+
+    #calculate r squared value
+    ymean = np.mean(y)
+    SStot=0.0
+    for val in y:
+        SStot+=(val-ymean)*(val-ymean)
+    SSres= 0.0
+    for i in range(0,N):
+        SSres+=(y[i]-x[i])*(y[i]-x[i])
+    r2 = 1-SSres/SStot
+    print("test_drawgraphs.py::plotRegression r squared=",r2)
+
 
     plt.scatter(x,y,label="OiDj",color="black",marker="+",s=8)
     plt.grid(True)

@@ -1,12 +1,13 @@
 import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout, BatchNormalization
+from tensorflow.keras.layers import Dense, Dropout, BatchNormalization, Activation
 from tensorflow.keras.models import load_model
 from tensorflow.keras import optimizers
 from tensorflow.keras import backend as K
 K.set_floatx('float64')
 from tensorflow.keras.callbacks import LambdaCallback, CSVLogger, Callback
+#from sklearn.preprocessing import StandardScaler
 
 #deprecated from tensorflow.keras.backend import set_session
 #doesn't work: from tensorflow.keras.backend import manual_variable_initialization manual_variable_initialization(True)
@@ -123,12 +124,14 @@ class KerasGravityANN:
         #relu or sigmoid or linear?
         #initialisers: normal, random_uniform, truncated_normal, lecun_uniform, lecun_normal, glorot_normal, glorot_uniform, he_normal, he_uniform
         #dtype=float64
-        model.add(Dense(numHiddens[0], input_dim=3, activation='relu', kernel_initializer='uniform', use_bias=False))
+        model.add(Dense(numHiddens[0], input_dim=3, kernel_initializer='he_uniform', use_bias=True))
+        #model.add(layers.BatchNormalization())
+        model.add(Activation("relu"))
         #model.add(Dropout(0.2))
         for h in range(1,len(numHiddens)):
-            model.add(Dense(numHiddens[h], activation='relu', kernel_initializer='uniform', use_bias=False))
-            #model.add(Dropout(0.2))
-        model.add(Dense(1, activation='linear', kernel_initializer='uniform'))
+            model.add(Dense(numHiddens[h], activation='relu', kernel_initializer='he_uniform', use_bias=True))
+            model.add(Dropout(0.2))
+        model.add(Dense(1, activation='linear'))
         #model.add(Dense(1, activation='relu', kernel_initializer='random_uniform'))
 
         # Compile model
@@ -148,12 +151,16 @@ class KerasGravityANN:
         #model.compile(loss='mean_squared_error', optimizer=rmsprop, metrics=['mse','mae'])
 
         #???
-        sgd = optimizers.SGD(lr=0.01, momentum=0, decay=0)
-        model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['mse','mae'])
+        #sgd = optimizers.SGD(lr=0.01, momentum=0, decay=0)
+        #model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['mse','mae'])
 
         ##
         #256-256-256 model relu lin
         #model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mae','accuracy'])
+
+        ##logarithmic loss??? https://machinelearningmastery.com/how-to-choose-loss-functions-when-training-deep-learning-neural-networks/
+        opt = optimizers.SGD(lr=0.00001, momentum=0.9)
+        model.compile(loss='mean_squared_logarithmic_error', optimizer=opt, metrics=['mse'])
 
         #adagrad, adadelta? adamax nadam
         #model.compile(loss='mean_absolute_error', optimizer='adagrad', metrics=['mae','accuracy'])
@@ -193,14 +200,24 @@ class KerasGravityANN:
         #self.sdCij= 24.522797327549736
         #self.sdTij= 9.358829127240579
         #this is for the full 1951743 data Tij>=1, Cij>=1
-        self.meanOi= 3368.98435
-        self.meanDj= 2093.4135
-        self.meanCij= 35.34465
-        self.meanTij= 6.90615
-        self.sdOi= 3797.9759197110707
-        self.sdDj= 756.3374526742354
-        self.sdCij= 42.58190421267552
-        self.sdTij= 22.40629023683974
+        #self.meanOi= 3368.98435
+        #self.meanDj= 2093.4135
+        #self.meanCij= 35.34465
+        #self.meanTij= 6.90615
+        #self.sdOi= 3797.9759197110707
+        #self.sdDj= 756.3374526742354
+        #self.sdCij= 42.58190421267552
+        #self.sdTij= 22.40629023683974
+        #
+        #this is for the full 52 million matrix data with zeros
+        self.meanOi= 2009.6840716567144
+        self.meanDj= 2009.6840716567144
+        self.meanCij= 130.98284110928213
+        self.meanTij= 0.27908402605981314
+        self.sdOi= 2266.1299971323974
+        self.sdDj= 730.7077889507163
+        self.sdCij= 70.66869631022215
+        self.sdTij= 5.138515211737166
 
     """
     Three (un) convert functions which enable the raw Oi, Dj, Cij and Tij values
@@ -388,7 +405,7 @@ class KerasGravityANN:
         self.sdCij = sdCols[2]
         self.sdTij = np.std(targets)
         #HACK! this fudges the data above to match the data that the big network was trained with
-        #self.fudgeNormalisationScalingData()
+        self.fudgeNormalisationScalingData()
         print('meanOi=',self.meanOi,'meanDj=',self.meanDj,'meanCij=',self.meanCij,'meanTij=',self.meanTij)
         print('sdOi=',self.sdOi,'sdDj=',self.sdDj,'sdCij=',self.sdCij,'sdTij=',self.sdTij)
         #now linearise and scale the data

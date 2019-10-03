@@ -81,7 +81,7 @@ def main():
     #testKerasGravityANN('KerasGravityANN_20190927_152942.h5',7201,[16],10240,10000) #16adagrad on ALL 52m data
     #meanOi= 4010.628981245261 meanDj= 2241.033513047048 meanCij= 12.390618035274228 meanTij= 26.760203675543433
     #sdOi= 4543.346693511267 sdDj= 719.5767651711014 sdCij= 11.059383993934794 sdTij= 50.89338364137762
-    #testKerasGravityANN('',7201,[8],256,1000) #1987928
+    testKerasGravityANN('',7201,[256],171072,200) #1987928
 
 
     #BENCHMARK TESTS
@@ -130,16 +130,16 @@ def main():
 
     #======PLOTTING GRAPHS FOR TESTING DATA======
     #Python has botched these ones in the loading - they're defaulted to int metrices when the Cij should be float - load direct from QUANT!
-    #TObs1 = loadMatrix(os.path.join(modelRunsDir,TObs31Filename))
-    #Cij1 = loadMatrix(os.path.join(modelRunsDir,CijRoadMinFilename))
-    TObs1 = loadMatrix("data/fromQUANT/Py_TObs_road.bin") #alternate matrices built directly from the QUANT training data
-    Cij1 = loadMatrix("data/fromQUANT/Py_Cij_road.bin")
+    #TObs1 = loadMatrix(os.path.join(modelRunsDir,TObs33Filename))
+    #Cij1 = loadMatrix(os.path.join(modelRunsDir,CijRailMinFilename))
+    #TObs1 = loadMatrix("data/fromQUANT/Py_TObs_road.bin") #alternate matrices built directly from the QUANT training data
+    #Cij1 = loadMatrix("data/fromQUANT/Py_Cij_road.bin")
     #plotLogCijLogTij(TObs1,Cij1)
     #plotOiDj(TObs1)
     #plotCijHistogram(Cij1)
     #plotTijHistogram(TObs1)
     #plotTijTail(TObs1)
-    plotRegression(TObs1,Cij1)
+    #plotRegression(TObs1,Cij1)
 
     #======NETWORK TESTS======
     #ZoneCodes.deriveAreakeyToZoneCodeFromShapefile('data/geometry/EnglandWalesScotland_MSOA.shp') #create the zone codes csv file from the shapefile
