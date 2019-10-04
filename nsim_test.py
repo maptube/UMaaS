@@ -177,8 +177,8 @@ for i in range(0,N):
         inputs[dataidx,0]=log(Oi[i]+0.001)
         inputs[dataidx,1]=log(Dj[j]+0.001)
         inputs[dataidx,2]=-Cij1[i,j]
-        #targets[dataidx,0]=TObs1[i,j]
-        targets[dataidx,0]=log(Ai*Oi[i]*Dj[j]*exp(-beta*Cij1[i,j]))
+        targets[dataidx,0]=log(TObs1[i,j]+0.001)
+        #targets[dataidx,0]=log(Ai*Oi[i]*Dj[j]*exp(-beta*Cij1[i,j]))
         dataidx+=1
         if dataidx>=count: break #this was really to allow me to set count=1000 for debugging (also break below)
     #end for j
@@ -189,7 +189,7 @@ for i in range(0,N):
 normaliseInputsMeanSD(inputs,targets)
 
 ##training
-numEpochs = 10 #400
+numEpochs = 100 #400
 batchSize = 10240
 
 trainLogFilename='KerasGravityANN_'
