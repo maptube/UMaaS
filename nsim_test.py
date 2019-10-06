@@ -21,6 +21,16 @@ import os
 import random
 import pickle
 
+meanOi = 0.0
+meanDj = 0.0
+meanCij = 0.0
+meanTij = 0.0
+sdOi = 0.0
+sdDj = 0.0
+sdCij = 0.0
+sdTij = 0.0
+
+
 ###############################################################################
 
 """
@@ -83,6 +93,44 @@ def normaliseInputsMeanSD(inputs,targets):
 
 ###############################################################################
 
+"""
+Evaluate from the training data to get the TPred matrix that we can compare to the
+other methods.
+@param TObs Input matrix, used to calculate Oi and Dj
+@param Cij Cost matrix
+@returns TPred predicted matrix which can be compared to TObs for accuracy
+"""
+def predictMatrix(TObs,Cij):
+    (M, N) = np.shape(TObs)
+    Oi = calculateOi(TObs)
+    Dj = calculateDj(TObs)
+    Tij = np.empty([N, N], dtype=float)
+    inputs = np.empty([N*N,3], dtype=float)
+    for i in range(0,N):
+        if i%100==0:
+            print('i=',i)
+        for j in range(0,N):
+            inputs[i*N+j,0]=log(Oi[i]+0.001)
+            inputs[i*N+j,1]=log(Dj[j]+0.001)
+            inputs[i*N+j,2]=Cij[i,j]
+        #end for j
+    #end for i
+    Tij=model.predict(inputs,batch_size=10240).reshape([N,N])
+    #unconvert - slow! could make this a vector!
+    for i in range(0,N):
+        for j in range(0,N):
+            Tij[i,j]=Tij[i,j]*sdTij+meanTij #REMEMBER to unnormalise!!!
+            #check range of data about to go to exp, otherwise you get a numeric range error
+            if Tij[i,j]>5:
+                Tij[i,j]=5
+            if Tij[i,j]<0:
+                Tij[i,j]=0.001
+            Tij[i,j]=exp(Tij[i,j])-0.001 #unconvert as it's actually predicting log(Tij)
+    #unconvert
+    return Tij
+
+###############################################################################
+
 def filterValidData(i,j,T,C):
     #returns true if data is valid for i,j,T,C
     #note i,j are zone indices, T is the nimber of trips between i and j and C is the cost
@@ -140,7 +188,7 @@ opt = optimizers.SGD(lr=0.01, momentum=0.9)
 model.compile(loss='mean_squared_error', optimizer=opt, metrics=['mse'])
 
 #load model and previous weights here if needed
-#model = tf.keras.models.load_model("KerasGravityANN_20191003_120853.h5")
+#model = tf.keras.models.load_model("KerasGravityANN_20191005_195657.h5")
 #K.set_value(model.optimizer.lr,0.001)
 print('setLearningRate: lr=',K.get_value(model.optimizer.lr))
 ###end loading
@@ -159,6 +207,7 @@ inputs = np.empty([count, 3], dtype=float)
 targets = np.empty([count,1], dtype=float)
 nextpct = 0
 dataidx=0
+mseTObsTPred = 0.0
 for i in range(0,N):
     pct = i/N*100
     if pct>=nextpct:
@@ -179,18 +228,25 @@ for i in range(0,N):
         inputs[dataidx,2]=-Cij1[i,j]
         targets[dataidx,0]=log(TObs1[i,j]+0.001)
         #targets[dataidx,0]=log(Ai*Oi[i]*Dj[j]*exp(-beta*Cij1[i,j]))
+        #this is a mean square error calculation for checking TOvs against TPred
+        deltaTij = TObs1[i,j] - Ai*Oi[i]*Dj[j]*exp(-beta*Cij1[i,j])
+        mseTObsTPred+=deltaTij*deltaTij
+        ##
         dataidx+=1
         if dataidx>=count: break #this was really to allow me to set count=1000 for debugging (also break below)
     #end for j
     if dataidx>=count: break
 #end for i
 
+mseTObsTPred/=count
+print("mseTObsTPred=",mseTObsTPred)
+
 #normalise data
 normaliseInputsMeanSD(inputs,targets)
 
 ##training
-numEpochs = 100 #400
-batchSize = 10240
+numEpochs = 10 #400
+batchSize = 102400 #10240
 
 trainLogFilename='KerasGravityANN_'
 trainTimestamp = time.strftime('%Y%m%d_%H%M%S')
@@ -199,6 +255,17 @@ model.fit(inputs, targets, epochs=numEpochs, shuffle=True, batch_size=batchSize,
         
 #save the model for later
 model.save(trainLogFilename+trainTimestamp+'.h5')
+
+#do my own evaluation this is mean squared error between TObs and the ANN TPred matrix we just trained
+TijANNPred = predictMatrix(TObs1,Cij1)
+mseANN = 0
+for i in range(0,N):
+    for j in range(0,N):
+        delta = TObs1[i,j]-TijANNPred[i,j]
+        mseANN+=delta*delta
+mseANN/=(N*N)
+print("mseANN=",mseANN)
+###
 
 #evaluate the model to see how well it did
 score = model.evaluate(inputs,targets,verbose=0)
