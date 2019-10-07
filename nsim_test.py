@@ -1,5 +1,6 @@
 #isolated test of neural spatial interaction model
 
+import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
@@ -10,6 +11,7 @@ from tensorflow.keras import backend as K
 K.set_floatx('float64')
 from tensorflow.keras.callbacks import LambdaCallback, CSVLogger, Callback
 from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
 
 #deprecated from tensorflow.keras.backend import set_session
 #doesn't work: from tensorflow.keras.backend import manual_variable_initialization manual_variable_initialization(True)
@@ -69,7 +71,52 @@ def calculateDj(Tij):
 
 ###############################################################################
 
+
+def plotTObsTPred(TObs,TPred):
+    plt.figure(figsize=(7,8)) #what are these? inches! This gets it roughly square so we can see the 45 degree regression line
+    plt.title("TObs TPred Scatter Plot")
+    #plt.xscale('log')
+    #plt.yscale('log') #NOTE: you can plot a log y scale here, but it looks odd with the integer trips
+    plt.xlabel("TObs")
+    plt.ylabel("TPred")
+    #plt.xlim(0, 2300.0)
+    #plt.ylim(1, 10000.0)
+
+    x = []
+    y = []
+    N = len(TObs)
+    count=0
+    for i in range(0,N):
+        for j in range(0,N):
+            if TObs[i,j]>0:
+                x.append(TObs[i,j])
+                y.append(TPred[i,j])
+                count+=1
+
+    #TODO: is this right? check the count
+    #calculate r squared value
+    #ymean = np.mean(y)
+    #SStot=0.0
+    #for val in y:
+    #    SStot+=(val-ymean)*(val-ymean)
+    #SSres= 0.0
+    #for i in range(0,N):
+    #    SSres+=(y[i]-x[i])*(y[i]-x[i])
+    #r2 = 1-SSres/SStot
+    #print("plotTObsTPred r squared=",r2)
+
+
+    plt.scatter(x,y,label="TObs TPred",color="black",marker="+",s=8)
+    plt.grid(True)
+    plt.savefig('plotScatter.png')
+    plt.show()
+
+###############################################################################
+
+
 def normaliseInputsMeanSD(inputs,targets):
+    global meanOi, meanDj, meanCij, meanTij
+    global sdOi, sdDj, sdCij, sdTij
     #find max values on each column
     #maxCols = np.amax(inputs,axis=0) # [maxOi,maxDj,maxCij]
     meanCols = np.mean(inputs,axis=0)
@@ -101,6 +148,9 @@ other methods.
 @returns TPred predicted matrix which can be compared to TObs for accuracy
 """
 def predictMatrix(TObs,Cij):
+    global meanOi, meanDj, meanCij, meanTij
+    global sdOi, sdDj, sdCij, sdTij
+
     (M, N) = np.shape(TObs)
     Oi = calculateOi(TObs)
     Dj = calculateDj(TObs)
@@ -110,9 +160,9 @@ def predictMatrix(TObs,Cij):
         if i%100==0:
             print('i=',i)
         for j in range(0,N):
-            inputs[i*N+j,0]=log(Oi[i]+0.001)
-            inputs[i*N+j,1]=log(Dj[j]+0.001)
-            inputs[i*N+j,2]=Cij[i,j]
+            inputs[i*N+j,0]=(log(Oi[i]+0.001)-meanOi)/sdOi #rather complicated normalisation process...
+            inputs[i*N+j,1]=(log(Dj[j]+0.001)-meanDj)/sdDj
+            inputs[i*N+j,2]=(-Cij[i,j]-meanCij)/sdCij
         #end for j
     #end for i
     Tij=model.predict(inputs,batch_size=10240).reshape([N,N])
@@ -121,11 +171,12 @@ def predictMatrix(TObs,Cij):
         for j in range(0,N):
             Tij[i,j]=Tij[i,j]*sdTij+meanTij #REMEMBER to unnormalise!!!
             #check range of data about to go to exp, otherwise you get a numeric range error
-            if Tij[i,j]>5:
-                Tij[i,j]=5
-            if Tij[i,j]<0:
-                Tij[i,j]=0.001
+            #if Tij[i,j]>5:
+            #    Tij[i,j]=5
+            #if Tij[i,j]<0:
+            #    Tij[i,j]=0.001
             Tij[i,j]=exp(Tij[i,j])-0.001 #unconvert as it's actually predicting log(Tij)
+            #print("Tij=",Tij[i,j])
     #unconvert
     return Tij
 
@@ -173,12 +224,12 @@ model=Sequential()
 #relu or sigmoid or linear?
 #initialisers: normal, random_uniform, truncated_normal, lecun_uniform, lecun_normal, glorot_normal, glorot_uniform, he_normal, he_uniform
 #dtype=float64
-model.add(Dense(256, input_dim=3, kernel_initializer='he_uniform', use_bias=True))
+model.add(Dense(320, input_dim=3, kernel_initializer='he_uniform', use_bias=True))
 #model.add(layers.BatchNormalization())
 model.add(Activation("relu"))
 #model.add(Dropout(0.2))
 #model.add(Dense(numHiddens[h], activation='relu', kernel_initializer='he_uniform', use_bias=True))
-model.add(Dropout(0.2))
+#model.add(Dropout(0.2))
 model.add(Dense(1, activation='linear'))
 #model.add(Dense(1, activation='relu', kernel_initializer='random_uniform'))
 
@@ -226,8 +277,8 @@ for i in range(0,N):
         inputs[dataidx,0]=log(Oi[i]+0.001)
         inputs[dataidx,1]=log(Dj[j]+0.001)
         inputs[dataidx,2]=-Cij1[i,j]
-        targets[dataidx,0]=log(TObs1[i,j]+0.001)
-        #targets[dataidx,0]=log(Ai*Oi[i]*Dj[j]*exp(-beta*Cij1[i,j]))
+        #targets[dataidx,0]=log(TObs1[i,j]+0.001)
+        targets[dataidx,0]=log(Ai*Oi[i]*Dj[j]*exp(-beta*Cij1[i,j]))
         #this is a mean square error calculation for checking TOvs against TPred
         deltaTij = TObs1[i,j] - Ai*Oi[i]*Dj[j]*exp(-beta*Cij1[i,j])
         mseTObsTPred+=deltaTij*deltaTij
@@ -237,6 +288,10 @@ for i in range(0,N):
     #end for j
     if dataidx>=count: break
 #end for i
+
+#print out some of the data
+for i in range(0,100):
+    print("DATA: ",inputs[i,0],inputs[i,1],inputs[i,2],"==>",targets[i,0])
 
 mseTObsTPred/=count
 print("mseTObsTPred=",mseTObsTPred)
@@ -252,12 +307,23 @@ trainLogFilename='KerasGravityANN_'
 trainTimestamp = time.strftime('%Y%m%d_%H%M%S')
 csv_logger = CSVLogger(trainLogFilename+trainTimestamp+'.csv', separator=',', append=False)
 model.fit(inputs, targets, epochs=numEpochs, shuffle=True, batch_size=batchSize, verbose=1, validation_split=0.2, callbacks=[csv_logger])
-        
+
+#validate
+for i in range(0,100):
+    pinputs = np.empty([1,3], dtype=float)
+    pinputs[0,0]=inputs[i,0]
+    pinputs[0,1]=inputs[i,1]
+    pinputs[0,2]=inputs[i,2]
+    val=model.predict(pinputs)
+    print("PREDICT DATA: ",inputs[i,0],inputs[i,1],inputs[i,2],"==>",targets[i,0]," predict=",val)
+
+
 #save the model for later
 model.save(trainLogFilename+trainTimestamp+'.h5')
 
 #do my own evaluation this is mean squared error between TObs and the ANN TPred matrix we just trained
 TijANNPred = predictMatrix(TObs1,Cij1)
+#and now the MSE
 mseANN = 0
 for i in range(0,N):
     for j in range(0,N):
@@ -266,6 +332,9 @@ for i in range(0,N):
 mseANN/=(N*N)
 print("mseANN=",mseANN)
 ###
+
+#and plot graphically
+plotTObsTPred(TObs1,TijANNPred)
 
 #evaluate the model to see how well it did
 score = model.evaluate(inputs,targets,verbose=0)
