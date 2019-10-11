@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout, BatchNormalization, Activation
+from tensorflow.keras.layers import Dense, Dropout, BatchNormalization, Activation, LeakyReLU
 from tensorflow.keras.models import load_model
 from tensorflow.keras import optimizers
 from tensorflow.keras import backend as K
@@ -162,7 +162,7 @@ def predictMatrix(TObs,Cij):
         for j in range(0,N):
             inputs[i*N+j,0]=(log(Oi[i]+0.001)-meanOi)/sdOi #rather complicated normalisation process...
             inputs[i*N+j,1]=(log(Dj[j]+0.001)-meanDj)/sdDj
-            inputs[i*N+j,2]=(-Cij[i,j]-meanCij)/sdCij
+            inputs[i*N+j,2]=(Cij[i,j]-meanCij)/sdCij
         #end for j
     #end for i
     Tij=model.predict(inputs,batch_size=10240).reshape([N,N])
@@ -175,7 +175,7 @@ def predictMatrix(TObs,Cij):
             #    Tij[i,j]=5
             #if Tij[i,j]<0:
             #    Tij[i,j]=0.001
-            Tij[i,j]=exp(Tij[i,j])-0.001 #unconvert as it's actually predicting log(Tij)
+            Tij[i,j]=exp(Tij[i,j]) #-0.001 #unconvert as it's actually predicting log(Tij)
             #print("Tij=",Tij[i,j])
     #unconvert
     return Tij
@@ -224,9 +224,13 @@ model=Sequential()
 #relu or sigmoid or linear?
 #initialisers: normal, random_uniform, truncated_normal, lecun_uniform, lecun_normal, glorot_normal, glorot_uniform, he_normal, he_uniform
 #dtype=float64
-model.add(Dense(320, input_dim=3, kernel_initializer='he_uniform', use_bias=True))
+model.add(Dense(4, input_dim=3, kernel_initializer='he_uniform', use_bias=True))
 #model.add(layers.BatchNormalization())
 model.add(Activation("relu"))
+#model.add(LeakyReLU(alpha=0.3))
+#model.add(Activation("sigmoid"))
+#model.add(Dense(256, activation='relu', kernel_initializer='he_uniform', use_bias=True))
+#model.add(Dense(256, activation='relu', kernel_initializer='he_uniform', use_bias=True))
 #model.add(Dropout(0.2))
 #model.add(Dense(numHiddens[h], activation='relu', kernel_initializer='he_uniform', use_bias=True))
 #model.add(Dropout(0.2))
@@ -234,7 +238,7 @@ model.add(Dense(1, activation='linear'))
 #model.add(Dense(1, activation='relu', kernel_initializer='random_uniform'))
 
 ##logarithmic loss??? https://machinelearningmastery.com/how-to-choose-loss-functions-when-training-deep-learning-neural-networks/
-opt = optimizers.SGD(lr=0.01, momentum=0.9)
+opt = optimizers.SGD(lr=0.001, momentum=0.0) #was momentum=0.9
 #model.compile(loss='mean_squared_logarithmic_error', optimizer=opt, metrics=['mse'])
 model.compile(loss='mean_squared_error', optimizer=opt, metrics=['mse'])
 
@@ -274,11 +278,11 @@ for i in range(0,N):
     for j in range(0,N):
         if not filterValidData(i,j,TObs1[i,j],Cij1[i,j]):
             continue #HACK!
-        inputs[dataidx,0]=log(Oi[i]+0.001)
-        inputs[dataidx,1]=log(Dj[j]+0.001)
-        inputs[dataidx,2]=-Cij1[i,j]
+        inputs[dataidx,0]=np.log(Oi[i]+0.001)
+        inputs[dataidx,1]=np.log(Dj[j]+0.001)
+        inputs[dataidx,2]=Cij1[i,j]
         #targets[dataidx,0]=log(TObs1[i,j]+0.001)
-        targets[dataidx,0]=log(Ai*Oi[i]*Dj[j]*exp(-beta*Cij1[i,j]))
+        targets[dataidx,0]=np.log(Ai*Oi[i]*Dj[j]*exp(-beta*Cij1[i,j]))
         #this is a mean square error calculation for checking TOvs against TPred
         deltaTij = TObs1[i,j] - Ai*Oi[i]*Dj[j]*exp(-beta*Cij1[i,j])
         mseTObsTPred+=deltaTij*deltaTij
@@ -300,7 +304,7 @@ print("mseTObsTPred=",mseTObsTPred)
 normaliseInputsMeanSD(inputs,targets)
 
 ##training
-numEpochs = 10 #400
+numEpochs = 100 #100 #400
 batchSize = 102400 #10240
 
 trainLogFilename='KerasGravityANN_'
