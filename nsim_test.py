@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 #doesn't work: from tensorflow.keras.backend import manual_variable_initialization manual_variable_initialization(True)
 
 import numpy as np
-from math import exp, log, fabs
+from math import exp, log, fabs, pow, sqrt
 import time
 import os
 import random
@@ -68,6 +68,31 @@ def calculateDj(Tij):
     Dj = np.zeros(N)
     Dj=Tij.sum(axis=0)
     return Dj
+
+###############################################################################
+
+def DCorrelation(X, Y):
+    (M, N) = np.shape(X) #assume x and y are identical matrices
+    MeanX = np.mean(X)
+    MeanY = np.mean(Y)
+    r = 0
+    C0 = 0
+    C1 = 0
+    C2 = 0
+    C3 = 0
+    C4=0
+    for i in range(0, N):
+        for j in range(0, M):
+            C0 = X[i, j] - MeanX
+            C1 = Y[i, j] - MeanY
+            C4 += C0 * C1
+            C2 += pow(X[i, j] - MeanX, 2)
+            C3 += pow(Y[i, j] - MeanY, 2)
+        #end for j
+    #end for i
+    r = C4 / (sqrt(C2) * sqrt(C3))
+    return r
+
 
 ###############################################################################
 
@@ -160,8 +185,11 @@ def predictMatrix(TObs,Cij):
         if i%100==0:
             print('i=',i)
         for j in range(0,N):
-            inputs[i*N+j,0]=(log(Oi[i]+0.001)-meanOi)/sdOi #rather complicated normalisation process...
-            inputs[i*N+j,1]=(log(Dj[j]+0.001)-meanDj)/sdDj
+            #inputs[i*N+j,0]=(log(Oi[i]+0.001)-meanOi)/sdOi #rather complicated normalisation process...
+            #inputs[i*N+j,1]=(log(Dj[j]+0.001)-meanDj)/sdDj
+            #inputs[i*N+j,2]=(Cij[i,j]-meanCij)/sdCij
+            inputs[i*N+j,0]=(Oi[i]-meanOi)/sdOi
+            inputs[i*N+j,1]=(Dj[j]-meanDj)/sdDj
             inputs[i*N+j,2]=(Cij[i,j]-meanCij)/sdCij
         #end for j
     #end for i
@@ -171,11 +199,7 @@ def predictMatrix(TObs,Cij):
         for j in range(0,N):
             Tij[i,j]=Tij[i,j]*sdTij+meanTij #REMEMBER to unnormalise!!!
             #check range of data about to go to exp, otherwise you get a numeric range error
-            #if Tij[i,j]>5:
-            #    Tij[i,j]=5
-            #if Tij[i,j]<0:
-            #    Tij[i,j]=0.001
-            Tij[i,j]=exp(Tij[i,j]) #-0.001 #unconvert as it's actually predicting log(Tij)
+            #Tij[i,j]=exp(Tij[i,j]) #-0.001 #unconvert as it's actually predicting log(Tij)
             #print("Tij=",Tij[i,j])
     #unconvert
     return Tij
@@ -188,13 +212,14 @@ def filterValidData(i,j,T,C):
     #return i!=j and T>=10 and C>=30 #this is what the initial training used
     #return i!=j and T>=10 and C>=25
     #return T>=5 and C>10
-    #if T<1:
-    #    return random.random()>0.99 #take 1% of the zero data
-    #else:
+    if T<1:
+        return random.random()>0.99 #take 1% of the zero data
+    else:
     #    return random.random()>0.95 #and 5% of the non zero data
+        return True
     #return True
     #return i<100
-    return T>=0
+    #return T>=0
 
 """
 Return a count of all the non-zero elements in TObs
@@ -211,6 +236,10 @@ def countNonZero(TObs,Cij):
 
 ###############################################################################
 
+np.random.seed(42) #set random seed for repeatability
+
+#64,8 works well
+
 #create network
 model=Sequential()
 #model.add(Dense(4, input_dim=3, dtype='float64', activation='sigmoid', kernel_initializer='normal', use_bias=True)) #relu=f(x)=max(0,x)
@@ -224,13 +253,16 @@ model=Sequential()
 #relu or sigmoid or linear?
 #initialisers: normal, random_uniform, truncated_normal, lecun_uniform, lecun_normal, glorot_normal, glorot_uniform, he_normal, he_uniform
 #dtype=float64
-model.add(Dense(4, input_dim=3, kernel_initializer='he_uniform', use_bias=True))
+model.add(Dense(64, input_dim=3, kernel_initializer='he_uniform', use_bias=True))
 #model.add(layers.BatchNormalization())
 model.add(Activation("relu"))
 #model.add(LeakyReLU(alpha=0.3))
 #model.add(Activation("sigmoid"))
-#model.add(Dense(256, activation='relu', kernel_initializer='he_uniform', use_bias=True))
-#model.add(Dense(256, activation='relu', kernel_initializer='he_uniform', use_bias=True))
+model.add(Dense(64, activation='relu', kernel_initializer='he_uniform', use_bias=True))
+model.add(Dense(64, activation='relu', kernel_initializer='he_uniform', use_bias=True))
+model.add(Dense(64, activation='relu', kernel_initializer='he_uniform', use_bias=True))
+model.add(Dense(64, activation='relu', kernel_initializer='he_uniform', use_bias=True))
+model.add(Dense(64, activation='relu', kernel_initializer='he_uniform', use_bias=True))
 #model.add(Dropout(0.2))
 #model.add(Dense(numHiddens[h], activation='relu', kernel_initializer='he_uniform', use_bias=True))
 #model.add(Dropout(0.2))
@@ -238,9 +270,10 @@ model.add(Dense(1, activation='linear'))
 #model.add(Dense(1, activation='relu', kernel_initializer='random_uniform'))
 
 ##logarithmic loss??? https://machinelearningmastery.com/how-to-choose-loss-functions-when-training-deep-learning-neural-networks/
-opt = optimizers.SGD(lr=0.001, momentum=0.0) #was momentum=0.9
+opt = optimizers.SGD(lr=0.001, momentum=0.0, decay=0.00001) #was momentum=0.9
 #model.compile(loss='mean_squared_logarithmic_error', optimizer=opt, metrics=['mse'])
 model.compile(loss='mean_squared_error', optimizer=opt, metrics=['mse'])
+#model.compile(loss='poisson', optimizer=opt, metrics=['mse']) #won't work with negative values
 
 #load model and previous weights here if needed
 #model = tf.keras.models.load_model("KerasGravityANN_20191005_195657.h5")
@@ -263,6 +296,9 @@ targets = np.empty([count,1], dtype=float)
 nextpct = 0
 dataidx=0
 mseTObsTPred = 0.0
+mseTObsTPredPCT = 0.0
+countTObsTPredPCT=0.0
+TijPred = np.empty([N, N], dtype=float)
 for i in range(0,N):
     pct = i/N*100
     if pct>=nextpct:
@@ -278,14 +314,18 @@ for i in range(0,N):
     for j in range(0,N):
         if not filterValidData(i,j,TObs1[i,j],Cij1[i,j]):
             continue #HACK!
-        inputs[dataidx,0]=np.log(Oi[i]+0.001)
-        inputs[dataidx,1]=np.log(Dj[j]+0.001)
+        inputs[dataidx,0]=Oi[i] #np.log(Oi[i])
+        inputs[dataidx,1]=Dj[j] #np.log(Dj[j])
         inputs[dataidx,2]=Cij1[i,j]
-        #targets[dataidx,0]=log(TObs1[i,j]+0.001)
-        targets[dataidx,0]=np.log(Ai*Oi[i]*Dj[j]*exp(-beta*Cij1[i,j]))
-        #this is a mean square error calculation for checking TOvs against TPred
-        deltaTij = TObs1[i,j] - Ai*Oi[i]*Dj[j]*exp(-beta*Cij1[i,j])
+        targets[dataidx,0]=TObs1[i,j] #log(TObs1[i,j]+0.000001)
+        #targets[dataidx,0]=np.log(Ai*Oi[i]*Dj[j]*exp(-beta*Cij1[i,j]))
+        #this is a mean square error calculation for checking TObs against TPred
+        TijPred[i,j] = Ai*Oi[i]*Dj[j]*np.exp(-beta*Cij1[i,j])
+        deltaTij = TObs1[i,j] - TijPred[i,j]
         mseTObsTPred+=deltaTij*deltaTij
+        if TijPred[i,j]>0:
+            mseTObsTPredPCT=mseTObsTPredPCT+fabs(TijPred[i,j]-TObs1[i,j])/TijPred[i,j]
+            countTObsTPredPCT=countTObsTPredPCT+1.0
         ##
         dataidx+=1
         if dataidx>=count: break #this was really to allow me to set count=1000 for debugging (also break below)
@@ -298,14 +338,18 @@ for i in range(0,100):
     print("DATA: ",inputs[i,0],inputs[i,1],inputs[i,2],"==>",targets[i,0])
 
 mseTObsTPred/=count
-print("mseTObsTPred=",mseTObsTPred)
+print("mseTObsTPredPCT SUM ",mseTObsTPredPCT)
+mseTObsTPredPCT=mseTObsTPredPCT/countTObsTPredPCT
+print("mseTObsTPred=",mseTObsTPred,"mseTObsTPredPCT=",mseTObsTPredPCT)
+corr = DCorrelation(TObs1,TijPred)
+print("correlation factor TObs1, TijPred = ",corr)
 
 #normalise data
 normaliseInputsMeanSD(inputs,targets)
 
 ##training
-numEpochs = 100 #100 #400
-batchSize = 102400 #10240
+numEpochs = 400 #100 #400
+batchSize = 1024 #102400 #10240
 
 trainLogFilename='KerasGravityANN_'
 trainTimestamp = time.strftime('%Y%m%d_%H%M%S')
@@ -329,12 +373,20 @@ model.save(trainLogFilename+trainTimestamp+'.h5')
 TijANNPred = predictMatrix(TObs1,Cij1)
 #and now the MSE
 mseANN = 0
+abseANN = 0.0
+abseANNCount=0.0
 for i in range(0,N):
     for j in range(0,N):
         delta = TObs1[i,j]-TijANNPred[i,j]
         mseANN+=delta*delta
+        if TijANNPred[i,j]>0:
+            abseANN=abseANN+fabs(TObs1[i,j]-TijANNPred[i,j])/TijANNPred[i,j]
+            abseANNCount=abseANNCount+1.0
 mseANN/=(N*N)
-print("mseANN=",mseANN)
+abseANN=abseANN/abseANNCount
+print("mseANN=",mseANN,"abseANN",abseANN)
+corr = DCorrelation(TObs1,TijANNPred)
+print("corr=",corr)
 ###
 
 #and plot graphically
