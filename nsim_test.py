@@ -253,16 +253,18 @@ model=Sequential()
 #relu or sigmoid or linear?
 #initialisers: normal, random_uniform, truncated_normal, lecun_uniform, lecun_normal, glorot_normal, glorot_uniform, he_normal, he_uniform
 #dtype=float64
-model.add(Dense(64, input_dim=3, kernel_initializer='he_uniform', use_bias=True))
+model.add(Dense(256, input_dim=3, kernel_initializer='he_uniform', use_bias=True))
 #model.add(layers.BatchNormalization())
 model.add(Activation("relu"))
 #model.add(LeakyReLU(alpha=0.3))
 #model.add(Activation("sigmoid"))
-model.add(Dense(64, activation='relu', kernel_initializer='he_uniform', use_bias=True))
-model.add(Dense(64, activation='relu', kernel_initializer='he_uniform', use_bias=True))
-model.add(Dense(64, activation='relu', kernel_initializer='he_uniform', use_bias=True))
-model.add(Dense(64, activation='relu', kernel_initializer='he_uniform', use_bias=True))
-model.add(Dense(64, activation='relu', kernel_initializer='he_uniform', use_bias=True))
+model.add(Dense(256, activation='relu', kernel_initializer='he_uniform', use_bias=True))
+model.add(Dense(256, activation='relu', kernel_initializer='he_uniform', use_bias=True))
+#model.add(Dense(8, activation='relu', kernel_initializer='he_uniform', use_bias=True))
+#model.add(Dense(8, activation='relu', kernel_initializer='he_uniform', use_bias=True))
+#model.add(Dense(8, activation='relu', kernel_initializer='he_uniform', use_bias=True))
+#model.add(Dense(8, activation='relu', kernel_initializer='he_uniform', use_bias=True))
+#model.add(Dense(8, activation='relu', kernel_initializer='he_uniform', use_bias=True))
 #model.add(Dropout(0.2))
 #model.add(Dense(numHiddens[h], activation='relu', kernel_initializer='he_uniform', use_bias=True))
 #model.add(Dropout(0.2))
@@ -272,11 +274,12 @@ model.add(Dense(1, activation='linear'))
 ##logarithmic loss??? https://machinelearningmastery.com/how-to-choose-loss-functions-when-training-deep-learning-neural-networks/
 opt = optimizers.SGD(lr=0.001, momentum=0.0, decay=0.00001) #was momentum=0.9
 #model.compile(loss='mean_squared_logarithmic_error', optimizer=opt, metrics=['mse'])
-model.compile(loss='mean_squared_error', optimizer=opt, metrics=['mse'])
+#model.compile(loss='mean_squared_error', optimizer=opt, metrics=['mse'])
 #model.compile(loss='poisson', optimizer=opt, metrics=['mse']) #won't work with negative values
+model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mse','mae'])
 
 #load model and previous weights here if needed
-#model = tf.keras.models.load_model("KerasGravityANN_20191005_195657.h5")
+#model = tf.keras.models.load_model("KerasGravityANN_20191019_132142.h5")
 #K.set_value(model.optimizer.lr,0.001)
 print('setLearningRate: lr=',K.get_value(model.optimizer.lr))
 ###end loading
