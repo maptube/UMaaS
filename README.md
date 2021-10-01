@@ -11,7 +11,8 @@ This will download the flow files from the Census which are needed for the trips
 build the cost matrices for the model.
 
 Cost matrices require an intensive computation process (shortest paths run on an 8 million node network), so need to be downloaded from here:
-TODO: QUANT1 matrices download from website
+
+https://liveuclac-my.sharepoint.com/:f:/g/personal/ucfnrmi_ucl_ac_uk/ElibF_bQ-LlAhQ6NflfhgfkBpYdF-vcQWIRt0BKSUydxMA?e=ZK7cxw
 
 Later updates are to improve the neural spatial interaction model in line with the problems found in the paper.
 
