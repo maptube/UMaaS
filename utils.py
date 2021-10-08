@@ -53,7 +53,9 @@ NOTE: you will get a LOT of warnings from this - as long as they're for ODxxx or
 """
 def generateTripsMatrix(CSVFilename, ZoneLookup, ColumnNames):
     N = len(ZoneLookup)
-    TijObs = np.zeros(N*N).reshape(N, N) #is this really the best way to create the matrix?
+    print('databuilder.py: generateTripsMatrix N=',N)
+    TijObs = np.zeros(N*N,dtype=np.float32).reshape(N, N) #is this really the best way to create the matrix?
+    #TijObs = np.arange(N*N).reshape(N, N) #this also works, but strangely defaults to float32 whereas above defaults to float64
     for i in range(0,N): #this is basically a hack to absolutely ensure everything is zeroed - above arange sets it to col and row values??????
         for j in range(0,N):
             TijObs[i,j]=0.0
@@ -86,7 +88,7 @@ def generateTripsMatrix(CSVFilename, ZoneLookup, ColumnNames):
             RowR = ZoneLookup.get(ZoneR,'Empty') #could potentially fail if ZoneR or ZoneW didn't exist in the shapefile
             RowW = ZoneLookup.get(ZoneW,'Empty')
             if RowR == 'Empty' or RowW == 'Empty':
-                print("Warning: trip " + ZoneR + " to " + ZoneW + " zones not found - skipped")
+                #print("Warning: trip " + ZoneR + " to " + ZoneW + " zones not found - skipped")
                 continue
             ZoneR_idx = RowR["zonei"]
             ZoneW_idx = RowW["zonei"]
